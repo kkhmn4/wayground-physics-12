@@ -2323,4 +2323,526 @@ body {
     }
 }
 
+/* ===================================================================
+   12. SCIENTIFIC VISUAL BOX IN FEEDBACK OVERLAY (LEARN FROM IMAGES)
+   =================================================================== */
+.feedback-visual-box {
+    width: 100%;
+    max-width: 580px;
+    background: rgba(15, 23, 42, 0.75);
+    border: 1px solid rgba(99, 102, 241, 0.35);
+    border-radius: 16px;
+    padding: 12px 14px;
+    margin: 12px 0 16px 0;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    animation: fadeIn 0.3s ease;
+}
+
+.feedback-img-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+}
+
+.feedback-img-badge {
+    font-size: 12px;
+    font-weight: 700;
+    color: #A5B4FC;
+    letter-spacing: 0.3px;
+}
+
+.btn-zoom-pill {
+    background: rgba(99, 102, 241, 0.2);
+    border: 1px solid rgba(99, 102, 241, 0.4);
+    color: #C7D2FE;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 11.5px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.btn-zoom-pill:hover {
+    background: rgba(99, 102, 241, 0.4);
+    color: white;
+    transform: scale(1.05);
+}
+
+.feedback-img-wrapper {
+    position: relative;
+    width: 100%;
+    max-height: 240px;
+    border-radius: 12px;
+    overflow: hidden;
+    background: #0B0F1E;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: zoom-in;
+}
+
+.feedback-illustration-img {
+    width: 100%;
+    height: auto;
+    max-height: 240px;
+    object-fit: contain;
+    border-radius: 10px;
+    transition: transform 0.25s ease;
+}
+
+.feedback-illustration-img:hover {
+    transform: scale(1.02);
+}
+
+.feedback-img-caption {
+    font-size: 12px;
+    color: var(--text-muted);
+    line-height: 1.4;
+    text-align: center;
+    font-style: italic;
+}
+
+/* ===================================================================
+   13. STUDY MODE BANNER & IN-LINE EXPLANATION
+   =================================================================== */
+.study-mode-banner {
+    background: linear-gradient(90deg, rgba(14, 165, 233, 0.2) 0%, rgba(99, 102, 241, 0.25) 100%);
+    border: 1px solid rgba(56, 189, 248, 0.4);
+    border-radius: 12px;
+    padding: 10px 16px;
+    margin-bottom: 16px;
+    font-size: 13.5px;
+    font-weight: 700;
+    color: #7DD3FC;
+    text-align: center;
+    letter-spacing: 0.3px;
+    box-shadow: 0 4px 14px rgba(14, 165, 233, 0.15);
+    animation: fadeIn 0.4s ease;
+}
+
+.study-timer-calm {
+    background: linear-gradient(90deg, #0EA5E9, #6366F1) !important;
+    box-shadow: 0 0 12px rgba(14, 165, 233, 0.4) !important;
+}
+
+.study-inline-explanation {
+    background: rgba(15, 23, 42, 0.9);
+    border-left: 4px solid #38BDF8;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    border-right: 1px solid rgba(255, 255, 255, 0.08);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 0 14px 14px 0;
+    padding: 16px 20px;
+    margin-top: 18px;
+    animation: fadeIn 0.3s ease;
+}
+
+.study-explain-header {
+    font-size: 12px;
+    font-weight: 800;
+    color: #38BDF8;
+    letter-spacing: 0.5px;
+    margin-bottom: 8px;
+}
+
+.study-explain-content {
+    font-size: 14.5px;
+    line-height: 1.6;
+    color: #E2E8F0;
+}
+
+/* ===================================================================
+   14. QUESTION NAVIGATION BAR & MATRIX DOTS (STUDY MODE)
+   =================================================================== */
+.arena-study-nav {
+    width: 100%;
+    margin-top: 24px;
+    background: rgba(15, 23, 42, 0.85);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 18px;
+    padding: 14px 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+}
+
+.study-nav-main {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.nav-control-btn {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    color: #F8FAFC;
+    padding: 10px 18px;
+    border-radius: 12px;
+    font-size: 13.5px;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: var(--transition);
+}
+
+.nav-control-btn:hover:not(:disabled) {
+    background: rgba(255, 255, 255, 0.16);
+    border-color: rgba(255, 255, 255, 0.3);
+    transform: translateY(-1px);
+}
+
+.nav-control-btn:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.btn-study-next {
+    background: #4F46E5;
+    border-color: #6366F1;
+}
+
+.btn-study-next:hover:not(:disabled) {
+    background: #4338CA;
+    box-shadow: 0 4px 14px rgba(99, 102, 241, 0.4);
+}
+
+.arena-question-dots {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    flex: 1;
+}
+
+.dot-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: #94A3B8;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: var(--transition);
+}
+
+.dot-btn:hover {
+    background: rgba(255, 255, 255, 0.12);
+    color: white;
+    transform: translateY(-2px);
+}
+
+.dot-btn.current {
+    border-color: #38BDF8;
+    background: rgba(14, 165, 233, 0.2);
+    color: #38BDF8;
+    box-shadow: 0 0 12px rgba(56, 189, 248, 0.4);
+    font-weight: 900;
+    transform: scale(1.1);
+}
+
+.dot-btn.answered-correct {
+    background: rgba(16, 185, 129, 0.2);
+    border-color: #10B981;
+    color: #34D399;
+}
+
+.dot-btn.answered-wrong {
+    background: rgba(239, 68, 68, 0.2);
+    border-color: #EF4444;
+    color: #F87171;
+}
+
+.study-nav-actions {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+    padding-top: 12px;
+}
+
+.btn-study-action {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: #CBD5E1;
+    padding: 8px 14px;
+    border-radius: 10px;
+    font-size: 12.5px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: var(--transition);
+}
+
+.btn-study-action:hover {
+    background: rgba(255, 255, 255, 0.12);
+    color: white;
+    transform: translateY(-1px);
+}
+
+.btn-study-action.btn-show-explain {
+    color: #FDE047;
+    border-color: rgba(250, 204, 21, 0.3);
+    background: rgba(250, 204, 21, 0.1);
+}
+
+.btn-study-action.btn-show-explain:hover {
+    background: rgba(250, 204, 21, 0.2);
+}
+
+.btn-study-action.btn-finish-session {
+    color: #6EE7B7;
+    border-color: rgba(16, 185, 129, 0.3);
+    background: rgba(16, 185, 129, 0.1);
+}
+
+.btn-study-action.btn-finish-session:hover {
+    background: rgba(16, 185, 129, 0.2);
+}
+
+/* ===================================================================
+   15. TEACHER SECURITY LOCK SCREEN & PORTAL (TEACHER.HTML)
+   =================================================================== */
+.teacher-portal-body {
+    background: #0A0D18;
+    min-height: 100vh;
+}
+
+.teacher-lock-section {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 75vh;
+    padding: 24px;
+}
+
+.teacher-login-card {
+    background: rgba(20, 26, 45, 0.95);
+    border: 1px solid var(--border-glass);
+    border-radius: 28px;
+    padding: 40px;
+    max-width: 480px;
+    width: 100%;
+    text-align: center;
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.7), 0 0 40px rgba(99, 102, 241, 0.15);
+    backdrop-filter: blur(20px);
+}
+
+.lock-shield-icon {
+    font-size: 54px;
+    margin-bottom: 14px;
+    filter: drop-shadow(0 0 14px rgba(99, 102, 241, 0.6));
+    animation: float 3s ease-in-out infinite;
+}
+
+.lock-title {
+    font-family: var(--font-heading);
+    font-size: 24px;
+    font-weight: 800;
+    color: #F8FAFC;
+    margin-bottom: 10px;
+}
+
+.lock-desc {
+    font-size: 13.5px;
+    color: var(--text-muted);
+    line-height: 1.5;
+    margin-bottom: 24px;
+}
+
+.password-input-wrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.password-input-wrap .text-input {
+    padding-right: 48px;
+}
+
+.btn-pwd-eye {
+    position: absolute;
+    right: 12px;
+    background: transparent;
+    border: none;
+    font-size: 18px;
+    cursor: pointer;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4px;
+    transition: var(--transition);
+}
+
+.btn-pwd-eye:hover {
+    color: white;
+    transform: scale(1.15);
+}
+
+.login-error-alert {
+    background: rgba(239, 68, 68, 0.15);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    color: #FCA5A5;
+    border-radius: 12px;
+    padding: 10px 14px;
+    font-size: 13px;
+    font-weight: 600;
+    margin-top: 14px;
+    text-align: center;
+    animation: fadeIn 0.2s ease;
+}
+
+.btn-unlock {
+    width: 100%;
+    margin-top: 20px;
+    padding: 15px 24px;
+    font-size: 16px;
+    font-weight: 800;
+}
+
+.login-footer-hint {
+    margin-top: 24px;
+    padding-top: 20px;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.hint-pill {
+    display: inline-block;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 12.5px;
+    color: #CBD5E1;
+}
+
+.hint-pill code {
+    background: rgba(99, 102, 241, 0.25);
+    color: #A5B4FC;
+    padding: 2px 8px;
+    border-radius: 6px;
+    font-weight: 700;
+}
+
+.hint-sub {
+    font-size: 11.5px;
+    color: var(--text-muted);
+    margin-top: 8px;
+}
+
+/* Standalone Card in Teacher.html */
+.teacher-dashboard-section {
+    padding: 20px;
+    max-width: 1240px;
+    margin: 0 auto;
+}
+
+.teacher-dashboard-card.standalone-card {
+    max-width: 100%;
+    max-height: none;
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5);
+}
+
+.dashboard-banner-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border-glass);
+}
+
+.teacher-greeting h2 {
+    font-family: var(--font-heading);
+    font-size: 20px;
+    font-weight: 800;
+    color: #F8FAFC;
+    margin: 6px 0 4px 0;
+}
+
+.teacher-greeting p {
+    font-size: 13px;
+    color: var(--text-muted);
+}
+
+.greeting-pill {
+    font-size: 11px;
+    font-weight: 700;
+    color: #10B981;
+    background: rgba(16, 185, 129, 0.15);
+    padding: 3px 10px;
+    border-radius: 12px;
+}
+
+.banner-quick-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+/* Password Prompt Card (Modal in index.html) */
+.teacher-pwd-prompt-card, .change-pwd-card {
+    background: #141A2D;
+    border: 1px solid var(--border-glass);
+    border-radius: 24px;
+    padding: 30px;
+    max-width: 500px;
+    width: 100%;
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.8);
+    animation: fadeIn 0.25s ease;
+}
+
+#modal-teacher-password-prompt {
+    z-index: 2600;
+}
+
+#modal-change-password {
+    z-index: 2700;
+}
+
+.header-link-teacher {
+    text-decoration: none;
+    font-size: 13px;
+    padding: 8px 14px;
+    border-radius: 12px;
+    display: inline-flex;
+    align-items: center;
+}
+
+/* Shake Animation on Wrong Password */
+@keyframes inputShake {
+    0%, 100% { transform: translateX(0); }
+    20%, 60% { transform: translateX(-8px); }
+    40%, 80% { transform: translateX(8px); }
+}
+
+.input-shake {
+    animation: inputShake 0.45s ease-in-out !important;
+    border-color: #EF4444 !important;
+}
+
+
 

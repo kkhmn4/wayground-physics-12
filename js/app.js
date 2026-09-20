@@ -15,7 +15,8 @@ class WaygroundGame {
             questionType: 'all',
             mode: 'all', // 'all', 'basic', 'challenging', 'advanced'
             count: 6,
-            questionTime: 25 // 25 seconds per question
+            questionTime: 25, // 25 seconds per question
+            timerMode: 'timed' // 'timed' or 'unlimited' (Study Mode)
         };
 
         // Student Profile
@@ -29,6 +30,7 @@ class WaygroundGame {
             round: 1, // 1 = Normal, 2 = Remediation
             activeQuestions: [],
             currentIndex: 0,
+            questionStatus: {}, // { [index]: { answered: boolean, isCorrect: boolean } }
             score: 0,
             streak: 0,
             maxStreak: 0,
@@ -120,6 +122,25 @@ class WaygroundGame {
         this.feedbackExplainList = document.getElementById('feedback-explain-list');
         this.btnNext = document.getElementById('btn-next-question');
 
+        // Scientific Visual Box in Feedback Overlay (Học từ hình ảnh & giải thích)
+        this.feedbackVisualBox = document.getElementById('feedback-visual-box');
+        this.feedbackImg = document.getElementById('feedback-img');
+        this.feedbackImgCaption = document.getElementById('feedback-img-caption');
+        this.btnZoomFeedbackImg = document.getElementById('btn-zoom-feedback-img');
+
+        // Study Mode Arena Navigation & Banner
+        this.timerChips = document.querySelectorAll('.timer-chip');
+        this.studyModeBanner = document.getElementById('study-mode-banner');
+        this.studyInlineExplanation = document.getElementById('study-inline-explanation');
+        this.studyExplainContent = document.getElementById('study-explain-content');
+        this.arenaStudyNav = document.getElementById('arena-study-nav');
+        this.btnStudyPrev = document.getElementById('btn-study-prev');
+        this.btnStudyNext = document.getElementById('btn-study-next');
+        this.arenaQuestionDots = document.getElementById('arena-question-dots');
+        this.btnStudyShowExplain = document.getElementById('btn-study-show-explain');
+        this.btnStudyRetry = document.getElementById('btn-study-retry');
+        this.btnStudyFinish = document.getElementById('btn-study-finish');
+
         // Summary Screen
         this.summaryStudentName = document.getElementById('summary-student-name');
         this.summaryScore = document.getElementById('summary-score');
@@ -152,6 +173,16 @@ class WaygroundGame {
         this.imageZoomImg = document.getElementById('image-zoom-img');
         this.imageZoomCaption = document.getElementById('image-zoom-caption');
         this.btnCloseZoomModal = document.getElementById('btn-close-zoom-modal');
+
+        // Teacher Password Authentication Prompt Modal
+        this.modalTeacherPasswordPrompt = document.getElementById('modal-teacher-password-prompt');
+        this.inputPromptPwd = document.getElementById('input-prompt-pwd');
+        this.btnPromptToggleEye = document.getElementById('btn-prompt-toggle-eye');
+        this.promptPwdError = document.getElementById('prompt-pwd-error');
+        this.btnSubmitPromptPwd = document.getElementById('btn-submit-prompt-pwd');
+        this.btnClosePwdPrompt = document.getElementById('btn-close-pwd-prompt');
+        this.formPwdPrompt = document.getElementById('form-pwd-prompt');
+        this.btnOpenTeacherDashNav = document.getElementById('btn-open-teacher-dash');
 
         // Teacher Management Dashboard (Student Roster & Class Analytics)
         this.modalTeacherDashboard = document.getElementById('modal-teacher-dashboard');
@@ -234,6 +265,18 @@ class WaygroundGame {
             });
         });
 
+        // Timer Mode Selection Chips (Study Mode Unlimited vs Timed)
+        if (this.timerChips) {
+            this.timerChips.forEach(chip => {
+                chip.addEventListener('click', () => {
+                    this.timerChips.forEach(c => c.classList.remove('selected'));
+                    chip.classList.add('selected');
+                    this.config.timerMode = chip.dataset.timermode;
+                    soundEngine.playClick();
+                });
+            });
+        }
+
         // Start Game
         this.btnStart.addEventListener('click', () => {
             this.syncStudentProfile();
@@ -254,22 +297,99 @@ class WaygroundGame {
             this.nextQuestion();
         });
 
+        // Study Mode Arena Navigation Actions
+        if (this.btnStudyPrev) {
+            this.btnStudyPrev.addEventListener('click', () => this.studyPrevQuestion());
+        }
+        if (this.btnStudyNext) {
+            this.btnStudyNext.addEventListener('click', () => this.studyNextQuestion());
+        }
+        if (this.btnStudyShowExplain) {
+            this.btnStudyShowExplain.addEventListener('click', () => this.toggleInlineExplanation());
+        }
+        if (this.btnStudyRetry) {
+            this.btnStudyRetry.addEventListener('click', () => this.retryCurrentQuestion());
+        }
+        if (this.btnStudyFinish) {
+            this.btnStudyFinish.addEventListener('click', () => {
+                if (confirm("Bạn có chắc chắn muốn nộp bài và xem bảng điểm tổng kết buổi học không?")) {
+                    this.endRound();
+                }
+            });
+        }
+
+        // Feedback Image Lightbox Zoom Trigger
+        if (this.btnZoomFeedbackImg) {
+            this.btnZoomFeedbackImg.addEventListener('click', () => {
+                const currentQ = this.state.activeQuestions[this.state.currentIndex];
+                const imgSrc = this.feedbackImg?.src || currentQ?.image || '';
+                if (imgSrc) {
+                    this.openImageZoomModal(imgSrc, "🔬 Sơ đồ minh họa kiến thức khoa học SGK");
+                }
+            });
+        }
+        if (this.feedbackImg) {
+            this.feedbackImg.addEventListener('click', () => {
+                const currentQ = this.state.activeQuestions[this.state.currentIndex];
+                const imgSrc = this.feedbackImg?.src || currentQ?.image || '';
+                if (imgSrc) {
+                    this.openImageZoomModal(imgSrc, "🔬 Sơ đồ minh họa kiến thức khoa học SGK");
+                }
+            });
+        }
+
         // Start Round 2 Remediation
         this.btnStartRemediation.addEventListener('click', () => {
             soundEngine.playClick();
             this.startRound(2);
         });
 
-        // Open/Close Teacher Report
+        // Open/Close Teacher Report (Protected by Password Prompt)
         this.btnOpenTeacherReport.addEventListener('click', () => {
             soundEngine.playClick();
-            this.openTeacherReport();
+            this.openTeacherSecurityPrompt(() => {
+                this.openTeacherReport();
+            });
         });
 
         this.btnCloseReport.addEventListener('click', () => {
             soundEngine.playClick();
             this.modalTeacherReport.classList.remove('active');
         });
+
+        // Teacher Password Prompt Modal Events
+        if (this.btnOpenTeacherDashNav) {
+            this.btnOpenTeacherDashNav.addEventListener('click', () => {
+                if (window.soundEngine) soundEngine.playClick();
+                this.openTeacherDashboard();
+            });
+        }
+        if (this.formPwdPrompt) {
+            this.formPwdPrompt.addEventListener('submit', (e) => {
+                e.preventDefault();
+                this.handleTeacherPasswordSubmit();
+            });
+        }
+        if (this.btnSubmitPromptPwd) {
+            this.btnSubmitPromptPwd.addEventListener('click', (e) => {
+                e.preventDefault();
+                this.handleTeacherPasswordSubmit();
+            });
+        }
+        if (this.btnClosePwdPrompt) {
+            this.btnClosePwdPrompt.addEventListener('click', () => {
+                if (this.modalTeacherPasswordPrompt) {
+                    this.modalTeacherPasswordPrompt.classList.remove('active');
+                }
+            });
+        }
+        if (this.btnPromptToggleEye && this.inputPromptPwd) {
+            this.btnPromptToggleEye.addEventListener('click', () => {
+                const isPassword = this.inputPromptPwd.type === 'password';
+                this.inputPromptPwd.type = isPassword ? 'text' : 'password';
+                this.btnPromptToggleEye.textContent = isPassword ? '🙈' : '👁️';
+            });
+        }
 
         // Teacher Management Dashboard Events
         if (this.btnOpenTeacherDashboard) {
@@ -574,10 +694,28 @@ class WaygroundGame {
     }
 
     // =========================================================================
-    // TIMER ENGINE
+    // TIMER & STUDY MODE ENGINE
     // =========================================================================
+    isStudyMode() {
+        return this.config.timerMode === 'unlimited' || this.config.mode === 'basic';
+    }
+
     startTimer() {
         this.stopTimer();
+
+        // In Study Mode: completely bypass countdown (unlimited reading time, no timeout!)
+        if (this.isStudyMode()) {
+            if (this.timerBar) {
+                this.timerBar.style.transform = 'scaleX(1)';
+                this.timerBar.classList.remove('warning');
+                this.timerBar.classList.add('study-timer-calm');
+            }
+            return;
+        }
+
+        if (this.timerBar) {
+            this.timerBar.classList.remove('study-timer-calm');
+        }
         this.state.timeLeft = this.config.questionTime;
         this.state.timerFrozen = false;
         this.updateTimerDisplay();
@@ -616,6 +754,12 @@ class WaygroundGame {
         soundEngine.playWrong();
         const currentQ = this.state.activeQuestions[this.state.currentIndex];
         this.state.missedConcepts.add(currentQ.conceptId);
+
+        // Record status for question dots
+        this.state.questionStatus[this.state.currentIndex] = { answered: true, isCorrect: false };
+        if (this.isStudyMode()) {
+            this.updateStudyDotsStatus();
+        }
 
         this.state.sessionHistory.push({
             round: this.state.round,
@@ -818,7 +962,8 @@ class WaygroundGame {
 
         // Render dedicated scientific textbook image in Vietnamese
         if (this.questionVisualBox) {
-            if (q.image) {
+            const imgSrc = q.image || this.getConceptFallbackImage(q.conceptId);
+            if (imgSrc) {
                 const questionTitle = q.question || q.context || 'Kiến thức cốt lõi SGK';
                 this.questionVisualBox.innerHTML = `
                     <div class="question-image-card">
@@ -827,20 +972,23 @@ class WaygroundGame {
                             <span class="image-card-hint">🔍 Nhấp vào ảnh để phóng to chi tiết</span>
                         </div>
                         <div class="image-wrapper" title="Nhấp vào để xem ảnh phóng to chi tiết">
-                            <img src="${q.image}?v=5.0.0" alt="Hình minh họa chuẩn khoa học" class="question-scientific-img" />
+                            <img src="${imgSrc}?v=6.0.0" alt="Hình minh họa chuẩn khoa học" class="question-scientific-img" />
                         </div>
                     </div>
                 `;
                 const imgWrap = this.questionVisualBox.querySelector('.image-wrapper');
                 if (imgWrap) {
                     imgWrap.addEventListener('click', () => {
-                        this.openImageZoomModal(q.image, questionTitle);
+                        this.openImageZoomModal(imgSrc, questionTitle);
                     });
                 }
             } else if (window.physicsSimulationEngine) {
                 window.physicsSimulationEngine.render(this.questionVisualBox, q.conceptId);
             }
         }
+
+        // Render Study Mode Navigation & Controls
+        this.updateStudyModeUI();
 
         // Render standard physics/math formulas
         this.renderMath(this.screens.arena);
@@ -949,6 +1097,12 @@ class WaygroundGame {
             this.state.missedConcepts.add(q.conceptId);
         }
 
+        // Record status for question dots
+        this.state.questionStatus[this.state.currentIndex] = { answered: true, isCorrect: isCorrect };
+        if (this.isStudyMode()) {
+            this.updateStudyDotsStatus();
+        }
+
         // Record history
         this.state.sessionHistory.push({
             round: this.state.round,
@@ -998,6 +1152,12 @@ class WaygroundGame {
         const isFullCorrect = correctCount === 4;
         if (!isFullCorrect) {
             this.state.missedConcepts.add(q.conceptId);
+        }
+
+        // Record status for question dots
+        this.state.questionStatus[this.state.currentIndex] = { answered: true, isCorrect: isFullCorrect };
+        if (this.isStudyMode()) {
+            this.updateStudyDotsStatus();
         }
 
         const msg = isFullCorrect ? "Xuất sắc! Đúng trọn vẹn 4/4 ý!" : `Đúng ${correctCount}/4 ý. Hãy đọc kĩ giải thích từng ý nhé!`;
@@ -1056,7 +1216,7 @@ class WaygroundGame {
     }
 
     // =========================================================================
-    // FEEDBACK POPUP
+    // FEEDBACK POPUP (WITH SCIENTIFIC VISUAL & EXPLANATION)
     // =========================================================================
     showFeedback(isCorrect, pts, title, resultsList) {
         const reactions = isCorrect ? this.memeReactions.correct : this.memeReactions.wrong;
@@ -1070,6 +1230,36 @@ class WaygroundGame {
             this.feedbackPts.textContent = `+${pts.toLocaleString()} Điểm! (${reaction.text})`;
         } else {
             this.feedbackPts.textContent = reaction.text;
+        }
+
+        // Render Dedicated Scientific Visual Box (Học sinh học từ hình ảnh trực quan)
+        const currentQ = this.state.activeQuestions[this.state.currentIndex];
+        if (this.feedbackVisualBox && this.feedbackImg && currentQ) {
+            const imgSrc = currentQ.image || this.getConceptFallbackImage(currentQ.conceptId);
+            if (imgSrc) {
+                this.feedbackImg.src = `${imgSrc}?v=6.0.0`;
+                this.feedbackVisualBox.style.display = 'flex';
+
+                const captionText = currentQ.scenarioLead 
+                    || (currentQ.context ? currentQ.context.substring(0, 110) + '...' : '') 
+                    || currentQ.question 
+                    || "Sơ đồ và đồ thị nhiệt học chuẩn SGK Vật Lí 12";
+
+                if (this.feedbackImgCaption) {
+                    this.feedbackImgCaption.innerHTML = `<strong>🔬 Minh họa khoa học trực quan:</strong> ${captionText}`;
+                }
+
+                // Wire zoom button and direct image click to light-box
+                const openZoom = () => {
+                    this.openImageZoomModal(imgSrc, `🔬 Sơ đồ minh họa: ${captionText}`);
+                };
+                if (this.btnZoomFeedbackImg) {
+                    this.btnZoomFeedbackImg.onclick = openZoom;
+                }
+                this.feedbackImg.onclick = openZoom;
+            } else {
+                this.feedbackVisualBox.style.display = 'none';
+            }
         }
 
         // Render explanation list
@@ -1089,6 +1279,9 @@ class WaygroundGame {
 
     hideFeedback() {
         this.feedbackOverlay.classList.remove('active');
+        if (this.isStudyMode()) {
+            this.updateStudyModeUI();
+        }
     }
 
     nextQuestion() {
@@ -1415,7 +1608,257 @@ class WaygroundGame {
         return demoRecords;
     }
 
+    // =========================================================================
+    // STUDY MODE NAVIGATION & INTERACTION ENGINE
+    // =========================================================================
+    getConceptFallbackImage(conceptId) {
+        if (!conceptId) return 'images/temp_molecular_speed.jpg';
+        const cid = conceptId.toLowerCase();
+
+        // Unit 1: Kinetic Molecular Theory & States of Matter
+        if (cid.includes('mo_hinh') || cid.includes('khoang_cach')) return 'images/gas_molecular_distance.jpg';
+        if (cid.includes('brown')) return 'images/brownian_motion.jpg';
+        if (cid.includes('luc_tuong_tac')) return 'images/intermolecular_forces_r0.jpg';
+        if (cid.includes('dac_diem') || cid.includes('the_chat')) return 'images/three_states_matter.jpg';
+        if (cid.includes('tinh_the') || cid.includes('huong')) return 'images/crystal_vs_amorphous.jpg';
+        if (cid.includes('tuyet_tan')) return 'images/snow_melting_cold.jpg';
+        if (cid.includes('bay_hoi')) return 'images/evaporation_factors.jpg';
+        if (cid.includes('ngung_tu')) return 'images/dew_condensation.jpg';
+        if (cid.includes('chuyen_the') || cid.includes('soi')) return 'images/phase_transition_diagram.jpg';
+        if (cid.includes('ap_suat')) return 'images/pressure_cooker_boiling.jpg';
+
+        // Unit 2: Internal Energy & First Law of Thermodynamics
+        if (cid.includes('dinh_nghia_noi_nang') || cid.includes('phu_thuoc_noi_nang') || cid.includes('khi_ly_tuong')) return 'images/internal_energy_real_ideal.jpg';
+        if (cid.includes('cac_cach_doi') || cid.includes('ban_chat_nhiet')) return 'images/change_internal_energy.jpg';
+        if (cid.includes('dl1') || cid.includes('quy_uoc') || cid.includes('delta_u')) return 'images/dl1_thermodynamics_piston.jpg';
+        if (cid.includes('dang_ap') || cid.includes('cong_dan')) return 'images/isobaric_work_pv.jpg';
+        if (cid.includes('dang_tich')) return 'images/isochoric_process.jpg';
+        if (cid.includes('doan_nhiet')) return 'images/adiabatic_spray.jpg';
+        if (cid.includes('bom_xe')) return 'images/bicycle_pump_heating.jpg';
+        if (cid.includes('dong_co')) return 'images/heat_engine_principle.jpg';
+
+        // Unit 3: Temperature Scales & Measurement
+        if (cid.includes('can_bang_nhiet') || cid.includes('chieu_truyen')) return 'images/thermal_equilibrium.jpg';
+        if (cid.includes('kelvin') || cid.includes('fahrenheit') || cid.includes('celsius')) return 'images/kelvin_celsius_scale.jpg';
+        if (cid.includes('tuyet_doi')) return 'images/absolute_zero_kelvin.jpg';
+        if (cid.includes('sat_go') || cid.includes('dan_nhiet')) return 'images/iron_wood_conduction.jpg';
+        if (cid.includes('y_te')) return 'images/clinical_thermometer.jpg';
+        if (cid.includes('cac_loai_nhiet_ke') || cid.includes('nguyen_ly')) return 'images/thermometer_types.jpg';
+        if (cid.includes('thang_nhiet')) return 'images/three_temperature_scales.jpg';
+        if (cid.includes('diem_ba')) return 'images/triple_point_water.jpg';
+        if (cid.includes('thuy_ngan')) return 'images/mercury_spill_safety.jpg';
+
+        if (cid.startsWith('c_u1')) return 'images/three_states_matter.jpg';
+        if (cid.startsWith('c_u2')) return 'images/dl1_thermodynamics_piston.jpg';
+        if (cid.startsWith('c_u3')) return 'images/kelvin_celsius_scale.jpg';
+        return 'images/internal_energy_real_ideal.jpg';
+    }
+
+    updateStudyModeUI() {
+        const isStudy = this.isStudyMode();
+        if (this.studyModeBanner) {
+            this.studyModeBanner.style.display = isStudy ? 'block' : 'none';
+        }
+        if (this.arenaStudyNav) {
+            this.arenaStudyNav.style.display = isStudy ? 'flex' : 'none';
+        }
+        if (this.studyInlineExplanation) {
+            this.studyInlineExplanation.style.display = 'none';
+        }
+
+        if (!isStudy) return;
+
+        // Update Prev / Next buttons state
+        if (this.btnStudyPrev) {
+            this.btnStudyPrev.disabled = this.state.currentIndex <= 0;
+        }
+        if (this.btnStudyNext) {
+            const isLast = this.state.currentIndex >= this.state.activeQuestions.length - 1;
+            this.btnStudyNext.innerHTML = isLast ? '<span>Hoàn Thành 🏁</span>' : '<span>Câu Tiếp ➡️</span>';
+        }
+
+        // Render Question Dots matrix
+        if (this.arenaQuestionDots) {
+            this.arenaQuestionDots.innerHTML = '';
+            this.state.activeQuestions.forEach((_, idx) => {
+                const dot = document.createElement('button');
+                dot.type = 'button';
+                dot.className = 'dot-btn';
+                dot.textContent = idx + 1;
+                dot.title = `Chuyển tới câu ${idx + 1}`;
+
+                if (idx === this.state.currentIndex) {
+                    dot.classList.add('current');
+                }
+                const st = this.state.questionStatus && this.state.questionStatus[idx];
+                if (st && st.answered) {
+                    if (st.isCorrect) {
+                        dot.classList.add('answered-correct');
+                    } else {
+                        dot.classList.add('answered-wrong');
+                    }
+                }
+
+                dot.addEventListener('click', () => {
+                    soundEngine.playClick();
+                    this.jumpToQuestion(idx);
+                });
+
+                this.arenaQuestionDots.appendChild(dot);
+            });
+        }
+    }
+
+    updateStudyDotsStatus() {
+        if (!this.arenaQuestionDots) return;
+        const dots = this.arenaQuestionDots.querySelectorAll('.dot-btn');
+        dots.forEach((dot, idx) => {
+            dot.classList.toggle('current', idx === this.state.currentIndex);
+            const st = this.state.questionStatus && this.state.questionStatus[idx];
+            if (st && st.answered) {
+                dot.classList.toggle('answered-correct', !!st.isCorrect);
+                dot.classList.toggle('answered-wrong', !st.isCorrect);
+            }
+        });
+    }
+
+    jumpToQuestion(targetIndex) {
+        if (targetIndex < 0 || targetIndex >= this.state.activeQuestions.length) return;
+        this.stopTimer();
+        this.state.currentIndex = targetIndex;
+        this.loadCurrentQuestion();
+    }
+
+    studyPrevQuestion() {
+        if (this.state.currentIndex > 0) {
+            soundEngine.playClick();
+            this.jumpToQuestion(this.state.currentIndex - 1);
+        }
+    }
+
+    studyNextQuestion() {
+        if (this.state.currentIndex < this.state.activeQuestions.length - 1) {
+            soundEngine.playClick();
+            this.jumpToQuestion(this.state.currentIndex + 1);
+        } else {
+            if (confirm("Bạn đã xem hết các câu hỏi! Bạn có muốn nộp bài và xem bảng điểm tổng kết không?")) {
+                this.endRound();
+            }
+        }
+    }
+
+    toggleInlineExplanation() {
+        if (!this.studyInlineExplanation) return;
+        soundEngine.playClick();
+        const isHidden = this.studyInlineExplanation.style.display === 'none' || !this.studyInlineExplanation.style.display;
+        if (isHidden) {
+            const q = this.state.activeQuestions[this.state.currentIndex];
+            let expHtml = '';
+            if (q.type === 'multiple_choice') {
+                expHtml = `
+                    <div style="margin-bottom:8px;"><strong>Đáp án đúng:</strong> <span class="badge-tag-pass">${['A','B','C','D'][q.correct]}. ${q.options[q.correct]}</span></div>
+                    <div><strong>Giải thích chi tiết:</strong> ${q.explanation || 'Đọc kĩ các định luật và công thức liên quan trong SGK.'}</div>
+                `;
+            } else if (q.type === 'multi_tf') {
+                expHtml = q.statements.map(s => `
+                    <div style="margin-bottom:8px; padding:8px 12px; background:rgba(255,255,255,0.04); border-radius:8px;">
+                        <strong>Ý (${s.label}) [${s.isTrue ? '<span style="color:#34D399;">ĐÚNG</span>' : '<span style="color:#F87171;">SAI</span>'}]:</strong> ${s.explanation}
+                    </div>
+                `).join('');
+            }
+            if (this.studyExplainContent) {
+                this.studyExplainContent.innerHTML = expHtml;
+            }
+            this.studyInlineExplanation.style.display = 'block';
+            this.renderMath(this.studyInlineExplanation);
+        } else {
+            this.studyInlineExplanation.style.display = 'none';
+        }
+    }
+
+    retryCurrentQuestion() {
+        soundEngine.playClick();
+        if (this.studyInlineExplanation) {
+            this.studyInlineExplanation.style.display = 'none';
+        }
+        if (this.state.questionStatus) {
+            delete this.state.questionStatus[this.state.currentIndex];
+        }
+        this.loadCurrentQuestion();
+    }
+
+    // =========================================================================
+    // TEACHER SECURITY & PASSWORD AUTHENTICATION ENGINE
+    // =========================================================================
+    isTeacherAuthenticated() {
+        return sessionStorage.getItem('wayground_teacher_auth') === 'true';
+    }
+
+    openTeacherSecurityPrompt(onSuccess) {
+        if (this.isTeacherAuthenticated()) {
+            if (onSuccess) onSuccess();
+            return;
+        }
+
+        this.teacherAuthCallback = onSuccess;
+        if (this.modalTeacherPasswordPrompt) {
+            if (this.inputPromptPwd) this.inputPromptPwd.value = '';
+            if (this.promptPwdError) this.promptPwdError.style.display = 'none';
+            this.modalTeacherPasswordPrompt.classList.add('active');
+            setTimeout(() => this.inputPromptPwd?.focus(), 150);
+        } else {
+            const pwd = prompt("Nhập mật khẩu giáo viên để truy cập (mặc định: giaovien12):");
+            const realPwd = localStorage.getItem('wayground_teacher_pwd') || 'giaovien12';
+            if (pwd === realPwd) {
+                sessionStorage.setItem('wayground_teacher_auth', 'true');
+                if (onSuccess) onSuccess();
+            } else if (pwd !== null) {
+                alert("Mật khẩu không chính xác!");
+            }
+        }
+    }
+
+    verifyTeacherPassword(enteredPassword) {
+        const correctPassword = localStorage.getItem('wayground_teacher_pwd') || 'giaovien12';
+        return (enteredPassword || '').trim() === correctPassword.trim();
+    }
+
+    handleTeacherPasswordSubmit() {
+        const entered = this.inputPromptPwd ? this.inputPromptPwd.value : '';
+        if (this.verifyTeacherPassword(entered)) {
+            sessionStorage.setItem('wayground_teacher_auth', 'true');
+            if (this.modalTeacherPasswordPrompt) {
+                this.modalTeacherPasswordPrompt.classList.remove('active');
+            }
+            if (window.soundEngine) soundEngine.playCorrect();
+            if (this.teacherAuthCallback) {
+                const cb = this.teacherAuthCallback;
+                this.teacherAuthCallback = null;
+                cb();
+            } else {
+                this.openTeacherDashboardDirect();
+            }
+        } else {
+            if (window.soundEngine) soundEngine.playWrong();
+            if (this.promptPwdError) {
+                this.promptPwdError.style.display = 'block';
+            }
+            const card = this.modalTeacherPasswordPrompt?.querySelector('.teacher-pwd-prompt-card');
+            if (card) {
+                card.classList.add('shake-anim');
+                setTimeout(() => card.classList.remove('shake-anim'), 600);
+            }
+            this.inputPromptPwd?.focus();
+        }
+    }
+
     openTeacherDashboard() {
+        this.openTeacherSecurityPrompt(() => {
+            this.openTeacherDashboardDirect();
+        });
+    }
+
+    openTeacherDashboardDirect() {
         if (!this.modalTeacherDashboard) return;
         this.renderTeacherDashboard();
         this.modalTeacherDashboard.classList.add('active');

@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
+    <meta name="theme-color" content="#0A0D18">
+    <title>Cổng Giáo Viên Quản Lý Học Sinh • Wayground Physics 12</title>
+    <meta name="description" content="Trang quản lý riêng biệt dành cho Giáo viên bộ môn Vật lí 12 - Quản lý bảng điểm, xếp loại, theo dõi lỗ hổng kiến thức và xuất dữ liệu Excel.">
+    
+    <!-- Google Fonts: Lexend & Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Lexend:wght@400;500;600;700;800;900&display=swap&subset=vietnamese" rel="stylesheet">
+
+    <!-- KaTeX for Physics Formula Rendering -->
+    <link rel="stylesheet" href="lib/katex/katex.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+
+    <!-- Main App Stylesheet -->
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="teacher-portal-body">
+
+    <!-- Background Animated Glow Orbs -->
+    <div class="bg-glow-orbs">
+        <div class="glow-orb glow-orb-1"></div>
+        <div class="glow-orb glow-orb-2"></div>
+    </div>
+
+    <!-- Teacher Portal Header -->
+    <header class="app-header teacher-header">
+        <div class="brand-badge">
+            <div class="brand-logo-icon">🎓</div>
+            <div class="brand-text">
+                <h1>WAYGROUND TEACHER</h1>
+                <span>Cổng Giáo Viên Quản Lý Học Sinh • Vật Lí 12</span>
+            </div>
+        </div>
+        <div class="header-controls">
+            <a href="index.html" class="dash-btn btn-secondary header-link-btn" title="Chuyển sang màn hình làm bài của học sinh">
+                <span>🎮 Đấu Trường Học Sinh</span>
+            </a>
+            <button id="btn-header-change-pwd" class="dash-btn btn-secondary" style="display: none;" title="Thay đổi mật khẩu đăng nhập giáo viên">
+                <span>🔑 Đổi Mật Khẩu</span>
+            </button>
+            <button id="btn-header-logout" class="dash-btn btn-danger" style="display: none;" title="Khóa bảng quản lý và đăng xuất">
+                <span>🔒 Khóa / Đăng Xuất</span>
+            </button>
+            <button id="btn-toggle-sound" class="icon-btn" title="Bật/Tắt âm thanh">🔊</button>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="main-wrapper teacher-main-wrapper">
+
+        <!-- =========================================================
+             SECTION A: TEACHER SECURITY LOGIN / LOCK SCREEN
+             ========================================================= -->
+        <section id="section-teacher-login" class="teacher-lock-section">
+            <div class="teacher-login-card">
+                <div class="lock-shield-icon">🔒</div>
+                <h2 class="lock-title">Xác Thực Quyền Giáo Viên</h2>
+                <p class="lock-desc">Khu vực bảo mật chứa bảng điểm, xếp loại và phân tích năng lực học sinh các lớp 12. Vui lòng nhập mật khẩu quản trị để tiếp tục.</p>
+
+                <form id="form-teacher-login" class="teacher-login-form" onsubmit="return false;">
+                    <div class="login-field-group">
+                        <label for="teacher-pwd-input">Mật Khẩu Quản Lý Giáo Viên:</label>
+                        <div class="password-input-wrap">
+                            <input type="password" id="teacher-pwd-input" class="text-input" placeholder="Nhập mật khẩu giáo viên..." autocomplete="current-password" autofocus />
+                            <button type="button" id="btn-toggle-pwd-visibility" class="btn-pwd-eye" title="Hiện/Ẩn mật khẩu">👁️</button>
+                        </div>
+                    </div>
+
+                    <div id="login-error-msg" class="login-error-alert" style="display: none;">
+                        <span>⚠️ Mật khẩu không chính xác! Vui lòng thử lại.</span>
+                    </div>
+
+                    <button type="submit" id="btn-submit-login" class="cta-button btn-primary btn-unlock">
+                        <span>Mở Khóa Bảng Quản Trị</span>
+                        <span>🔓</span>
+                    </button>
+                </form>
+
+                <div class="login-footer-hint">
+                    <div class="hint-pill">
+                        💡 <strong>Mật khẩu mặc định:</strong> <code>giaovien12</code>
+                    </div>
+                    <p class="hint-sub">Thầy/Cô có thể đổi mật khẩu bất kỳ lúc nào tại thanh công cụ sau khi đăng nhập.</p>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- =========================================================
+             SECTION B: TEACHER MANAGEMENT DASHBOARD (UNLOCKED)
+             ========================================================= -->
+        <section id="section-teacher-dashboard" class="teacher-dashboard-section" style="display: none;">
+            <div class="teacher-dashboard-card standalone-card">
+                
+                <!-- Dashboard Welcome Banner -->
+                <div class="dashboard-banner-bar">
+                    <div class="teacher-greeting">
+                        <span class="greeting-pill">🌟 Phiên Làm Việc Quản Trị</span>
+                        <h2>Bảng Tổng Hợp Kết Quả & Phân Tích Lớp Học</h2>
+                        <p>Theo dõi năng lực học sinh theo từng lớp, kiểm tra chi tiết bài làm và xuất bảng điểm chính thức môn Vật Lí 12.</p>
+                    </div>
+                    <div class="banner-quick-actions">
+                        <button id="btn-tp-export-csv" class="dash-btn btn-export" title="Xuất toàn bộ bảng điểm lớp ra file Excel/CSV">
+                            <span>📥 Xuất Bảng Điểm CSV (Excel)</span>
+                        </button>
+                        <button id="btn-tp-seed-demo" class="dash-btn btn-secondary" title="Nạp lại 6 bài làm mẫu để kiểm tra tính năng">
+                            <span>🔄 Nạp Demo Lớp 12</span>
+                        </button>
+                        <button id="btn-tp-clear-data" class="dash-btn btn-danger" title="Xóa toàn bộ lịch sử nộp bài">
+                            <span>🗑️ Xóa Lịch Sử</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- KPI Metric Cards Grid -->
+                <div class="dash-kpi-grid">
+                    <div class="dash-kpi-box">
+                        <div class="dash-kpi-label">Tổng Lượt Nộp Bài</div>
+                        <div class="dash-kpi-val" id="tp-total-submissions">0</div>
+                        <div class="dash-kpi-sub">Lượt học sinh hoàn thành</div>
+                    </div>
+                    <div class="dash-kpi-box">
+                        <div class="dash-kpi-label">Điểm Trung Bình</div>
+                        <div class="dash-kpi-val highlight-gold" id="tp-avg-score">0</div>
+                        <div class="dash-kpi-sub">Toàn bộ danh sách lọc</div>
+                    </div>
+                    <div class="dash-kpi-box">
+                        <div class="dash-kpi-label">Độ Chính Xác TB</div>
+                        <div class="dash-kpi-val highlight-green" id="tp-avg-accuracy">0%</div>
+                        <div class="dash-kpi-sub">Tỉ lệ câu trả lời đúng</div>
+                    </div>
+                    <div class="dash-kpi-box">
+                        <div class="dash-kpi-label">Củng Cố Vòng 2</div>
+                        <div class="dash-kpi-val highlight-blue" id="tp-remediation-count">0</div>
+                        <div class="dash-kpi-sub">Lượt khắc phục câu sai</div>
+                    </div>
+                </div>
+
+                <!-- Filter & Search Bar -->
+                <div class="dash-controls-bar">
+                    <div class="dash-filter-group">
+                        <div class="dash-input-wrap">
+                            <label for="tp-filter-class">Lớp:</label>
+                            <select id="tp-filter-class" class="dash-select">
+                                <option value="all">Tất Cả Các Lớp</option>
+                            </select>
+                        </div>
+                        <div class="dash-input-wrap">
+                            <label for="tp-filter-mode">Mức Độ:</label>
+                            <select id="tp-filter-mode" class="dash-select">
+                                <option value="all">Tất Cả Mức Độ</option>
+                                <option value="basic">Cơ Bản (Học Bài)</option>
+                                <option value="challenging">Thử Thách (Tư Duy)</option>
+                                <option value="advanced">Nâng Cao (Thực Tế Sâu)</option>
+                            </select>
+                        </div>
+                        <div class="dash-input-wrap dash-search-wrap">
+                            <input type="text" id="tp-search-student" class="dash-input" placeholder="🔍 Tìm học sinh theo tên..." />
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Student Submissions Roster Table -->
+                <div class="dash-section-title">
+                    <span>📋 Danh Sách Điểm & Bài Làm Của Học Sinh</span>
+                    <span class="table-count-badge" id="tp-table-count">0 học sinh</span>
+                </div>
+                <div class="dash-table-wrapper">
+                    <table class="dash-table">
+                        <thead>
+                            <tr>
+                                <th>STT</th>
+                                <th>Họ và Tên</th>
+                                <th>Lớp</th>
+                                <th>Thời Gian Nộp</th>
+                                <th>Mức Độ</th>
+                                <th>Điểm Số</th>
+                                <th>Đúng / Tổng</th>
+                                <th>Chính Xác</th>
+                                <th>Xếp Loại</th>
+                                <th>Lượt</th>
+                                <th>Thao Tác</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tp-students-table-body">
+                            <!-- Dynamic Rows -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Class Diagnostic Error Insights -->
+                <div class="dash-insights-card">
+                    <div class="insights-header">
+                        <span>💡 Phân Tích Lỗ Hổng Kiến Thức Cả Lớp (Top Khái Niệm Hay Bị Sai Nhiều Nhất)</span>
+                    </div>
+                    <div id="tp-insights-list" class="insights-list">
+                        <!-- Dynamic insights items -->
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+
+    <!-- =========================================================
+         MODAL 1: STUDENT QUESTION-BY-QUESTION REPORT DETAIL
+         ========================================================= -->
+    <div id="modal-teacher-report" class="modal-overlay">
+        <div class="report-modal-card">
+            <div class="report-header">
+                <div class="report-title-group">
+                    <span class="report-icon">📑</span>
+                    <div>
+                        <h3>Chi Tiết Bài Làm Từng Câu Của Học Sinh</h3>
+                        <p>Đối chiếu câu hỏi trắc nghiệm ABCD và Đúng/Sai chuẩn Bộ GD&ĐT</p>
+                    </div>
+                </div>
+                <button id="btn-close-report" class="icon-btn" title="Đóng">✖️</button>
+            </div>
+
+            <div class="report-meta-grid">
+                <div class="report-meta-box">
+                    <span>Học Sinh:</span>
+                    <strong id="rep-student-name">-</strong>
+                </div>
+                <div class="report-meta-box">
+                    <span>Lớp:</span>
+                    <strong id="rep-student-class">-</strong>
+                </div>
+                <div class="report-meta-box">
+                    <span>Tổng Điểm:</span>
+                    <strong id="rep-total-score">0</strong>
+                </div>
+                <div class="report-meta-box">
+                    <span>Độ Chính Xác:</span>
+                    <strong id="rep-accuracy">0%</strong>
+                </div>
+            </div>
+
+            <div class="report-table-wrapper">
+                <table class="report-table">
+                    <thead>
+                        <tr>
+                            <th>STT / Ý</th>
+                            <th>Nội Dung Câu Hỏi & Mệnh Đề</th>
+                            <th>Học Sinh Chọn</th>
+                            <th>Trạng Thái</th>
+                            <th>Điểm</th>
+                        </tr>
+                    </thead>
+                    <tbody id="report-table-body">
+                        <!-- Dynamic Question Items -->
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="report-actions">
+                <button id="btn-export-single-csv" class="cta-button btn-primary" style="width: auto; padding: 12px 20px; font-size: 14px;">
+                    <span>Tải Báo Cáo Học Sinh (CSV)</span>
+                    <span>📥</span>
+                </button>
+                <button id="btn-print-report" class="cta-button btn-secondary" style="width: auto; padding: 12px 20px; font-size: 14px;">
+                    <span>In / Lưu PDF</span>
+                    <span>🖨️</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- =========================================================
+         MODAL 2: CHANGE TEACHER PASSWORD MODAL
+         ========================================================= -->
+    <div id="modal-change-password" class="modal-overlay">
+        <div class="change-pwd-card">
+            <div class="report-header">
+                <div class="report-title-group">
+                    <span class="report-icon">🔑</span>
+                    <div>
+                        <h3>Thay Đổi Mật Khẩu Giáo Viên</h3>
+                        <p>Cập nhật mật khẩu quản trị mới để bảo vệ dữ liệu học sinh</p>
+                    </div>
+                </div>
+                <button id="btn-close-change-pwd" class="icon-btn" title="Đóng">✖️</button>
+            </div>
+
+            <form id="form-change-pwd" onsubmit="return false;" style="margin-top: 16px;">
+                <div class="input-field-group">
+                    <label for="input-current-pwd">Mật Khẩu Hiện Tại:</label>
+                    <input type="password" id="input-current-pwd" class="text-input" placeholder="Nhập mật khẩu hiện tại..." />
+                </div>
+                <div class="input-field-group" style="margin-top: 14px;">
+                    <label for="input-new-pwd">Mật Khẩu Mới:</label>
+                    <input type="password" id="input-new-pwd" class="text-input" placeholder="Tối thiểu 4 ký tự..." />
+                </div>
+                <div class="input-field-group" style="margin-top: 14px;">
+                    <label for="input-confirm-pwd">Xác Nhận Mật Khẩu Mới:</label>
+                    <input type="password" id="input-confirm-pwd" class="text-input" placeholder="Nhập lại mật khẩu mới..." />
+                </div>
+
+                <div id="change-pwd-msg" class="login-error-alert" style="display: none; margin-top: 14px;"></div>
+
+                <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 24px;">
+                    <button type="button" id="btn-cancel-change-pwd" class="dash-btn btn-secondary">Hủy Bỏ</button>
+                    <button type="submit" id="btn-submit-new-pwd" class="dash-btn btn-export">
+                        <span>Lưu Mật Khẩu Mới</span>
+                        <span>💾</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- KaTeX Scripts -->
+    <script src="lib/katex/katex.min.js"></script>
+    <script src="lib/katex/auto-render.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+
+    <!-- Portal Scripts -->
+    <script src="js/audio.js"></script>
+    <script src="js/teacher_portal.js"></script>
+
+</body>
+</html>

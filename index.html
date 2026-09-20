@@ -37,11 +37,13 @@
                 <h1>WAYGROUND</h1>
                 <span>Vật Lí 12 • GDPT 2018</span>
             </div>
-        </div>
         <div class="header-controls">
-            <button id="btn-open-teacher-dashboard" class="btn-teacher-portal" title="Mở Bảng Điều Khiển Quản Lý Giáo Viên">
-                <span>🎓 Quản Lý Học Sinh</span>
+            <button id="btn-open-teacher-dashboard" class="btn-teacher-portal" title="Mở Cổng Quản Lý Giáo Viên (Yêu cầu mật khẩu)">
+                <span>🎓 Cổng Giáo Viên (Khóa Mã)</span>
             </button>
+            <a href="teacher.html" class="dash-btn btn-secondary header-link-teacher" title="Mở trang Cổng Giáo Viên độc lập">
+                <span>🔗 Link Riêng</span>
+            </a>
             <button id="btn-toggle-sound" class="icon-btn" title="Bật/Tắt âm thanh" aria-label="Toggle Sound">🔊</button>
         </div>
     </header>
@@ -61,10 +63,10 @@
                 </div>
 
                 <!-- Teacher Quick Access Banner -->
-                <div class="teacher-quick-banner" id="banner-teacher-portal" title="Nhấp để mở Bảng Điều Khiển Giáo Viên">
+                <div class="teacher-quick-banner" id="banner-teacher-portal" title="Nhấp để xác thực mật khẩu mở Bảng Giáo Viên">
                     <div class="banner-badge-icon">🎓</div>
                     <div class="banner-text">
-                        <strong>Dành Cho Giáo Viên:</strong> Nhấp vào đây để xem <strong>Bảng Quản Lý Học Sinh, Điểm Số & Lỗ Hổng Kiến Thức Cả Lớp</strong>
+                        <strong>Dành Cho Giáo Viên:</strong> Nhấp vào đây để mở <strong>Bảng Quản Lý Học Sinh & Điểm Số (Yêu cầu Mật khẩu Bảo mật)</strong>
                     </div>
                     <span class="banner-arrow">➔</span>
                 </div>
@@ -148,18 +150,11 @@
                 <div class="config-group">
                     <h3 class="group-title">⚡ 3. Chọn Mức Độ & Chế Độ Học Tập</h3>
                     <div class="pill-grid">
-                        <div class="select-card mode-card active" data-mode="all">
-                            <div class="select-card-icon">🌟</div>
+                        <div class="select-card mode-card active" data-mode="basic">
+                            <div class="select-card-icon">📖</div>
                             <div class="select-card-info">
-                                <h4>Tất Cả Mức Độ</h4>
-                                <p>Tổng hợp toàn diện Chương 1</p>
-                            </div>
-                        </div>
-                        <div class="select-card mode-card" data-mode="basic">
-                            <div class="select-card-icon">🌱</div>
-                            <div class="select-card-info">
-                                <h4>Cơ Bản (Học Bài)</h4>
-                                <p>Định nghĩa & Nhận biết cốt lõi</p>
+                                <h4>Chế Độ Học Tập (Cơ Bản)</h4>
+                                <p>Không tính giờ • Đọc tự do & Tự điều khiển</p>
                             </div>
                         </div>
                         <div class="select-card mode-card" data-mode="challenging">
@@ -176,12 +171,32 @@
                                 <p>Vận dụng cao & Suy luận thực tế</p>
                             </div>
                         </div>
+                        <div class="select-card mode-card" data-mode="all">
+                            <div class="select-card-icon">🌟</div>
+                            <div class="select-card-info">
+                                <h4>Tất Cả Mức Độ</h4>
+                                <p>Tổng hợp toàn diện Chương 1</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Config: Chế Độ Thời Gian & Điều Khiển -->
+                <div class="config-group">
+                    <h3 class="group-title">⏱️ 4. Chế Độ Thời Gian & Điều Khiển Câu Hỏi</h3>
+                    <div class="btn-toggle-row">
+                        <div class="toggle-chip timer-chip active" data-timer="unlimited">
+                            📖 Không Tính Giờ (Học Tập & Tự Do Đọc)
+                        </div>
+                        <div class="toggle-chip timer-chip" data-timer="timed">
+                            ⚡ Đếm Ngược 25 Giây (Thi Đấu Đấu Trường)
+                        </div>
                     </div>
                 </div>
 
                 <!-- Config: Số Lượng Câu -->
                 <div class="config-group">
-                    <h3 class="group-title">⏱️ 4. Số Lượng Câu Hỏi</h3>
+                    <h3 class="group-title">🎯 5. Số Lượng Câu Hỏi</h3>
                     <div class="btn-toggle-row">
                         <div class="toggle-chip count-chip active" data-count="6">⚡ 6 Câu (Nhanh)</div>
                         <div class="toggle-chip count-chip" data-count="10">🏆 10 Câu (Chuẩn)</div>
@@ -208,6 +223,11 @@
                 <!-- Remediation Round 2 Indicator Banner -->
                 <div id="remediation-banner" class="remediation-banner">
                     🔥 Vòng 2: Củng cố các lỗ hổng kiến thức đã sai ở lượt 1
+                </div>
+
+                <!-- Study Mode Indicator Banner -->
+                <div id="study-mode-banner" class="study-mode-banner" style="display: none;">
+                    <span>📖 CHẾ ĐỘ HỌC TẬP • KHÔNG TÍNH GIỜ • ĐỌC TỰ DO & TOÀN QUYỀN ĐIỀU KHIỂN CÂU HỎI</span>
                 </div>
 
                 <!-- HUD Status Bar -->
@@ -247,6 +267,14 @@
                     <!-- Scenario / General Lead-in (for True/False questions) -->
                     <div id="question-scenario-lead" class="question-scenario-lead" style="display: none;"></div>
                     <h3 id="question-text" class="question-text">Đang tải câu hỏi...</h3>
+
+                    <!-- Inline In-Depth Theory & Explanation Box (for Study Mode) -->
+                    <div id="study-inline-explanation" class="study-inline-explanation" style="display: none;">
+                        <div class="study-explain-header">
+                            <span>💡 BẢN CHẤT VẬT LÍ & GIẢI THÍCH CHI TIẾT (CHUẨN SGK GDPT 2018)</span>
+                        </div>
+                        <div id="study-explain-content" class="study-explain-content"></div>
+                    </div>
                 </div>
 
                 <!-- Answer Layouts -->
@@ -255,6 +283,35 @@
 
                 <!-- Layout 2: Multi-command True/False 4-statement Cards -->
                 <div id="multi-tf-container" class="multi-tf-container" style="display: none;"></div>
+
+                <!-- Question Navigation & Study Control Bar -->
+                <div id="arena-study-nav" class="arena-study-nav">
+                    <div class="study-nav-main">
+                        <button id="btn-study-prev" class="nav-control-btn btn-study-prev" title="Quay lại câu trước">
+                            <span>⬅️ Câu Trước</span>
+                        </button>
+                        
+                        <div id="arena-question-dots" class="arena-question-dots">
+                            <!-- Dynamic Dots: [1], [2], [3], ... -->
+                        </div>
+
+                        <button id="btn-study-next" class="nav-control-btn btn-study-next" title="Chuyển sang câu tiếp theo">
+                            <span>Câu Tiếp ➡️</span>
+                        </button>
+                    </div>
+
+                    <div class="study-nav-actions" id="study-nav-actions">
+                        <button id="btn-study-show-explain" class="btn-study-action btn-show-explain" title="Xem giải thích và lý thuyết sâu">
+                            <span>💡 Xem Lý Thuyết & Giải Thích</span>
+                        </button>
+                        <button id="btn-study-retry" class="btn-study-action btn-retry-q" title="Làm lại câu hỏi này để kiểm tra lại">
+                            <span>🔄 Làm Lại Câu Này</span>
+                        </button>
+                        <button id="btn-study-finish" class="btn-study-action btn-finish-session" title="Hoàn thành buổi học">
+                            <span>🏁 Nộp Bài & Xem Điểm</span>
+                        </button>
+                    </div>
+                </div>
 
             </div>
         </section>
@@ -298,7 +355,7 @@
                 <div class="summary-actions-grid">
                     <button id="btn-start-remediation" class="cta-button btn-primary btn-remediation" style="display: none;">
                         <span>Luyện Tập Lượt 2 (Củng Cố Câu Sai)</span>
-                        <span>🔥</span>
+                        <span>⚡</span>
                     </button>
                     <button id="btn-open-teacher-report" class="cta-button btn-primary btn-report">
                         <span>Báo Cáo Giáo Viên</span>
@@ -315,7 +372,7 @@
     </main>
 
     <!-- =========================================================
-         FEEDBACK OVERLAY MODAL (MEME + PER-STATEMENT EXPLANATIONS)
+         FEEDBACK OVERLAY MODAL (MEME + PER-STATEMENT EXPLANATIONS + SCIENTIFIC VISUAL)
          ========================================================= -->
     <div id="feedback-overlay" class="feedback-overlay">
         <div class="feedback-card">
@@ -323,6 +380,18 @@
             <h3 id="feedback-title" class="feedback-title">Chính Xác!</h3>
             <div id="feedback-pts" class="feedback-pts">+1,250 Điểm</div>
             
+            <!-- Scientific Visual Box (Học sinh học từ hình ảnh trực quan) -->
+            <div id="feedback-visual-box" class="feedback-visual-box" style="display: none;">
+                <div class="feedback-img-header">
+                    <span class="feedback-img-badge">🔬 Sơ Đồ & Hình Minh Họa SGK Vật Lí 12</span>
+                    <button type="button" id="btn-zoom-feedback-img" class="btn-zoom-pill" title="Phóng to hình ảnh">🔍 Phóng to xem nét</button>
+                </div>
+                <div class="feedback-img-wrapper">
+                    <img id="feedback-img" src="" alt="Hình minh họa kiến thức khoa học" class="feedback-illustration-img" />
+                </div>
+                <div id="feedback-img-caption" class="feedback-img-caption"></div>
+            </div>
+
             <!-- Explanation List (Supports both Single explanation and 4-statement breakdowns) -->
             <div id="feedback-explain-list" class="feedback-explain-list"></div>
 
@@ -506,6 +575,51 @@
                 </div>
             </div>
 
+        </div>
+    </div>
+
+    <!-- =========================================================
+         TEACHER PASSWORD AUTHENTICATION PROMPT MODAL
+         ========================================================= -->
+    <div id="modal-teacher-password-prompt" class="modal-overlay">
+        <div class="teacher-pwd-prompt-card">
+            <div class="report-header">
+                <div class="report-title-group">
+                    <span class="report-icon">🔒</span>
+                    <div>
+                        <h3>Xác Thực Quyền Giáo Viên</h3>
+                        <p>Nhập mật khẩu để truy cập Bảng Quản Lý Học Sinh & Điểm Số</p>
+                    </div>
+                </div>
+                <button id="btn-close-pwd-prompt" class="icon-btn" title="Đóng">✖️</button>
+            </div>
+
+            <form id="form-pwd-prompt" onsubmit="return false;" style="margin-top: 18px;">
+                <div class="input-field-group">
+                    <label for="input-prompt-pwd">Mật Khẩu Quản Trị Giáo Viên:</label>
+                    <div class="password-input-wrap">
+                        <input type="password" id="input-prompt-pwd" class="text-input" placeholder="Nhập mật khẩu giáo viên..." autofocus />
+                        <button type="button" id="btn-prompt-toggle-eye" class="btn-pwd-eye" title="Ẩn/Hiện mật khẩu">👁️</button>
+                    </div>
+                </div>
+
+                <div id="prompt-pwd-error" class="login-error-alert" style="display: none; margin-top: 12px;">
+                    <span>⚠️ Mật khẩu không chính xác! Vui lòng thử lại.</span>
+                </div>
+
+                <div class="prompt-modal-actions" style="display: flex; justify-content: space-between; align-items: center; margin-top: 22px; gap: 10px; flex-wrap: wrap;">
+                    <a href="teacher.html" class="dash-btn btn-secondary" title="Mở trang Cổng Giáo Viên độc lập">
+                        <span>🔗 Mở Trang Riêng teacher.html</span>
+                    </a>
+                    <button type="submit" id="btn-submit-prompt-pwd" class="dash-btn btn-export">
+                        <span>Mở Khóa Bảng Điểm 🔓</span>
+                    </button>
+                </div>
+
+                <div class="prompt-hint-box" style="margin-top: 14px; font-size: 12.5px; color: var(--text-muted); text-align: center; padding: 8px; background: rgba(255,255,255,0.03); border-radius: 8px;">
+                    💡 <strong>Mật khẩu mặc định:</strong> <code>giaovien12</code> (Thầy/Cô có thể đổi tại Cổng Giáo Viên)
+                </div>
+            </form>
         </div>
     </div>
 
