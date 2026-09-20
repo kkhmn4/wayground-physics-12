@@ -39,6 +39,9 @@
             </div>
         </div>
         <div class="header-controls">
+            <button id="btn-open-teacher-dashboard" class="btn-teacher-portal" title="Mở Bảng Điều Khiển Quản Lý Giáo Viên">
+                <span>🎓 Quản Lý Học Sinh</span>
+            </button>
             <button id="btn-toggle-sound" class="icon-btn" title="Bật/Tắt âm thanh" aria-label="Toggle Sound">🔊</button>
         </div>
     </header>
@@ -55,6 +58,15 @@
                     <span class="hero-pill">⚡ Đấu Trường Thích Ứng & Củng Cố Lượt 2</span>
                     <h2 class="hero-title">Đấu Trường Nhiệt Học 12</h2>
                     <p class="hero-desc">Luyện tập trắc nghiệm ABCD và Đúng/Sai 4 lệnh chuẩn Bộ GD&ĐT, tự động ghi nhận báo cáo và kích hoạt Vòng 2 củng cố câu sai!</p>
+                </div>
+
+                <!-- Teacher Quick Access Banner -->
+                <div class="teacher-quick-banner" id="banner-teacher-portal" title="Nhấp để mở Bảng Điều Khiển Giáo Viên">
+                    <div class="banner-badge-icon">🎓</div>
+                    <div class="banner-text">
+                        <strong>Dành Cho Giáo Viên:</strong> Nhấp vào đây để xem <strong>Bảng Quản Lý Học Sinh, Điểm Số & Lỗ Hổng Kiến Thức Cả Lớp</strong>
+                    </div>
+                    <span class="banner-arrow">➔</span>
                 </div>
 
                 <!-- Student Profile Input -->
@@ -377,6 +389,123 @@
                     <span>🖨️</span>
                 </button>
             </div>
+        </div>
+    </div>
+
+    <!-- =========================================================
+         TEACHER MANAGEMENT DASHBOARD MODAL (STUDENT ROSTER & CLASS ANALYTICS)
+         ========================================================= -->
+    <div id="modal-teacher-dashboard" class="modal-overlay">
+        <div class="teacher-dashboard-card">
+            <div class="dashboard-header">
+                <div class="dashboard-header-title">
+                    <div class="dash-icon">🎓</div>
+                    <div>
+                        <h3>BẢNG ĐIỀU KHIỂN GIÁO VIÊN - QUẢN LÝ HỌC SINH</h3>
+                        <p>Theo dõi kết quả làm bài, phân tích lỗ hổng kiến thức và xuất điểm lớp học môn Vật Lí 12</p>
+                    </div>
+                </div>
+                <button id="btn-close-teacher-dashboard" class="icon-btn btn-close-dash" title="Đóng">✖️</button>
+            </div>
+
+            <!-- KPI Metric Cards Grid -->
+            <div class="dash-kpi-grid">
+                <div class="dash-kpi-box">
+                    <div class="dash-kpi-label">Tổng Lượt Nộp Bài</div>
+                    <div class="dash-kpi-val" id="td-total-submissions">0</div>
+                    <div class="dash-kpi-sub">Lượt học sinh hoàn thành</div>
+                </div>
+                <div class="dash-kpi-box">
+                    <div class="dash-kpi-label">Điểm Trung Bình</div>
+                    <div class="dash-kpi-val highlight-gold" id="td-avg-score">0</div>
+                    <div class="dash-kpi-sub">Toàn bộ lớp học</div>
+                </div>
+                <div class="dash-kpi-box">
+                    <div class="dash-kpi-label">Độ Chính Xác TB</div>
+                    <div class="dash-kpi-val highlight-green" id="td-avg-accuracy">0%</div>
+                    <div class="dash-kpi-sub">Tỉ lệ câu trả lời đúng</div>
+                </div>
+                <div class="dash-kpi-box">
+                    <div class="dash-kpi-label">Củng Cố Vòng 2</div>
+                    <div class="dash-kpi-val highlight-blue" id="td-remediation-count">0</div>
+                    <div class="dash-kpi-sub">Lượt khắc phục câu sai</div>
+                </div>
+            </div>
+
+            <!-- Control & Filter Bar -->
+            <div class="dash-controls-bar">
+                <div class="dash-filter-group">
+                    <div class="dash-input-wrap">
+                        <label for="td-filter-class">Lớp:</label>
+                        <select id="td-filter-class" class="dash-select">
+                            <option value="all">Tất Cả Các Lớp</option>
+                        </select>
+                    </div>
+                    <div class="dash-input-wrap">
+                        <label for="td-filter-mode">Mức Độ:</label>
+                        <select id="td-filter-mode" class="dash-select">
+                            <option value="all">Tất Cả Mức Độ</option>
+                            <option value="basic">Cơ Bản (Học Bài)</option>
+                            <option value="challenging">Thử Thách (Tư Duy)</option>
+                            <option value="advanced">Nâng Cao (Thực Tế Sâu)</option>
+                        </select>
+                    </div>
+                    <div class="dash-input-wrap dash-search-wrap">
+                        <input type="text" id="td-search-student" class="dash-input" placeholder="🔍 Tìm học sinh theo tên..." />
+                    </div>
+                </div>
+
+                <div class="dash-action-group">
+                    <button id="btn-td-export-csv" class="dash-btn btn-export" title="Xuất toàn bộ bảng điểm lớp ra file Excel/CSV">
+                        <span>📥 Xuất Bảng Điểm CSV</span>
+                    </button>
+                    <button id="btn-td-seed-demo" class="dash-btn btn-secondary" title="Nạp 6 bài làm mẫu để kiểm tra tính năng">
+                        <span>🔄 Nạp Demo Lớp 12</span>
+                    </button>
+                    <button id="btn-td-clear-data" class="dash-btn btn-danger" title="Xóa toàn bộ lịch sử nộp bài">
+                        <span>🗑️ Xóa Lịch Sử</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Student Submissions Roster Table -->
+            <div class="dash-section-title">
+                <span>📋 Danh Sách Điểm & Bài Làm Của Học Sinh</span>
+                <span class="table-count-badge" id="td-table-count">0 học sinh</span>
+            </div>
+            <div class="dash-table-wrapper">
+                <table class="dash-table">
+                    <thead>
+                        <tr>
+                            <th>STT</th>
+                            <th>Họ và Tên</th>
+                            <th>Lớp</th>
+                            <th>Thời Gian Nộp</th>
+                            <th>Mức Độ</th>
+                            <th>Điểm Số</th>
+                            <th>Đúng / Tổng</th>
+                            <th>Chính Xác</th>
+                            <th>Xếp Loại</th>
+                            <th>Lượt</th>
+                            <th>Thao Tác</th>
+                        </tr>
+                    </thead>
+                    <tbody id="td-students-table-body">
+                        <!-- Dynamic Student Rows -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Class Diagnostic Error Insights (Phân tích câu hay sai) -->
+            <div class="dash-insights-card">
+                <div class="insights-header">
+                    <span>💡 Phân Tích Lỗ Hổng Kiến Thức Cả Lớp (Top Khái Niệm Hay Bị Sai Nhiều Nhất)</span>
+                </div>
+                <div id="td-insights-list" class="insights-list">
+                    <!-- Dynamic insights list -->
+                </div>
+            </div>
+
         </div>
     </div>
 

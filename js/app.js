@@ -152,6 +152,28 @@ class WaygroundGame {
         this.imageZoomImg = document.getElementById('image-zoom-img');
         this.imageZoomCaption = document.getElementById('image-zoom-caption');
         this.btnCloseZoomModal = document.getElementById('btn-close-zoom-modal');
+
+        // Teacher Management Dashboard (Student Roster & Class Analytics)
+        this.modalTeacherDashboard = document.getElementById('modal-teacher-dashboard');
+        this.btnOpenTeacherDashboard = document.getElementById('btn-open-teacher-dashboard');
+        this.bannerTeacherPortal = document.getElementById('banner-teacher-portal');
+        this.btnCloseTeacherDashboard = document.getElementById('btn-close-teacher-dashboard');
+
+        this.tdTotalSubmissions = document.getElementById('td-total-submissions');
+        this.tdAvgScore = document.getElementById('td-avg-score');
+        this.tdAvgAccuracy = document.getElementById('td-avg-accuracy');
+        this.tdRemediationCount = document.getElementById('td-remediation-count');
+
+        this.tdFilterClass = document.getElementById('td-filter-class');
+        this.tdFilterMode = document.getElementById('td-filter-mode');
+        this.tdSearchStudent = document.getElementById('td-search-student');
+        this.btnTdExportCsv = document.getElementById('btn-td-export-csv');
+        this.btnTdSeedDemo = document.getElementById('btn-td-seed-demo');
+        this.btnTdClearData = document.getElementById('btn-td-clear-data');
+
+        this.tdTableCount = document.getElementById('td-table-count');
+        this.tdStudentsTableBody = document.getElementById('td-students-table-body');
+        this.tdInsightsList = document.getElementById('td-insights-list');
     }
 
     bindEvents() {
@@ -249,6 +271,61 @@ class WaygroundGame {
             this.modalTeacherReport.classList.remove('active');
         });
 
+        // Teacher Management Dashboard Events
+        if (this.btnOpenTeacherDashboard) {
+            this.btnOpenTeacherDashboard.addEventListener('click', () => {
+                if (window.soundEngine) soundEngine.playClick();
+                this.openTeacherDashboard();
+            });
+        }
+        if (this.bannerTeacherPortal) {
+            this.bannerTeacherPortal.addEventListener('click', () => {
+                if (window.soundEngine) soundEngine.playClick();
+                this.openTeacherDashboard();
+            });
+        }
+        if (this.btnCloseTeacherDashboard) {
+            this.btnCloseTeacherDashboard.addEventListener('click', () => {
+                if (window.soundEngine) soundEngine.playClick();
+                this.closeTeacherDashboard();
+            });
+        }
+        if (this.modalTeacherDashboard) {
+            this.modalTeacherDashboard.addEventListener('click', (e) => {
+                if (e.target === this.modalTeacherDashboard) {
+                    this.closeTeacherDashboard();
+                }
+            });
+        }
+        if (this.tdFilterClass) {
+            this.tdFilterClass.addEventListener('change', () => this.renderTeacherDashboard());
+        }
+        if (this.tdFilterMode) {
+            this.tdFilterMode.addEventListener('change', () => this.renderTeacherDashboard());
+        }
+        if (this.tdSearchStudent) {
+            this.tdSearchStudent.addEventListener('input', () => this.renderTeacherDashboard());
+        }
+        if (this.btnTdExportCsv) {
+            this.btnTdExportCsv.addEventListener('click', () => this.exportTeacherDashboardCSV());
+        }
+        if (this.btnTdSeedDemo) {
+            this.btnTdSeedDemo.addEventListener('click', () => {
+                this.seedDemoData(true);
+                this.renderTeacherDashboard();
+                if (window.soundEngine) soundEngine.playCorrect();
+            });
+        }
+        if (this.btnTdClearData) {
+            this.btnTdClearData.addEventListener('click', () => {
+                if (confirm("Thầy/Cô có chắc chắn muốn xóa toàn bộ lịch sử nộp bài của học sinh không?")) {
+                    localStorage.removeItem('wayground_physics_records');
+                    this.renderTeacherDashboard();
+                    if (window.soundEngine) soundEngine.playClick();
+                }
+            });
+        }
+
         // Export CSV & Print
         this.btnExportCsv.addEventListener('click', () => this.exportReportToCSV());
         this.btnPrintReport.addEventListener('click', () => window.print());
@@ -272,14 +349,19 @@ class WaygroundGame {
                 return;
             }
 
-            // When teacher report modal is open: Escape closes it
+            // When modals are open: Escape closes them
             if (e.key === 'Escape') {
                 if (this.imageZoomModal && this.imageZoomModal.classList.contains('active')) {
                     this.closeImageZoomModal();
                     return;
                 }
+                if (this.modalTeacherDashboard && this.modalTeacherDashboard.classList.contains('active')) {
+                    this.closeTeacherDashboard();
+                    return;
+                }
                 if (this.modalTeacherReport && this.modalTeacherReport.classList.contains('active')) {
                     this.btnCloseReport.click();
+                    return;
                 }
                 return;
             }
@@ -1046,6 +1128,9 @@ class WaygroundGame {
 
         this.summaryBadge.textContent = badge;
 
+        // Auto-save submission for Teacher Dashboard Roster
+        this.saveCurrentSubmissionToStorage();
+
         // Remediation Button Logic (Only if there are missed concepts and we're in Round 1)
         if (this.state.round === 1 && this.state.missedConcepts.size > 0) {
             this.remediationPromptBox.style.display = 'flex';
@@ -1060,7 +1145,7 @@ class WaygroundGame {
     }
 
     // =========================================================================
-    // TEACHER REPORT & CSV EXPORT
+    // TEACHER REPORT (INDIVIDUAL STUDENT) & CSV EXPORT
     // =========================================================================
     openTeacherReport() {
         this.repStudentName.textContent = this.student.name;
@@ -1114,6 +1199,484 @@ class WaygroundGame {
         const link = document.createElement("a");
         link.setAttribute("href", url);
         link.setAttribute("download", `Bao_Cao_Vat_Li_12_${this.student.name.replace(/\s+/g, '_')}_${this.student.className}.csv`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
+
+    // =========================================================================
+    // TEACHER MANAGEMENT DASHBOARD (ROSTER & CLASS ANALYTICS)
+    // =========================================================================
+    getStoredRecords() {
+        try {
+            const raw = localStorage.getItem('wayground_physics_records');
+            if (raw) {
+                const parsed = JSON.parse(raw);
+                if (Array.isArray(parsed) && parsed.length > 0) {
+                    return parsed;
+                }
+            }
+        } catch (e) {
+            console.warn("Could not read student records from localStorage:", e);
+        }
+        return this.seedDemoData(false);
+    }
+
+    saveStudentRecord(rec) {
+        try {
+            const records = this.getStoredRecords();
+            records.unshift(rec); // newest first
+            localStorage.setItem('wayground_physics_records', JSON.stringify(records));
+        } catch (e) {
+            console.warn("Could not save student record to localStorage:", e);
+        }
+    }
+
+    saveCurrentSubmissionToStorage() {
+        const total = this.state.activeQuestions.length;
+        const accuracy = total > 0 ? Math.round((this.state.correctCount / total) * 100) : 0;
+        
+        let rank = "Rank C";
+        if (accuracy === 100) rank = "Rank S+";
+        else if (accuracy >= 85) rank = "Rank S";
+        else if (accuracy >= 70) rank = "Rank A";
+        else if (accuracy >= 50) rank = "Rank B";
+
+        const modeMap = {
+            'all': 'Hỗn hợp',
+            'basic': 'Cơ bản',
+            'challenging': 'Thử thách',
+            'advanced': 'Nâng cao'
+        };
+
+        const now = new Date();
+        const timeStr = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')} - ${now.getDate().toString().padStart(2, '0')}/${(now.getMonth() + 1).toString().padStart(2, '0')}`;
+
+        const rec = {
+            id: 'rec_' + Date.now(),
+            name: this.student.name || 'Học sinh',
+            className: this.student.className || '12',
+            timestamp: timeStr,
+            fullDate: now.toLocaleString('vi-VN'),
+            mode: this.config.mode || 'all',
+            modeLabel: modeMap[this.config.mode] || 'Hỗn hợp',
+            score: this.state.score,
+            correctCount: this.state.correctCount,
+            totalQuestions: total,
+            accuracy: accuracy,
+            maxStreak: this.state.maxStreak,
+            round: this.state.round,
+            rank: rank,
+            missedConcepts: Array.from(this.state.missedConcepts || []),
+            history: JSON.parse(JSON.stringify(this.state.sessionHistory || []))
+        };
+
+        this.saveStudentRecord(rec);
+    }
+
+    seedDemoData(force = false) {
+        const demoRecords = [
+            {
+                id: 'demo_1',
+                name: 'Nguyễn Văn An',
+                className: '12.1',
+                timestamp: '15:30 - 20/09',
+                fullDate: '20/09/2026, 15:30:12',
+                mode: 'challenging',
+                modeLabel: 'Thử thách',
+                score: 8250,
+                correctCount: 6,
+                totalQuestions: 6,
+                accuracy: 100,
+                maxStreak: 6,
+                round: 1,
+                rank: 'Rank S+',
+                missedConcepts: [],
+                history: [
+                    { round: 1, type: "Trắc nghiệm ABCD", title: "Mô hình động học phân tử chất", detail: "Chọn: [B] | Đáp án: [B]", status: "Đạt", score: 1000 },
+                    { round: 1, type: "Trắc nghiệm ABCD", title: "Chuyển động Brown của hạt phấn hoa", detail: "Chọn: [B] | Đáp án: [B]", status: "Đạt", score: 1000 },
+                    { round: 1, type: "Đúng/Sai Ý (a)", title: "Sự chuyển thể của nước", detail: "Chọn: Đúng | Chuẩn: Đúng", status: "Đạt", score: 250 },
+                    { round: 1, type: "Đúng/Sai Ý (b)", title: "Sự chuyển thể của nước", detail: "Chọn: Đúng | Chuẩn: Đúng", status: "Đạt", score: 250 },
+                    { round: 1, type: "Đúng/Sai Ý (c)", title: "Sự chuyển thể của nước", detail: "Chọn: Sai | Chuẩn: Sai", status: "Đạt", score: 250 },
+                    { round: 1, type: "Đúng/Sai Ý (d)", title: "Sự chuyển thể của nước", detail: "Chọn: Sai | Chuẩn: Sai", status: "Đạt", score: 250 }
+                ]
+            },
+            {
+                id: 'demo_2',
+                name: 'Trần Thị Mai',
+                className: '12.1',
+                timestamp: '15:42 - 20/09',
+                fullDate: '20/09/2026, 15:42:05',
+                mode: 'all',
+                modeLabel: 'Hỗn hợp',
+                score: 6900,
+                correctCount: 5,
+                totalQuestions: 6,
+                accuracy: 83,
+                maxStreak: 4,
+                round: 1,
+                rank: 'Rank S',
+                missedConcepts: ['c_u2_quy_uoc_dau_a_q'],
+                history: [
+                    { round: 1, type: "Trắc nghiệm ABCD", title: "Đặc điểm các thể rắn, lỏng, khí", detail: "Chọn: [A] | Đáp án: [A]", status: "Đạt", score: 1000 },
+                    { round: 1, type: "Trắc nghiệm ABCD", title: "Khái niệm nội năng U = Et + Ed", detail: "Chọn: [C] | Đáp án: [C]", status: "Đạt", score: 1000 },
+                    { round: 1, type: "Trắc nghiệm ABCD", title: "Quy ước dấu của Công A và Nhiệt lượng Q", detail: "Chọn: [A] | Đáp án: [B]", status: "Chưa đạt", score: 0 }
+                ]
+            },
+            {
+                id: 'demo_3',
+                name: 'Lê Quốc Bảo',
+                className: '12.2',
+                timestamp: '16:05 - 20/09',
+                fullDate: '20/09/2026, 16:05:40',
+                mode: 'basic',
+                modeLabel: 'Cơ bản',
+                score: 5400,
+                correctCount: 4,
+                totalQuestions: 6,
+                accuracy: 67,
+                maxStreak: 3,
+                round: 1,
+                rank: 'Rank A',
+                missedConcepts: ['c_u2_piston_khi_nen', 'c_u3_thang_celsius_kelvin'],
+                history: [
+                    { round: 1, type: "Trắc nghiệm ABCD", title: "Định luật I Nhiệt động lực học", detail: "Chọn: [B] | Đáp án: [B]", status: "Đạt", score: 1000 }
+                ]
+            },
+            {
+                id: 'demo_4',
+                name: 'Phạm Minh Khôi',
+                className: '12.2',
+                timestamp: '16:18 - 20/09',
+                fullDate: '20/09/2026, 16:18:22',
+                mode: 'advanced',
+                modeLabel: 'Nâng cao',
+                score: 7100,
+                correctCount: 5,
+                totalQuestions: 6,
+                accuracy: 83,
+                maxStreak: 5,
+                round: 1,
+                rank: 'Rank S',
+                missedConcepts: ['c_u2_piston_khi_nen'],
+                history: [
+                    { round: 1, type: "Trắc nghiệm ABCD", title: "Xilanh dãn nở sinh công và nhận nhiệt", detail: "Chọn: [C] | Đáp án: [D]", status: "Chưa đạt", score: 0 }
+                ]
+            },
+            {
+                id: 'demo_5',
+                name: 'Hoàng Thảo Vy',
+                className: '12.1',
+                timestamp: '16:35 - 20/09',
+                fullDate: '20/09/2026, 16:35:10',
+                mode: 'challenging',
+                modeLabel: 'Thử thách',
+                score: 3800,
+                correctCount: 3,
+                totalQuestions: 6,
+                accuracy: 50,
+                maxStreak: 2,
+                round: 1,
+                rank: 'Rank B',
+                missedConcepts: ['c_u2_quy_uoc_dau_a_q', 'c_u3_thang_celsius_kelvin'],
+                history: [
+                    { round: 1, type: "Trắc nghiệm ABCD", title: "Nhiệt độ không tuyệt đối 0 Kelvin", detail: "Chọn: [B] | Đáp án: [B]", status: "Đạt", score: 1000 }
+                ]
+            },
+            {
+                id: 'demo_6',
+                name: 'Vũ Đình Dũng',
+                className: '12.2',
+                timestamp: '16:50 - 20/09',
+                fullDate: '20/09/2026, 16:50:45',
+                mode: 'advanced',
+                modeLabel: 'Nâng cao',
+                score: 8500,
+                correctCount: 6,
+                totalQuestions: 6,
+                accuracy: 100,
+                maxStreak: 6,
+                round: 2,
+                rank: 'Rank S+',
+                missedConcepts: [],
+                history: [
+                    { round: 2, type: "Củng cố Lượt 2", title: "Bản sao củng cố: Xilanh nén khí sinh công", detail: "Chọn: [A] | Đáp án: [A]", status: "Đạt", score: 1000 }
+                ]
+            }
+        ];
+
+        if (force || !localStorage.getItem('wayground_physics_records')) {
+            try {
+                localStorage.setItem('wayground_physics_records', JSON.stringify(demoRecords));
+            } catch (e) {
+                console.warn("Could not seed demo records to localStorage:", e);
+            }
+        }
+        return demoRecords;
+    }
+
+    openTeacherDashboard() {
+        if (!this.modalTeacherDashboard) return;
+        this.renderTeacherDashboard();
+        this.modalTeacherDashboard.classList.add('active');
+    }
+
+    closeTeacherDashboard() {
+        if (!this.modalTeacherDashboard) return;
+        this.modalTeacherDashboard.classList.remove('active');
+    }
+
+    renderTeacherDashboard() {
+        const records = this.getStoredRecords();
+
+        // 1. Populate Class Filter dynamically
+        if (this.tdFilterClass) {
+            const currentSelectedClass = this.tdFilterClass.value;
+            const uniqueClasses = Array.from(new Set(records.map(r => r.className).filter(Boolean))).sort();
+            
+            this.tdFilterClass.innerHTML = '<option value="all">Tất Cả Các Lớp</option>';
+            uniqueClasses.forEach(cls => {
+                const opt = document.createElement('option');
+                opt.value = cls;
+                opt.textContent = `Lớp ${cls}`;
+                if (cls === currentSelectedClass) opt.selected = true;
+                this.tdFilterClass.appendChild(opt);
+            });
+        }
+
+        // 2. Filter records
+        const classFilter = this.tdFilterClass ? this.tdFilterClass.value : 'all';
+        const modeFilter = this.tdFilterMode ? this.tdFilterMode.value : 'all';
+        const searchQuery = this.tdSearchStudent ? this.tdSearchStudent.value.trim().toLowerCase() : '';
+
+        const filtered = records.filter(r => {
+            if (classFilter !== 'all' && r.className !== classFilter) return false;
+            if (modeFilter !== 'all' && r.mode !== modeFilter) return false;
+            if (searchQuery && !r.name.toLowerCase().includes(searchQuery)) return false;
+            return true;
+        });
+
+        // 3. Compute and render KPIs
+        const totalSubs = filtered.length;
+        const totalScore = filtered.reduce((acc, cur) => acc + (cur.score || 0), 0);
+        const avgScore = totalSubs > 0 ? Math.round(totalScore / totalSubs) : 0;
+        const totalAcc = filtered.reduce((acc, cur) => acc + (cur.accuracy || 0), 0);
+        const avgAcc = totalSubs > 0 ? Math.round(totalAcc / totalSubs) : 0;
+        const remediationSubs = filtered.filter(r => r.round === 2).length;
+
+        if (this.tdTotalSubmissions) this.tdTotalSubmissions.textContent = totalSubs;
+        if (this.tdAvgScore) this.tdAvgScore.textContent = avgScore.toLocaleString();
+        if (this.tdAvgAccuracy) this.tdAvgAccuracy.textContent = `${avgAcc}%`;
+        if (this.tdRemediationCount) this.tdRemediationCount.textContent = remediationSubs;
+        if (this.tdTableCount) this.tdTableCount.textContent = `${totalSubs} học sinh`;
+
+        // 4. Render Table Rows
+        if (this.tdStudentsTableBody) {
+            this.tdStudentsTableBody.innerHTML = '';
+            if (filtered.length === 0) {
+                const emptyTr = document.createElement('tr');
+                emptyTr.innerHTML = `<td colspan="11" style="text-align: center; padding: 32px; color: var(--text-muted);">
+                    Chưa có bài làm nào phù hợp với bộ lọc. Hãy đổi bộ lọc hoặc bấm "Nạp Demo Lớp 12"!
+                </td>`;
+                this.tdStudentsTableBody.appendChild(emptyTr);
+            } else {
+                filtered.forEach((r, idx) => {
+                    const tr = document.createElement('tr');
+                    
+                    // Rank class
+                    let rankClass = 'rank-c';
+                    if (r.rank.includes('S+')) rankClass = 'rank-s-plus';
+                    else if (r.rank.includes('S')) rankClass = 'rank-s';
+                    else if (r.rank.includes('A')) rankClass = 'rank-a';
+                    else if (r.rank.includes('B')) rankClass = 'rank-b';
+
+                    const roundBadge = r.round === 2 
+                        ? `<span class="badge-round round-2">Vòng 2 Củng Cố</span>`
+                        : `<span class="badge-round round-1">Vòng 1</span>`;
+
+                    tr.innerHTML = `
+                        <td><strong>${idx + 1}</strong></td>
+                        <td class="td-student-name"><strong>${r.name}</strong></td>
+                        <td><span class="badge-class">${r.className}</span></td>
+                        <td><span class="time-sub">${r.timestamp || r.fullDate || '-'}</span></td>
+                        <td><span class="badge-mode mode-${r.mode || 'all'}">${r.modeLabel || 'Hỗn hợp'}</span></td>
+                        <td class="td-score"><strong>${(r.score || 0).toLocaleString()}</strong></td>
+                        <td>${r.correctCount || 0}/${r.totalQuestions || 0}</td>
+                        <td><span class="badge-acc acc-${r.accuracy >= 80 ? 'high' : (r.accuracy >= 50 ? 'med' : 'low')}">${r.accuracy}%</span></td>
+                        <td><span class="badge-rank ${rankClass}">${r.rank}</span></td>
+                        <td>${roundBadge}</td>
+                        <td>
+                            <button class="btn-td-view" data-record-id="${r.id}" title="Xem chi tiết từng câu làm của học sinh">
+                                👁️ Chi Tiết
+                            </button>
+                        </td>
+                    `;
+
+                    const viewBtn = tr.querySelector('.btn-td-view');
+                    if (viewBtn) {
+                        viewBtn.addEventListener('click', () => {
+                            this.openStudentSubmissionDetail(r.id);
+                        });
+                    }
+
+                    this.tdStudentsTableBody.appendChild(tr);
+                });
+            }
+        }
+
+        // 5. Render Diagnostic Error Insights
+        this.renderDiagnosticInsights(filtered);
+    }
+
+    renderDiagnosticInsights(filteredRecords) {
+        if (!this.tdInsightsList) return;
+        this.tdInsightsList.innerHTML = '';
+
+        const conceptCounts = {};
+        filteredRecords.forEach(r => {
+            if (Array.isArray(r.missedConcepts)) {
+                r.missedConcepts.forEach(c => {
+                    conceptCounts[c] = (conceptCounts[c] || 0) + 1;
+                });
+            }
+        });
+
+        const sortedConcepts = Object.keys(conceptCounts).sort((a, b) => conceptCounts[b] - conceptCounts[a]);
+
+        const conceptDictionary = {
+            'c_u1_mo_hinh_phan_tu': { name: 'Mô hình động học phân tử chất', note: 'Học sinh hay nhầm lẫn các phân tử ngừng chuyển động ở 0 độ C.' },
+            'c_u1_nhiet_do_chuyen_dong': { name: 'Nhiệt độ và tốc độ phân tử', note: 'Cần nhấn mạnh nhiệt độ đo động năng chuyển động nhiệt hỗn loạn.' },
+            'c_u1_chuyen_dong_brown': { name: 'Chuyển động Brown', note: 'Học sinh dễ chọn nhầm phấn hoa tự sinh lực chuyển động.' },
+            'c_u1_the_chat_dac_diem': { name: 'Đặc điểm thể rắn, lỏng, khí', note: 'Cần củng cố về khoảng cách phân tử và lực tương tác ở các thể.' },
+            'c_u1_chuyen_the_nhiet': { name: 'Sự chuyển thể & Điểm chuyển pha', note: 'Lưu ý trong suốt quá trình chuyển thể thì nhiệt độ không đổi.' },
+            'c_u2_khai_niem_noi_nang': { name: 'Khái niệm nội năng (U = Et + Ed)', note: 'Học sinh hay quên nội năng phụ thuộc cả nhiệt độ và thể tích.' },
+            'c_u2_bien_doi_noi_nang': { name: 'Hai cách biến đổi nội năng', note: 'Phân biệt rõ ràng thực hiện công (có chuyển dời vĩ mô) và truyền nhiệt.' },
+            'c_u2_dinh_luat_1_nhiet': { name: 'Định luật I Nhiệt động lực học', note: 'Hệ thức cốt lõi: ΔU = A + Q.' },
+            'c_u2_quy_uoc_dau_a_q': { name: 'Quy ước dấu Công A và Nhiệt lượng Q', note: 'Nhận nhiệt Q > 0, tỏa nhiệt Q < 0; nhận công A > 0, sinh công A < 0.' },
+            'c_u2_piston_khi_nen': { name: 'Xilanh nén khí / dãn nở sinh công', note: 'Dãn nở sinh công ra môi trường nên A < 0, nén khí nhận công nên A > 0.' },
+            'c_u3_khai_niem_nhiet_do': { name: 'Khái niệm nhiệt độ & Cân bằng nhiệt', note: 'Hai vật cân bằng nhiệt có cùng nhiệt độ, không còn truyền nhiệt lượng.' },
+            'c_u3_thang_celsius_kelvin': { name: 'Chuyển đổi thang Celsius và Kelvin', note: 'Công thức T(K) = t(°C) + 273,15; độ biến thiên nhiệt độ: ΔT(K) = Δt(°C).' },
+            'c_u3_thang_fahrenheit': { name: 'Thang nhiệt độ Fahrenheit', note: 'Công thức t(°F) = 1,8 * t(°C) + 32.' }
+        };
+
+        if (sortedConcepts.length === 0) {
+            this.tdInsightsList.innerHTML = `
+                <div class="insight-item insight-success">
+                    <span class="insight-icon">🎉</span>
+                    <div class="insight-text">
+                        <strong>Lớp nắm rất vững kiến thức!</strong>
+                        <p>Không phát hiện lỗ hổng kiến thức nghiêm trọng nào trong nhóm bài nộp này.</p>
+                    </div>
+                </div>
+            `;
+            return;
+        }
+
+        sortedConcepts.slice(0, 4).forEach(cid => {
+            const info = conceptDictionary[cid] || { 
+                name: cid.replace(/^c_u\d+_/, '').replace(/_/g, ' '),
+                note: 'Cần cho học sinh làm thêm các câu củng cố vòng 2 thuộc chủ đề này.'
+            };
+            const count = conceptCounts[cid];
+            const item = document.createElement('div');
+            item.className = 'insight-item';
+            item.innerHTML = `
+                <span class="insight-icon">⚠️</span>
+                <div class="insight-text">
+                    <div class="insight-name">
+                        <strong>${info.name}</strong> 
+                        <span class="insight-count-badge">${count} học sinh làm sai</span>
+                    </div>
+                    <p class="insight-note">💡 <em>Lưu ý sư phạm:</em> ${info.note}</p>
+                </div>
+            `;
+            this.tdInsightsList.appendChild(item);
+        });
+    }
+
+    openStudentSubmissionDetail(recordId) {
+        const records = this.getStoredRecords();
+        const record = records.find(r => r.id === recordId);
+        if (!record) return;
+
+        if (this.repStudentName) this.repStudentName.textContent = record.name;
+        if (this.repStudentClass) this.repStudentClass.textContent = record.className;
+        if (this.repTotalScore) this.repTotalScore.textContent = (record.score || 0).toLocaleString();
+        
+        const total = record.history ? record.history.length : (record.totalQuestions || 0);
+        const passed = record.history ? record.history.filter(h => h.status === "Đạt").length : (record.correctCount || 0);
+        if (this.repAccuracy) this.repAccuracy.textContent = `${record.accuracy}% (${passed}/${total})`;
+
+        if (this.reportTableBody) {
+            this.reportTableBody.innerHTML = '';
+            if (record.history && record.history.length > 0) {
+                record.history.forEach((row, idx) => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td><strong>${idx + 1}</strong> (${row.type})</td>
+                        <td>${row.title}</td>
+                        <td>${row.detail}</td>
+                        <td><span class="${row.status === 'Đạt' ? 'badge-tag-pass' : 'badge-tag-fail'}">${row.status}</span></td>
+                        <td>+${row.score}</td>
+                    `;
+                    this.reportTableBody.appendChild(tr);
+                });
+            } else {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `<td colspan="5" style="text-align: center; padding: 20px;">Không có chi tiết bài làm từng câu của lượt này.</td>`;
+                this.reportTableBody.appendChild(tr);
+            }
+        }
+
+        this.renderMath(this.modalTeacherReport);
+        this.modalTeacherReport.classList.add('active');
+        if (window.soundEngine) soundEngine.playClick();
+    }
+
+    exportTeacherDashboardCSV() {
+        const records = this.getStoredRecords();
+        const classFilter = this.tdFilterClass ? this.tdFilterClass.value : 'all';
+        const modeFilter = this.tdFilterMode ? this.tdFilterMode.value : 'all';
+        const searchQuery = this.tdSearchStudent ? this.tdSearchStudent.value.trim().toLowerCase() : '';
+
+        const filtered = records.filter(r => {
+            if (classFilter !== 'all' && r.className !== classFilter) return false;
+            if (modeFilter !== 'all' && r.mode !== modeFilter) return false;
+            if (searchQuery && !r.name.toLowerCase().includes(searchQuery)) return false;
+            return true;
+        });
+
+        const rows = [
+            ["BANG DIEM QUAN LY HOC SINH MON VAT LI 12 - WAYGROUND PHYSICS"],
+            ["Ngay Xuat:", new Date().toLocaleString('vi-VN'), "Bo Loc Lop:", classFilter, "Bo Loc Muc Do:", modeFilter],
+            ["Tong So Hoc Sinh:", filtered.length],
+            [],
+            ["STT", "Ho va Ten", "Lop", "Thoi Gian Nop", "Muc Do", "Diem So", "So Cau Dung", "Tong So Cau", "Ti Le Dung (%)", "Chuoi Max", "Xep Loai", "Luot Choi"]
+        ];
+
+        filtered.forEach((r, idx) => {
+            rows.push([
+                idx + 1,
+                `"${(r.name || '').replace(/"/g, '""')}"`,
+                `"${(r.className || '').replace(/"/g, '""')}"`,
+                `"${(r.timestamp || r.fullDate || '').replace(/"/g, '""')}"`,
+                r.modeLabel || r.mode || 'Hỗn hợp',
+                r.score || 0,
+                r.correctCount || 0,
+                r.totalQuestions || 0,
+                `${r.accuracy || 0}%`,
+                r.maxStreak || 0,
+                r.rank || 'Rank C',
+                r.round === 2 ? 'Vòng 2 Củng Cố' : 'Vòng 1'
+            ]);
+        });
+
+        const csvContent = "\uFEFF" + rows.map(e => e.join(",")).join("\n");
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.setAttribute("href", url);
+        link.setAttribute("download", `Bang_Diem_Vat_Li_12_Lop_${classFilter}_${new Date().toISOString().slice(0,10)}.csv`);
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
