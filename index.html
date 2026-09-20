@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
+    <meta name="theme-color" content="#0A0D18">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Wayground Physics 12 - Đấu Trường Trắc Nghiệm & Củng Cố Kiến Thức</title>
+    <meta name="description" content="Trang web học tập trò chơi hóa theo phong cách Wayground dành cho học sinh lớp 12 thực hành môn Vật lí có hỗ trợ củng cố Lượt 2 và báo cáo giáo viên.">
+    
+    <!-- Google Fonts: 100% Vietnamese Subset Support (Lexend & Inter for maximum readability) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Lexend:wght@400;500;600;700;800;900&display=swap&subset=vietnamese" rel="stylesheet">
+
+    <!-- KaTeX: Standard Mathematical & Physics Formula Typesetting (Local with CDN Fallback) -->
+    <link rel="stylesheet" href="lib/katex/katex.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" integrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI+WdtXRGWt2kTvGFasHpSy3SV" crossorigin="anonymous">
+
+    <!-- Main Stylesheet -->
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+    <!-- Background Animated Glow Orbs -->
+    <div class="bg-glow-orbs">
+        <div class="glow-orb glow-orb-1"></div>
+        <div class="glow-orb glow-orb-2"></div>
+    </div>
+
+    <!-- App Header -->
+    <header class="app-header">
+        <div class="brand-badge">
+            <div class="brand-logo-icon">⚛️</div>
+            <div class="brand-text">
+                <h1>WAYGROUND</h1>
+                <span>Vật Lí 12 • GDPT 2018</span>
+            </div>
+        </div>
+        <div class="header-controls">
+            <button id="btn-toggle-sound" class="icon-btn" title="Bật/Tắt âm thanh" aria-label="Toggle Sound">🔊</button>
+        </div>
+    </header>
+
+    <!-- Main Game Container -->
+    <main class="main-wrapper">
+
+        <!-- =========================================================
+             SCREEN 1: LOBBY / MODE CONFIGURATION
+             ========================================================= -->
+        <section id="screen-lobby" class="screen active">
+            <div class="lobby-card">
+                <div class="hero-banner">
+                    <span class="hero-pill">⚡ Đấu Trường Thích Ứng & Củng Cố Lượt 2</span>
+                    <h2 class="hero-title">Đấu Trường Nhiệt Học 12</h2>
+                    <p class="hero-desc">Luyện tập trắc nghiệm ABCD và Đúng/Sai 4 lệnh chuẩn Bộ GD&ĐT, tự động ghi nhận báo cáo và kích hoạt Vòng 2 củng cố câu sai!</p>
+                </div>
+
+                <!-- Student Profile Input -->
+                <div class="student-input-grid">
+                    <div class="input-field-group">
+                        <label for="input-student-name">👤 Họ và Tên Học Sinh</label>
+                        <input type="text" id="input-student-name" class="text-input" placeholder="Ví dụ: Nguyễn Văn An" value="Học sinh lớp 12">
+                    </div>
+                    <div class="input-field-group">
+                        <label for="input-student-class">🏫 Lớp</label>
+                        <input type="text" id="input-student-class" class="text-input" placeholder="Ví dụ: 12A1" value="12.1">
+                    </div>
+                </div>
+
+                <!-- Config: Chọn Bài Học -->
+                <div class="config-group">
+                    <h3 class="group-title">📚 1. Chọn Bài Học Ôn Tập</h3>
+                    <div class="pill-grid">
+                        <div class="select-card unit-card active" data-unit="all">
+                            <div class="select-card-icon">🌟</div>
+                            <div class="select-card-info">
+                                <h4>Tổng Hợp Cả 3 Bài</h4>
+                                <p>Đầy đủ kiến thức Chương 1</p>
+                            </div>
+                        </div>
+                        <div class="select-card unit-card" data-unit="unit1">
+                            <div class="select-card-icon">🧊</div>
+                            <div class="select-card-info">
+                                <h4>Bài 1: Cấu Trúc Chất</h4>
+                                <p>Mô hình phân tử & Chuyển thể</p>
+                            </div>
+                        </div>
+                        <div class="select-card unit-card" data-unit="unit2">
+                            <div class="select-card-icon">🔥</div>
+                            <div class="select-card-info">
+                                <h4>Bài 2: Nội Năng & ĐL I</h4>
+                                <p>Công, Nhiệt lượng, ΔU = A + Q</p>
+                            </div>
+                        </div>
+                        <div class="select-card unit-card" data-unit="unit3">
+                            <div class="select-card-icon">🌡️</div>
+                            <div class="select-card-info">
+                                <h4>Bài 3: Thang Nhiệt Độ</h4>
+                                <p>Celsius, Kelvin, Fahrenheit</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Config: Chọn Dạng Câu Hỏi -->
+                <div class="config-group">
+                    <h3 class="group-title">🎯 2. Chọn Dạng Câu Hỏi</h3>
+                    <div class="pill-grid">
+                        <div class="select-card type-card active" data-type="all">
+                            <div class="select-card-icon">🎲</div>
+                            <div class="select-card-info">
+                                <h4>Hỗn Hợp Cả Hai Dạng</h4>
+                                <p>ABCD & Đúng/Sai 4 lệnh</p>
+                            </div>
+                        </div>
+                        <div class="select-card type-card" data-type="multiple_choice">
+                            <div class="select-card-icon">🔤</div>
+                            <div class="select-card-info">
+                                <h4>Trắc Nghiệm 4 Lựa Chọn</h4>
+                                <p>4 ô màu sắc kinh điển A, B, C, D</p>
+                            </div>
+                        </div>
+                        <div class="select-card type-card" data-type="multi_tf">
+                            <div class="select-card-icon">⚖️</div>
+                            <div class="select-card-info">
+                                <h4>Đúng / Sai Chuẩn Bộ GD&ĐT</h4>
+                                <p>Câu dẫn chung + 4 ý a, b, c, d</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Config: Chọn Mức Độ & Chế Độ Học Tập -->
+                <div class="config-group">
+                    <h3 class="group-title">⚡ 3. Chọn Mức Độ & Chế Độ Học Tập</h3>
+                    <div class="pill-grid">
+                        <div class="select-card mode-card active" data-mode="all">
+                            <div class="select-card-icon">🌟</div>
+                            <div class="select-card-info">
+                                <h4>Tất Cả Mức Độ</h4>
+                                <p>Tổng hợp toàn diện Chương 1</p>
+                            </div>
+                        </div>
+                        <div class="select-card mode-card" data-mode="basic">
+                            <div class="select-card-icon">🌱</div>
+                            <div class="select-card-info">
+                                <h4>Cơ Bản (Học Bài)</h4>
+                                <p>Định nghĩa & Nhận biết cốt lõi</p>
+                            </div>
+                        </div>
+                        <div class="select-card mode-card" data-mode="challenging">
+                            <div class="select-card-icon">🎯</div>
+                            <div class="select-card-info">
+                                <h4>Thử Thách (Tư Duy)</h4>
+                                <p>Thông hiểu & Phân tích vi mô</p>
+                            </div>
+                        </div>
+                        <div class="select-card mode-card" data-mode="advanced">
+                            <div class="select-card-icon">🚀</div>
+                            <div class="select-card-info">
+                                <h4>Nâng Cao (Thực Tế Sâu)</h4>
+                                <p>Vận dụng cao & Suy luận thực tế</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Config: Số Lượng Câu -->
+                <div class="config-group">
+                    <h3 class="group-title">⏱️ 4. Số Lượng Câu Hỏi</h3>
+                    <div class="btn-toggle-row">
+                        <div class="toggle-chip count-chip active" data-count="6">⚡ 6 Câu (Nhanh)</div>
+                        <div class="toggle-chip count-chip" data-count="10">🏆 10 Câu (Chuẩn)</div>
+                        <div class="toggle-chip count-chip" data-count="15">🔥 15 Câu (Đấu Trường)</div>
+                        <div class="toggle-chip count-chip" data-count="all">🌟 Toàn Bộ Kiến Thức</div>
+                    </div>
+                </div>
+
+                <!-- CTA Button -->
+                <button id="btn-start-game" class="cta-button btn-primary">
+                    <span>Bắt Đầu Chiến Lượt 1</span>
+                    <span>🚀</span>
+                </button>
+            </div>
+        </section>
+
+
+        <!-- =========================================================
+             SCREEN 2: GAMEPLAY ARENA
+             ========================================================= -->
+        <section id="screen-arena" class="screen">
+            <div class="arena-container">
+
+                <!-- Remediation Round 2 Indicator Banner -->
+                <div id="remediation-banner" class="remediation-banner">
+                    🔥 Vòng 2: Củng cố các lỗ hổng kiến thức đã sai ở lượt 1
+                </div>
+
+                <!-- HUD Status Bar -->
+                <div class="hud-bar">
+                    <div class="hud-item">
+                        <span class="hud-score-label">Điểm:</span>
+                        <span id="hud-score" class="hud-score-val">0</span>
+                    </div>
+
+                    <!-- Streak Flame Badge -->
+                    <div class="streak-badge">
+                        <span>🔥</span>
+                        <span>Chuỗi: <span id="hud-streak-val">0</span></span>
+                    </div>
+
+                    <div class="hud-item">
+                        <span id="hud-progress-val" class="hud-progress">1/10</span>
+                    </div>
+                </div>
+
+                <!-- Timer Bar -->
+                <div class="timer-container">
+                    <div id="timer-bar" class="timer-bar"></div>
+                </div>
+
+
+                <!-- Question Card -->
+                <div class="question-card">
+                    <div class="question-meta">
+                        <span id="question-tag" class="tag-badge">Trắc nghiệm</span>
+                        <span id="question-level" class="tag-badge">Thông hiểu</span>
+                    </div>
+
+                    <!-- Interactive Virtual Physics Experiment / Scientific Illustration Box -->
+                    <div id="question-visual-box" class="question-visual-box"></div>
+
+                    <!-- Scenario / General Lead-in (for True/False questions) -->
+                    <div id="question-scenario-lead" class="question-scenario-lead" style="display: none;"></div>
+                    <h3 id="question-text" class="question-text">Đang tải câu hỏi...</h3>
+                </div>
+
+                <!-- Answer Layouts -->
+                <!-- Layout 1: Multiple Choice ABCD -->
+                <div id="mc-grid" class="options-grid"></div>
+
+                <!-- Layout 2: Multi-command True/False 4-statement Cards -->
+                <div id="multi-tf-container" class="multi-tf-container" style="display: none;"></div>
+
+            </div>
+        </section>
+
+
+        <!-- =========================================================
+             SCREEN 3: SUMMARY / VICTORY SCREEN
+             ========================================================= -->
+        <section id="screen-summary" class="screen">
+            <div class="summary-card">
+                <div class="summary-trophy">🏆</div>
+                <h2 class="summary-title">Hoàn Thành Bài Thi!</h2>
+                <div id="summary-student-name" class="summary-student-name">Học sinh: Nguyễn Văn An • Lớp 12.1</div>
+                <div id="summary-badge-title" class="summary-badge-title">Chiến Thần Vật Lí Nhiệt</div>
+
+                <div class="stats-grid">
+                    <div class="stat-box">
+                        <div id="summary-score" class="stat-val">0</div>
+                        <div class="stat-label">Tổng Điểm</div>
+                    </div>
+                    <div class="stat-box">
+                        <div id="summary-accuracy" class="stat-val">100%</div>
+                        <div class="stat-label">Độ Chính Xác</div>
+                    </div>
+                    <div class="stat-box">
+                        <div id="summary-streak" class="stat-val">0</div>
+                        <div class="stat-label">Chuỗi Lớn Nhất</div>
+                    </div>
+                </div>
+
+                <!-- Remediation Prompt Box (Appears when there are mistakes) -->
+                <div id="remediation-prompt-box" class="remediation-prompt-box" style="display: none;">
+                    <div class="remediation-prompt-icon">💡</div>
+                    <div class="remediation-prompt-text">
+                        <h3 id="remediation-prompt-title">Phát hiện lỗ hổng kiến thức!</h3>
+                        <p id="remediation-prompt-desc">Hệ thống đã chuẩn bị sẵn bộ câu hỏi bản sao tương đương để bạn luyện tập lại các phần vừa làm sai.</p>
+                    </div>
+                </div>
+
+                <!-- Summary Action Buttons Grid -->
+                <div class="summary-actions-grid">
+                    <button id="btn-start-remediation" class="cta-button btn-primary btn-remediation" style="display: none;">
+                        <span>Luyện Tập Lượt 2 (Củng Cố Câu Sai)</span>
+                        <span>🔥</span>
+                    </button>
+                    <button id="btn-open-teacher-report" class="cta-button btn-primary btn-report">
+                        <span>Báo Cáo Giáo Viên</span>
+                        <span>📋</span>
+                    </button>
+                    <button id="btn-play-again" class="cta-button btn-secondary">
+                        <span>Chơi Lại Từ Đầu</span>
+                        <span>🔄</span>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- =========================================================
+         FEEDBACK OVERLAY MODAL (MEME + PER-STATEMENT EXPLANATIONS)
+         ========================================================= -->
+    <div id="feedback-overlay" class="feedback-overlay">
+        <div class="feedback-card">
+            <div id="feedback-meme" class="feedback-meme-icon">🔥</div>
+            <h3 id="feedback-title" class="feedback-title">Chính Xác!</h3>
+            <div id="feedback-pts" class="feedback-pts">+1,250 Điểm</div>
+            
+            <!-- Explanation List (Supports both Single explanation and 4-statement breakdowns) -->
+            <div id="feedback-explain-list" class="feedback-explain-list"></div>
+
+            <button id="btn-next-question" class="cta-button btn-primary">
+                <span>Câu Tiếp Theo</span>
+                <span>➡️</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- =========================================================
+         TEACHER REPORT MODAL (DETAILED ANALYTICS & CSV EXPORT)
+         ========================================================= -->
+    <div id="modal-teacher-report" class="modal-overlay">
+        <div class="report-modal-card">
+            <div class="report-header">
+                <h3>📋 Báo Cáo Kết Quả Học Tập Gửi Giáo Viên</h3>
+                <button id="btn-close-report" class="icon-btn" title="Đóng">✖️</button>
+            </div>
+
+            <div class="report-meta-grid">
+                <div class="report-meta-box">
+                    <span>Học Sinh:</span>
+                    <strong id="rep-student-name">--</strong>
+                </div>
+                <div class="report-meta-box">
+                    <span>Lớp:</span>
+                    <strong id="rep-student-class">--</strong>
+                </div>
+                <div class="report-meta-box">
+                    <span>Tổng Điểm:</span>
+                    <strong id="rep-total-score">0</strong>
+                </div>
+                <div class="report-meta-box">
+                    <span>Độ Chính Xác:</span>
+                    <strong id="rep-accuracy">0%</strong>
+                </div>
+            </div>
+
+            <div class="report-table-wrapper">
+                <table class="report-table">
+                    <thead>
+                        <tr>
+                            <th>STT / Ý</th>
+                            <th>Nội Dung Câu Hỏi & Mệnh Đề</th>
+                            <th>Học Sinh Chọn</th>
+                            <th>Đáp Án</th>
+                            <th>Kết Quả</th>
+                        </tr>
+                    </thead>
+                    <tbody id="report-table-body">
+                        <!-- Dynamic rows populated by JS -->
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="report-actions">
+                <button id="btn-export-csv" class="cta-button btn-primary" style="width: auto; padding: 12px 20px; font-size: 14px;">
+                    <span>Tải Báo Cáo CSV</span>
+                    <span>📥</span>
+                </button>
+                <button id="btn-print-report" class="cta-button btn-secondary" style="width: auto; padding: 12px 20px; font-size: 14px;">
+                    <span>In / Lưu PDF</span>
+                    <span>🖨️</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scientific Image Lightbox / Zoom Modal -->
+    <div id="image-zoom-modal" class="image-zoom-overlay">
+        <div class="image-zoom-content">
+            <button id="btn-close-zoom-modal" class="btn-close-zoom" title="Đóng">&times;</button>
+            <div class="image-zoom-caption" id="image-zoom-caption">🔬 Hình minh họa khoa học chuẩn SGK Vật Lí 12</div>
+            <img id="image-zoom-img" src="" alt="Hình minh họa phóng to" class="image-zoom-view" />
+        </div>
+    </div>
+
+    <!-- KaTeX Scripts (Local with CDN fallback) -->
+    <script src="lib/katex/katex.min.js"></script>
+    <script src="lib/katex/auto-render.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" crossorigin="anonymous"></script>
+
+    <!-- Application Game Scripts -->
+    <script src="js/audio.js?v=6.0.0"></script>
+    <script src="js/confetti.js?v=6.0.0"></script>
+    <script src="js/questions.js?v=6.0.0"></script>
+    <script src="js/simulations.js?v=6.0.0"></script>
+    <script src="js/app.js?v=6.0.0"></script>
+
+</body>
+</html>
