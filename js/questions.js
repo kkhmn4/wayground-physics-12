@@ -2374,7 +2374,7 @@ const CLONE_BANK = {
                 "Lực tương tác giữa các phân tử của hai vật bằng nhau."
             ],
             "correct": 1,
-            "explanation": "Ghi nhớ cốt lõi: Về mặt vi mô, nhiệt độ là đại lượng tỷ lệ thuận với động năng tịnh tiến trung bình của các phân tử: $\\bar{E}_đ = \\frac{3}{2} k T$. Hai vật có cùng nhiệt độ thì động năng trung bình của các phân tử bằng nhau."
+            "explanation": "Ghi nhớ cốt lõi: Về mặt vi mô, nhiệt độ là đại lượng tỷ lệ thuận với động năng tịnh tiến trung bình của các phân tử: $\\bar{E}_{\\text{đ}} = \\frac{3}{2} k T$. Hai vật có cùng nhiệt độ thì động năng trung bình của các phân tử bằng nhau."
         },
         {
             "id": "clone_u3_knnd_v2",

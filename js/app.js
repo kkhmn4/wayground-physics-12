@@ -501,11 +501,11 @@ class WaygroundGame {
                     if (optionBtns[3]) { e.preventDefault(); optionBtns[3].click(); }
                 }
 
-                // Powerups shortcuts
-                if (key === 'f') this.btnFiftyFifty.click();
-                if (key === 'z') this.btnFreeze.click();
-                if (key === 'x') this.btnDoubleDown.click();
-                if (key === 's') this.btnShield.click();
+                // Powerups shortcuts (Null-safe)
+                if (key === 'f') this.btnFiftyFifty?.click();
+                if (key === 'z') this.btnFreeze?.click();
+                if (key === 'x') this.btnDoubleDown?.click();
+                if (key === 's') this.btnShield?.click();
             }
 
             // When in lobby: Enter starts game
@@ -582,20 +582,22 @@ class WaygroundGame {
                 pool = [...QUESTION_BANK[this.config.unit].questions];
             }
 
-            // Filter by learning mode / difficulty tier
-            if (this.config.mode === 'basic') {
-                pool = pool.filter(q => q.level === 'Nhận biết');
-            } else if (this.config.mode === 'challenging') {
-                pool = pool.filter(q => q.level === 'Thông hiểu');
-            } else if (this.config.mode === 'advanced') {
-                pool = pool.filter(q => q.level === 'Vận dụng cao');
-            }
-
             // Filter by question type
             if (this.config.questionType === 'multiple_choice') {
                 pool = pool.filter(q => q.type === 'multiple_choice');
             } else if (this.config.questionType === 'multi_tf') {
                 pool = pool.filter(q => q.type === 'multi_tf');
+            }
+
+            // Filter by learning mode / difficulty tier
+            if (this.config.mode === 'basic') {
+                const basicPool = pool.filter(q => q.level === 'Nhận biết');
+                // Graceful fallback: If selecting multi_tf in basic mode, include 'Thông hiểu' so pool is not empty
+                pool = basicPool.length > 0 ? basicPool : pool.filter(q => q.level === 'Thông hiểu');
+            } else if (this.config.mode === 'challenging') {
+                pool = pool.filter(q => q.level === 'Thông hiểu');
+            } else if (this.config.mode === 'advanced') {
+                pool = pool.filter(q => q.level === 'Vận dụng cao');
             }
 
             if (pool.length === 0) {
@@ -1026,14 +1028,17 @@ class WaygroundGame {
 
         const studentAnswers = new Array(q.statements.length).fill(null);
 
+        const labels = ['a', 'b', 'c', 'd'];
         q.statements.forEach((stmt, idx) => {
             const card = document.createElement('div');
             card.className = 'multi-tf-card';
+            const labelText = stmt.label || `${labels[idx]})`;
+            const leadHtml = stmt.lead ? `<span class="stmt-lead-text">${stmt.lead}</span>` : '';
             card.innerHTML = `
                 <div class="multi-tf-statement-box">
-                    <div class="stmt-label-badge">${stmt.label}</div>
+                    <div class="stmt-label-badge">${labelText}</div>
                     <div class="stmt-content">
-                        <span class="stmt-lead-text">${stmt.lead}</span>
+                        ${leadHtml}
                         <span>${stmt.text}</span>
                     </div>
                 </div>
@@ -1124,26 +1129,29 @@ class WaygroundGame {
         this.stopTimer();
         let correctCount = 0;
         const statementResults = [];
+        const labels = ['a', 'b', 'c', 'd'];
 
         q.statements.forEach((stmt, idx) => {
-            const isMatch = studentAnswers[idx] === stmt.isTrue;
+            const trueVal = stmt.isCorrect !== undefined ? stmt.isCorrect : !!stmt.isTrue;
+            const isMatch = studentAnswers[idx] === trueVal;
             if (isMatch) correctCount++;
 
+            const stmtLabel = stmt.label || `${labels[idx]})`;
             statementResults.push({
-                label: stmt.label,
-                text: `${stmt.lead} ${stmt.text}`,
+                label: stmtLabel,
+                text: stmt.text,
                 userChoice: studentAnswers[idx] ? "Đúng" : "Sai",
-                correctChoice: stmt.isTrue ? "Đúng" : "Sai",
+                correctChoice: trueVal ? "Đúng" : "Sai",
                 isCorrect: isMatch,
-                explanation: stmt.explanation
+                explanation: stmt.explanation || q.explanation || "Nắm vững lý thuyết SGK để phân tích chính xác."
             });
 
             // Record to teacher history
             this.state.sessionHistory.push({
                 round: this.state.round,
-                type: `Đúng/Sai Ý (${stmt.label})`,
-                title: `${stmt.lead} ${stmt.text}`,
-                detail: `Chọn: ${studentAnswers[idx] ? "Đúng" : "Sai"} | Chuẩn: ${stmt.isTrue ? "Đúng" : "Sai"}`,
+                type: `Đúng/Sai Ý (${stmtLabel})`,
+                title: `${q.question || q.context || 'Câu hỏi Đúng/Sai'}: Ý (${stmtLabel}) ${stmt.text.substring(0, 60)}...`,
+                detail: `Chọn: ${studentAnswers[idx] ? "Đúng" : "Sai"} | Chuẩn: ${trueVal ? "Đúng" : "Sai"}`,
                 status: isMatch ? "Đạt" : "Chưa đạt",
                 score: isMatch ? 250 : 0
             });
@@ -1760,11 +1768,27 @@ class WaygroundGame {
                     <div><strong>Giải thích chi tiết:</strong> ${q.explanation || 'Đọc kĩ các định luật và công thức liên quan trong SGK.'}</div>
                 `;
             } else if (q.type === 'multi_tf') {
-                expHtml = q.statements.map(s => `
+                const labels = ['a', 'b', 'c', 'd'];
+                const stmtsHtml = q.statements.map((s, idx) => {
+                    const stmtLabel = s.label || `${labels[idx]})`;
+                    const trueVal = s.isCorrect !== undefined ? s.isCorrect : !!s.isTrue;
+                    return `
                     <div style="margin-bottom:8px; padding:8px 12px; background:rgba(255,255,255,0.04); border-radius:8px;">
-                        <strong>Ý (${s.label}) [${s.isTrue ? '<span style="color:#34D399;">ĐÚNG</span>' : '<span style="color:#F87171;">SAI</span>'}]:</strong> ${s.explanation}
+                        <div style="font-weight:700; margin-bottom:4px; display:flex; align-items:center; gap:8px;">
+                            <span>Ý (${stmtLabel}):</span>
+                            <span class="${trueVal ? 'badge-tag-pass' : 'badge-tag-fail'}">${trueVal ? 'ĐÚNG' : 'SAI'}</span>
+                        </div>
+                        <div style="color:var(--text-secondary); font-size:13.5px; line-height:1.5;">${s.text}</div>
                     </div>
-                `).join('');
+                    `;
+                }).join('');
+                expHtml = `
+                    <div style="margin-bottom:10px;"><strong>Đáp án & Bản chất từng phát biểu:</strong></div>
+                    ${stmtsHtml}
+                    <div style="margin-top:10px; padding:10px 12px; background:rgba(56,189,248,0.06); border-radius:8px; border-left:3px solid #38BDF8;">
+                        <strong>Phân tích khoa học chi tiết:</strong> ${q.explanation || 'Đọc kĩ các định luật và công thức liên quan trong SGK.'}
+                    </div>
+                `;
             }
             if (this.studyExplainContent) {
                 this.studyExplainContent.innerHTML = expHtml;
