@@ -16,7 +16,7 @@ class WaygroundGame {
             mode: 'all', // 'all', 'basic', 'challenging', 'advanced'
             count: 6,
             questionTime: 25, // 25 seconds per question
-            timerMode: 'timed' // 'timed' or 'unlimited' (Study Mode)
+            timerMode: 'unlimited' // 'unlimited' (Study Mode) or 'timed' (Arena)
         };
 
         // Student Profile
@@ -71,6 +71,7 @@ class WaygroundGame {
 
         this.initDOMReferences();
         this.bindEvents();
+        this.updateLobbyPreview();
     }
 
     initDOMReferences() {
@@ -91,6 +92,22 @@ class WaygroundGame {
         this.modeCards = document.querySelectorAll('.mode-card');
         this.countChips = document.querySelectorAll('.count-chip');
         this.btnStart = document.getElementById('btn-start-game');
+
+        // Lobby Preview & Summary references
+        this.lobbySummaryCard = document.getElementById('lobby-summary-card');
+        this.summaryQuestionsToPlay = document.getElementById('summary-questions-to-play');
+        this.summaryPoolTotal = document.getElementById('summary-pool-total');
+        this.summaryHeadline = document.getElementById('summary-headline');
+        this.summarySubtext = document.getElementById('summary-subtext');
+        this.summaryCoverageText = document.getElementById('summary-coverage-text');
+        this.summaryCoverageFill = document.getElementById('summary-coverage-fill');
+        this.summaryTagUnit = document.getElementById('summary-tag-unit');
+        this.summaryTagType = document.getElementById('summary-tag-type');
+        this.summaryTagMode = document.getElementById('summary-tag-mode');
+        this.summaryTagTimer = document.getElementById('summary-tag-timer');
+        this.summaryNoticeBox = document.getElementById('summary-notice-box');
+        this.countAllBadge = document.getElementById('count-all-badge');
+        this.btnStartText = document.getElementById('btn-start-text');
 
         // Arena HUD
         this.remediationBanner = document.getElementById('remediation-banner');
@@ -233,6 +250,7 @@ class WaygroundGame {
                 this.unitCards.forEach(c => c.classList.remove('active'));
                 card.classList.add('active');
                 this.config.unit = card.dataset.unit;
+                this.updateLobbyPreview();
                 soundEngine.playClick();
             });
         });
@@ -242,6 +260,7 @@ class WaygroundGame {
                 this.typeCards.forEach(c => c.classList.remove('active'));
                 card.classList.add('active');
                 this.config.questionType = card.dataset.type;
+                this.updateLobbyPreview();
                 soundEngine.playClick();
             });
         });
@@ -251,6 +270,7 @@ class WaygroundGame {
                 this.modeCards.forEach(c => c.classList.remove('active'));
                 card.classList.add('active');
                 this.config.mode = card.dataset.mode;
+                this.updateLobbyPreview();
                 soundEngine.playClick();
             });
         });
@@ -261,6 +281,7 @@ class WaygroundGame {
                 chip.classList.add('active');
                 const rawCount = chip.dataset.count;
                 this.config.count = rawCount === 'all' ? 'all' : parseInt(rawCount, 10);
+                this.updateLobbyPreview();
                 soundEngine.playClick();
             });
         });
@@ -269,9 +290,10 @@ class WaygroundGame {
         if (this.timerChips) {
             this.timerChips.forEach(chip => {
                 chip.addEventListener('click', () => {
-                    this.timerChips.forEach(c => c.classList.remove('selected'));
-                    chip.classList.add('selected');
-                    this.config.timerMode = chip.dataset.timermode;
+                    this.timerChips.forEach(c => c.classList.remove('active'));
+                    chip.classList.add('active');
+                    this.config.timerMode = chip.dataset.timer || 'unlimited';
+                    this.updateLobbyPreview();
                     soundEngine.playClick();
                 });
             });
@@ -454,6 +476,7 @@ class WaygroundGame {
         this.btnPlayAgain.addEventListener('click', () => {
             soundEngine.playClick();
             this.switchScreen('lobby');
+            this.updateLobbyPreview();
         });
 
         // Global Keyboard Shortcuts (Grade 12 Speedrun / iPad Magic Keyboard)
@@ -562,6 +585,146 @@ class WaygroundGame {
     }
 
     // =========================================================================
+    // LOBBY QUESTION COUNT & REAL-TIME PREVIEW ENGINE
+    // =========================================================================
+    getFilteredQuestionPool() {
+        if (typeof QUESTION_BANK === 'undefined') return [];
+
+        let pool = [];
+        if (this.config.unit === 'all') {
+            pool = [
+                ...(QUESTION_BANK.unit1?.questions || []),
+                ...(QUESTION_BANK.unit2?.questions || []),
+                ...(QUESTION_BANK.unit3?.questions || [])
+            ];
+        } else if (QUESTION_BANK[this.config.unit]?.questions) {
+            pool = [...QUESTION_BANK[this.config.unit].questions];
+        }
+
+        // Filter by question type
+        if (this.config.questionType === 'multiple_choice') {
+            pool = pool.filter(q => q.type === 'multiple_choice');
+        } else if (this.config.questionType === 'multi_tf') {
+            pool = pool.filter(q => q.type === 'multi_tf');
+        }
+
+        // Filter by learning mode / difficulty tier
+        if (this.config.mode === 'basic') {
+            const basicPool = pool.filter(q => q.level === 'Nhận biết');
+            pool = basicPool.length > 0 ? basicPool : pool.filter(q => q.level === 'Thông hiểu');
+        } else if (this.config.mode === 'challenging') {
+            pool = pool.filter(q => q.level === 'Thông hiểu');
+        } else if (this.config.mode === 'advanced') {
+            pool = pool.filter(q => q.level === 'Vận dụng cao');
+        }
+
+        return pool;
+    }
+
+    updateLobbyPreview() {
+        const pool = this.getFilteredQuestionPool();
+        const availableCount = pool.length;
+
+        // 1. Update the "Toàn bộ" count chip badge
+        if (this.countAllBadge) {
+            this.countAllBadge.textContent = `Làm hết ${availableCount} câu`;
+        }
+
+        // 2. Determine actual questions to play
+        let questionsToPlay = availableCount;
+        let isAllSelected = this.config.count === 'all';
+        if (!isAllSelected) {
+            const requested = parseInt(this.config.count, 10) || 6;
+            questionsToPlay = Math.min(requested, availableCount);
+        }
+
+        // 3. Update main counter display
+        if (this.summaryQuestionsToPlay) {
+            this.summaryQuestionsToPlay.textContent = questionsToPlay;
+        }
+        if (this.summaryPoolTotal) {
+            this.summaryPoolTotal.textContent = availableCount;
+        }
+
+        // 4. Update coverage progress bar
+        const coveragePct = availableCount > 0 ? Math.round((questionsToPlay / availableCount) * 100) : 0;
+        if (this.summaryCoverageText) {
+            this.summaryCoverageText.textContent = `${coveragePct}% (${questionsToPlay} / ${availableCount} câu)`;
+        }
+        if (this.summaryCoverageFill) {
+            this.summaryCoverageFill.style.width = `${coveragePct}%`;
+        }
+
+        // 5. Update headline and subtext
+        if (this.summaryHeadline && this.summarySubtext) {
+            if (isAllSelected || questionsToPlay === availableCount) {
+                this.summaryHeadline.textContent = `Bạn sẽ làm toàn bộ ${questionsToPlay} câu hỏi`;
+                this.summarySubtext.innerHTML = `Chinh phục <strong>100% kho câu hỏi phù hợp</strong> (${questionsToPlay}/${availableCount} câu) không bỏ sót kiến thức nào!`;
+            } else {
+                this.summaryHeadline.textContent = `Bạn sẽ làm ${questionsToPlay} câu hỏi ngẫu nhiên`;
+                this.summarySubtext.innerHTML = `Hệ thống chọn ngẫu nhiên <strong>${questionsToPlay} câu</strong> từ kho <strong>${availableCount} câu phù hợp</strong> để rèn luyện.`;
+            }
+        }
+
+        // 6. Update summary metadata tags
+        const unitLabels = {
+            all: 'Tổng Hợp Cả 3 Bài',
+            unit1: 'Bài 1: Cấu Trúc Chất',
+            unit2: 'Bài 2: Nội Năng & ĐL I',
+            unit3: 'Bài 3: Thang Nhiệt Độ'
+        };
+        const typeLabels = {
+            all: 'Hỗn Hợp (ABCD & Đúng/Sai)',
+            multiple_choice: 'Trắc Nghiệm ABCD (1 đáp án)',
+            multi_tf: 'Đúng / Sai 4 Lệnh Chuẩn Bộ'
+        };
+        const modeLabels = {
+            all: 'Tất Cả Mức Độ (Tổng Hợp)',
+            basic: 'Cơ Bản (Nhận Biết)',
+            challenging: 'Thử Thách (Thông Hiểu)',
+            advanced: 'Nâng Cao (Vận Dụng Cao)'
+        };
+        const timerLabels = {
+            unlimited: 'Không Tính Giờ (Học Tập)',
+            timed: 'Đếm Ngược 25 Giây (Thi Đấu)'
+        };
+
+        if (this.summaryTagUnit) this.summaryTagUnit.textContent = unitLabels[this.config.unit] || this.config.unit;
+        if (this.summaryTagType) this.summaryTagType.textContent = typeLabels[this.config.questionType] || this.config.questionType;
+        if (this.summaryTagMode) this.summaryTagMode.textContent = modeLabels[this.config.mode] || this.config.mode;
+        if (this.summaryTagTimer) this.summaryTagTimer.textContent = timerLabels[this.config.timerMode] || this.config.timerMode;
+
+        // 7. Contextual Notice / Help Alert
+        if (this.summaryNoticeBox) {
+            if (!isAllSelected && parseInt(this.config.count, 10) > availableCount) {
+                this.summaryNoticeBox.style.display = 'flex';
+                this.summaryNoticeBox.innerHTML = `
+                    <span class="notice-icon">ℹ️</span>
+                    <span>Bạn đã chọn <strong>${this.config.count} câu</strong>, nhưng kho câu hỏi cho lựa chọn này có <strong>${availableCount} câu khả dụng</strong>. Hệ thống sẽ cho bạn làm trọn vẹn toàn bộ <strong>${availableCount} câu</strong>.</span>
+                `;
+            } else if (this.config.questionType === 'multi_tf' && this.config.mode === 'basic') {
+                this.summaryNoticeBox.style.display = 'flex';
+                this.summaryNoticeBox.innerHTML = `
+                    <span class="notice-icon">💡</span>
+                    <span>Dạng câu Đúng/Sai 4 lệnh thường tập trung ở mức Thông hiểu & Vận dụng. Hệ thống tự động ghép các ý nền tảng để bạn rèn luyện hiệu quả.</span>
+                `;
+            } else {
+                this.summaryNoticeBox.style.display = 'none';
+                this.summaryNoticeBox.innerHTML = '';
+            }
+        }
+
+        // 8. Update Start Button Label
+        if (this.btnStartText) {
+            if (isAllSelected || questionsToPlay === availableCount) {
+                this.btnStartText.textContent = `Bắt Đầu Làm Toàn Bộ ${questionsToPlay} Câu Hỏi`;
+            } else {
+                this.btnStartText.textContent = `Bắt Đầu Làm ${questionsToPlay} / ${availableCount} Câu Hỏi`;
+            }
+        }
+    }
+
+    // =========================================================================
     // ROUND INITIALIZATION & QUESTION POOLING
     // =========================================================================
     startRound(roundNumber) {
@@ -571,38 +734,13 @@ class WaygroundGame {
         let pool = [];
 
         if (roundNumber === 1) {
-            // ROUND 1: Standard Questions from QUESTION_BANK
-            if (this.config.unit === 'all') {
-                pool = [
-                    ...QUESTION_BANK.unit1.questions,
-                    ...QUESTION_BANK.unit2.questions,
-                    ...QUESTION_BANK.unit3.questions
-                ];
-            } else if (QUESTION_BANK[this.config.unit]) {
-                pool = [...QUESTION_BANK[this.config.unit].questions];
-            }
-
-            // Filter by question type
-            if (this.config.questionType === 'multiple_choice') {
-                pool = pool.filter(q => q.type === 'multiple_choice');
-            } else if (this.config.questionType === 'multi_tf') {
-                pool = pool.filter(q => q.type === 'multi_tf');
-            }
-
-            // Filter by learning mode / difficulty tier
-            if (this.config.mode === 'basic') {
-                const basicPool = pool.filter(q => q.level === 'Nhận biết');
-                // Graceful fallback: If selecting multi_tf in basic mode, include 'Thông hiểu' so pool is not empty
-                pool = basicPool.length > 0 ? basicPool : pool.filter(q => q.level === 'Thông hiểu');
-            } else if (this.config.mode === 'challenging') {
-                pool = pool.filter(q => q.level === 'Thông hiểu');
-            } else if (this.config.mode === 'advanced') {
-                pool = pool.filter(q => q.level === 'Vận dụng cao');
-            }
+            // ROUND 1: Standard Questions from QUESTION_BANK using consistent filter
+            pool = this.getFilteredQuestionPool();
 
             if (pool.length === 0) {
                 alert("Không tìm thấy câu hỏi nào phù hợp với bộ lọc hiện tại. Hệ thống sẽ hiển thị toàn bộ câu hỏi.");
                 this.config.mode = 'all';
+                this.updateLobbyPreview();
                 return this.startRound(1);
             }
 
