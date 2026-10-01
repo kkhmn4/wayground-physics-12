@@ -473,6 +473,73 @@ class TeacherPortal {
                 history: [
                     { round: 2, type: "Củng cố Lượt 2", title: "Bản sao củng cố: Xilanh nén khí sinh công", detail: "Chọn: [A] | Đáp án: [A]", status: "Đạt", score: 1000 }
                 ]
+            },
+            {
+                id: 'demo_7',
+                name: 'Trần Quang Huy',
+                className: '9.1',
+                timestamp: '08:15 - 21/09',
+                fullDate: '21/09/2026, 08:15:30',
+                mode: 'challenging',
+                modeLabel: 'Thử thách',
+                score: 7900,
+                correctCount: 6,
+                totalQuestions: 6,
+                accuracy: 100,
+                maxStreak: 6,
+                round: 1,
+                rank: 'Rank S+',
+                missedConcepts: [],
+                history: [
+                    { round: 1, type: "Trắc nghiệm ABCD", title: "Hệ thức Định luật Ôm cho đoạn mạch", detail: "Chọn: [B] | Đáp án: [B]", status: "Đạt", score: 1000 },
+                    { round: 1, type: "Trắc nghiệm ABCD", title: "Mạch điện hai điện trở ghép nối tiếp", detail: "Chọn: [A] | Đáp án: [A]", status: "Đạt", score: 1000 },
+                    { round: 1, type: "Đúng/Sai Ý (a)", title: "Thấu kính hội tụ và ảnh thật", detail: "Chọn: Đúng | Chuẩn: Đúng", status: "Đạt", score: 250 },
+                    { round: 1, type: "Đúng/Sai Ý (b)", title: "Độ phóng đại ảnh qua thấu kính", detail: "Chọn: Đúng | Chuẩn: Đúng", status: "Đạt", score: 250 }
+                ]
+            },
+            {
+                id: 'demo_8',
+                name: 'Lê Bảo Minh',
+                className: '10.1',
+                timestamp: '09:20 - 21/09',
+                fullDate: '21/09/2026, 09:20:18',
+                mode: 'challenging',
+                modeLabel: 'Thử thách',
+                score: 6800,
+                correctCount: 5,
+                totalQuestions: 6,
+                accuracy: 83,
+                maxStreak: 4,
+                round: 1,
+                rank: 'Rank S',
+                missedConcepts: ['c_u1_do_dich_chuyen_quang_duong'],
+                history: [
+                    { round: 1, type: "Trắc nghiệm ABCD", title: "Độ dịch chuyển và quãng đường đi được", detail: "Chọn: [C] | Đáp án: [B]", status: "Chưa đạt", score: 0 },
+                    { round: 1, type: "Trắc nghiệm ABCD", title: "Phương trình định luật II Newton", detail: "Chọn: [B] | Đáp án: [B]", status: "Đạt", score: 1000 },
+                    { round: 1, type: "Điền số ngắn", title: "Vận tốc vật rơi tự do chạm đất", detail: "Đáp số: 20 | Chuẩn: 20", status: "Đạt", score: 1000 }
+                ]
+            },
+            {
+                id: 'demo_9',
+                name: 'Phạm Hà Linh',
+                className: '11.2',
+                timestamp: '10:45 - 21/09',
+                fullDate: '21/09/2026, 10:45:02',
+                mode: 'advanced',
+                modeLabel: 'Nâng cao',
+                score: 8200,
+                correctCount: 6,
+                totalQuestions: 6,
+                accuracy: 100,
+                maxStreak: 6,
+                round: 1,
+                rank: 'Rank S+',
+                missedConcepts: [],
+                history: [
+                    { round: 1, type: "Trắc nghiệm ABCD", title: "Pha ban đầu và li độ dao động điều hòa", detail: "Chọn: [A] | Đáp án: [A]", status: "Đạt", score: 1000 },
+                    { round: 1, type: "Trắc nghiệm ABCD", title: "Bước sóng và vận tốc truyền sóng", detail: "Chọn: [C] | Đáp án: [C]", status: "Đạt", score: 1000 },
+                    { round: 1, type: "Điền số ngắn", title: "Cường độ dòng điện định luật Ôm toàn mạch", detail: "Đáp số: 2 | Chuẩn: 2", status: "Đạt", score: 1000 }
+                ]
             }
         ];
 
@@ -536,7 +603,7 @@ class TeacherPortal {
             if (filtered.length === 0) {
                 const emptyTr = document.createElement('tr');
                 emptyTr.innerHTML = `<td colspan="11" style="text-align: center; padding: 32px; color: var(--text-muted);">
-                    Chưa có bài làm nào phù hợp với bộ lọc. Hãy đổi bộ lọc hoặc bấm "Nạp Demo Lớp 12"!
+                    Chưa có bài làm nào phù hợp với bộ lọc. Hãy đổi bộ lọc hoặc bấm "Nạp Demo Các Khối Lớp"!
                 </td>`;
                 this.tableBody.appendChild(emptyTr);
             } else {

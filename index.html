@@ -1819,6 +1819,8 @@
     <script src="js/confetti.js?v=6.0.0"></script>
     <script src="js/questions.js?v=6.0.0"></script>
     <script src="js/physics9_data.js?v=6.0.0"></script>
+    <script src="js/physics10_data.js?v=2.1.0"></script>
+    <script src="js/physics11_data.js?v=2.1.0"></script>
     <script src="js/simulations.js?v=6.0.0"></script>
     <script src="js/app.js?v=6.0.0"></script>
 
@@ -1832,8 +1834,6 @@
     <script src="js/minigames_manager.js?v=6.1.0"></script>
 
     <!-- Micro-Learning Platform Engine & Master Data Banks (Physics 9, 10, 11, 12) -->
-    <script src="js/physics10_data.js?v=2.1.0"></script>
-    <script src="js/physics11_data.js?v=2.1.0"></script>
     <script src="js/physics9_microlearning_data.js?v=2.1.0"></script>
     <script src="js/physics10_microlearning_data.js?v=2.1.0"></script>
     <script src="js/physics11_microlearning_data.js?v=2.1.0"></script>
@@ -1864,6 +1864,167 @@
             11: { icon: '🌊', name: 'Vật Lí 11 • GDPT 2018', bank: typeof QUESTION_BANK_11 !== 'undefined' ? QUESTION_BANK_11 : null, color: '#8B5CF6' },
             12: { icon: '⚛️', name: 'Vật Lí 12 • GDPT 2018', bank: window.BACKUP_QB_12, color: '#0284C7' }
         };
+
+        const GRADE_JOURNEY_DATA = {
+            12: {
+                badge: "📚 CHƯƠNG TRÌNH VẬT LÍ 12 • GDPT 2018 (THI TN THPT)",
+                title: "🧭 Lộ Trình Học Tập & Luyện Đề Theo Từng Bài Học Lớp 12",
+                subtitle: "Chọn bài học để vào học mô phỏng phân tử 4E hoặc luyện đề phân hóa 3 phần chuẩn cấu trúc Bộ GD&ĐT 2025.",
+                lessons: [
+                    { id: "p12_l01_cau_truc_chat_chuyen_the", unitKey: "unit1", title: "Bài 1: Cấu Trúc Chất. Sự Chuyển Thể", chapter: "Chương 1", count: "24 câu hỏi", icon: "🧊", img: "images/three_states_matter.jpg", desc: "Mô hình phân tử, chất rắn kết tinh vs vô định hình, đường biểu diễn chuyển thể nhiệt.", tags: ["Mô hình động học", "Rắn • Lỏng • Khí"] },
+                    { id: "p12_l02_noi_nang_dinh_luat_1", unitKey: "unit2", title: "Bài 2: Nội Năng & Định Luật I NĐLH", chapter: "Chương 1", count: "24 câu hỏi", icon: "⚙️", img: "images/dl1_thermodynamics_piston.jpg", desc: "Nội năng U, truyền nhiệt Q, thực hiện công A, nguyên lý ΔU = A + Q và ứng dụng.", tags: ["ΔU = A + Q", "Động cơ nhiệt"] },
+                    { id: "p12_l03_nhiet_do_thang_nhiet_ke", unitKey: "unit3", title: "Bài 3: Nhiệt Độ. Thang Đo & Nhiệt Kế", chapter: "Chương 1", count: "24 câu hỏi", icon: "🌡️", img: "images/three_temperature_scales.jpg", desc: "Thang Celsius, thang Kelvin T = t + 273,15, độ không tuyệt đối 0 K và nhiệt kế.", tags: ["Thang Kelvin", "Nhiệt kế y tế"] },
+                    { id: "p12_l04_nhiet_dung_rieng_thi_nghiem", unitKey: "unit4", title: "Bài 4: Nhiệt Dung Riêng & Thí Nghiệm", chapter: "Chương 1", count: "24 câu hỏi", icon: "🧪", img: "images/calorimeter_specific_heat.jpg", desc: "Định nghĩa nhiệt dung riêng c, công thức Q = mcΔT, thực hành đo nhiệt lượng kế.", tags: ["Q = mcΔT", "Nhiệt lượng kế"] },
+                    { id: "p12_l05_nhiet_nong_chay_hoa_hoi", unitKey: "unit5", title: "Bài 5: Nhiệt Nóng Chảy & Hóa Hơi Riêng", chapter: "Chương 1", count: "24 câu hỏi", icon: "💧", img: "images/snow_melting_cold.jpg", desc: "Nhiệt nóng chảy riêng λ, nhiệt hóa hơi riêng L, cân bằng nhiệt và hao phí.", tags: ["Q = mλ", "Q = mL"] },
+                    { id: "p12_l06_mo_hinh_chat_khi", unitKey: "unit6", title: "Bài 6: Mô Hình Động Học Chất Khí", chapter: "Chương 2", count: "24 câu hỏi", icon: "🎈", img: "images/gas_molecular_distance.jpg", desc: "Khí lí tưởng, chuyển động hỗn loạn Brown, áp suất chất khí tác dụng lên thành bình.", tags: ["Khí lí tưởng", "Áp suất phân tử"] },
+                    { id: "p12_l07_dinh_luat_boyle", unitKey: "unit7", title: "Bài 7: Định Luật Boyle (Đẳng Nhiệt)", chapter: "Chương 2", count: "24 câu hỏi", icon: "📉", img: "images/boyle_law_isotherm.jpg", desc: "Quá trình đẳng nhiệt, đồ thị hyperbol p - V, định luật Boyle p₁V₁ = p₂V₂.", tags: ["p₁V₁ = p₂V₂", "Đường đẳng nhiệt"] },
+                    { id: "p12_l08_dinh_luat_charles_pttt", unitKey: "unit8", title: "Bài 8: Định Luật Charles & PTTT Khí", chapter: "Chương 2", count: "24 câu hỏi", icon: "☀️", img: "images/isobaric_work_pv.jpg", desc: "Quá trình đẳng áp V/T = hằng số, phương trình trạng thái khí lí tưởng pV/T = const.", tags: ["V/T = const", "pV = nRT"] }
+                ]
+            },
+            11: {
+                badge: "📚 CHƯƠNG TRÌNH VẬT LÍ 11 • GDPT 2018",
+                title: "🧭 Lộ Trình Học Tập & Luyện Đề Theo Chuyên Đề Lớp 11",
+                subtitle: "Khám phá dao động điều hòa, sóng cơ, điện trường và định luật Ôm toàn mạch qua mô phỏng & luyện đề phân hóa.",
+                lessons: [
+                    { id: "p11_l01_dao_dong_dieu_hoa", unitKey: "u11_dao_dong", title: "Chương 1: Dao Động Điều Hòa & Năng Lượng", chapter: "Chương 1", count: "12 câu hỏi", icon: "🌊", img: "images/temp_molecular_speed.jpg", desc: "Phương trình x = Acos(ωt + φ), vận tốc, gia tốc, con lắc lò xo, con lắc đơn và cộng hưởng.", tags: ["x = Acos(ωt+φ)", "Cộng hưởng cơ"] },
+                    { id: "p11_l02_song_co_giao_thoa", unitKey: "u11_song_co", title: "Chương 2: Sóng Cơ, Giao Thoa Sóng & Sóng Dừng", chapter: "Chương 2", count: "12 câu hỏi", icon: "〰️", img: "images/intermolecular_forces_r0.jpg", desc: "Bước sóng λ = v/f, giao thoa sóng nước 2 nguồn kết hợp cùng pha, sóng dừng trên sợi dây.", tags: ["Bước sóng λ", "Vân giao thoa"] },
+                    { id: "p11_l03_dien_truong_dien_the", unitKey: "u11_dien_truong", title: "Chương 3: Điện Trường, Điện Thế & Tụ Điện", chapter: "Chương 3", count: "12 câu hỏi", icon: "⚡", img: "images/triple_point_water.jpg", desc: "Định luật Coulomb, điện trường đều E = U/d, công của lực điện A = qEd, điện dung tụ điện.", tags: ["Coulomb F = kq₁q₂/r²", "Tụ điện C = Q/U"] },
+                    { id: "p11_l04_dong_dien_toan_mach", unitKey: "u11_dong_dien", title: "Chương 4: Dòng Điện Không Đổi & ĐL Ôm Toàn Mạch", chapter: "Chương 4", count: "12 câu hỏi", icon: "🔋", img: "images/bicycle_pump_heating.jpg", desc: "Suất điện động E, định luật Ôm toàn mạch I = E/(R_N + r), hiệu suất nguồn điện, Joule - Lenz.", tags: ["ĐL Ôm toàn mạch", "Q = I²Rt"] }
+                ]
+            },
+            10: {
+                badge: "📚 CHƯƠNG TRÌNH VẬT LÍ 10 • GDPT 2018",
+                title: "🧭 Lộ Trình Học Tập & Luyện Đề Theo Chuyên Đề Lớp 10",
+                subtitle: "Làm chủ chuyển động thẳng biến đổi đều, 3 định luật Newton, định luật bảo toàn cơ năng và động lượng.",
+                lessons: [
+                    { id: "p10_l01_chuyen_dong_bien_doi_deu", unitKey: "u10_dong_hoc", title: "Chương 2: Mô Tả Chuyển Động & Rơi Tự Do", chapter: "Chương 2", count: "12 câu hỏi", icon: "🚗", img: "images/temp_molecular_speed.jpg", desc: "Gia tốc a = (v - v₀)/t, đồ thị v - t, công thức độc lập v² - v₀² = 2ad, rơi tự do trong chân không.", tags: ["Gia tốc a", "Rơi tự do v = √(2gh)"] },
+                    { id: "p10_l02_dinh_luat_newton", unitKey: "u10_dong_luc_hoc", title: "Chương 3: Ba Định Luật Newton & Các Lực", chapter: "Chương 3", count: "12 câu hỏi", icon: "🍎", img: "images/intermolecular_forces_r0.jpg", desc: "ĐL I (quán tính), ĐL II F = ma, ĐL III lực & phản lực, lực ma sát trượt F_mst = μN.", tags: ["F = ma", "Ma sát trượt μN"] },
+                    { id: "p10_l03_nang_luong_cong_co_hoc", unitKey: "u10_nang_luong", title: "Chương 4: Năng Lượng, Công Cơ Học & Cơ Năng", chapter: "Chương 4", count: "12 câu hỏi", icon: "⚙️", img: "images/change_internal_energy.jpg", desc: "Công A = Fscosα, công suất P = A/t, động năng W_d = 1/2mv², thế năng W_t = mgz, bảo toàn cơ năng.", tags: ["A = Fscosα", "Bảo toàn cơ năng"] },
+                    { id: "p10_l04_dong_luong_bao_toan", unitKey: "u10_dong_luong", title: "Chương 5: Động Lượng & Bảo Toàn Động Lượng", chapter: "Chương 5", count: "12 câu hỏi", icon: "🚀", img: "images/heat_engine_principle.jpg", desc: "Vectơ động lượng p = mv, xung lượng của lực FΔt = Δp, va chạm mềm, chuyển động bằng phản lực.", tags: ["p = mv", "Phản lực & Va chạm"] }
+                ]
+            },
+            9: {
+                badge: "📚 CHƯƠNG TRÌNH KHTN / VẬT LÍ 9 • GDPT 2018",
+                title: "🧭 Lộ Trình Học Tập & Luyện Đề Ôn Thi Vào 10 - Lớp 9",
+                subtitle: "Ôn tập toàn diện điện học, điện từ học, thấu kính quang học và bảo toàn năng lượng phục vụ thi tuyển sinh vào 10.",
+                lessons: [
+                    { id: "p9_l01_dinh_luat_om", unitKey: "u9_dien_hoc", title: "Chương 1: Điện Học & Định Luật Ôm", chapter: "Chương 1", count: "12 câu hỏi", icon: "💡", img: "images/clinical_thermometer.jpg", desc: "Định luật Ôm I = U/R, điện trở dây dẫn R = ρl/S, công suất điện P = UI, định luật Joule - Lenz.", tags: ["I = U/R", "Công suất P = UI"] },
+                    { id: "p9_l02_doan_mach_nt_ss", unitKey: "u9_dien_tu_hoc", title: "Chương 2: Điện Từ Học & Máy Biến Thế", chapter: "Chương 2", count: "12 câu hỏi", icon: "🧲", img: "images/brownian_motion.jpg", desc: "Quy tắc nắm tay phải, quy tắc bàn tay trái, cảm ứng điện từ, máy biến thế U₁/U₂ = N₁/N₂, truyền tải điện.", tags: ["Tay phải • Tay trái", "U₁/U₂ = N₁/N₂"] },
+                    { id: "p9_l03_bien_tro", unitKey: "u9_quang_hoc", title: "Chương 3: Quang Học, Thấu Kính & Mắt", chapter: "Chương 3", count: "12 câu hỏi", icon: "🔍", img: "images/crystal_vs_amorphous.jpg", desc: "Hiện tượng khúc xạ ánh sáng r < i, ảnh thấu kính hội tụ, phân kì, tật cận thị & mắt lão, kính lúp.", tags: ["Khúc xạ r < i", "Mắt cận & Mắt lão"] },
+                    { id: "p9_l04_cong_suat_dien", unitKey: "u9_nang_luong", title: "Chương 4: Sự Chuyển Hóa & Bảo Toàn Năng Lượng", chapter: "Chương 4", count: "12 câu hỏi", icon: "🌱", img: "images/phase_transition_diagram.jpg", desc: "Định luật bảo toàn năng lượng, nhà máy thủy điện, nhiệt điện, năng lượng tái tạo gió & mặt trời.", tags: ["Bảo toàn năng lượng", "Năng lượng xanh"] }
+                ]
+            }
+        };
+
+        const GRADE_MISSIONS_DATA = {
+            12: [
+                { id: "m_login_12", text: "Đăng nhập rèn luyện hôm nay (+50 XP)", isDone: true },
+                { id: "m_quiz_12", text: "Luyện 1 đề Vật lí nhiệt 2025 (+100 XP)", isDone: false },
+                { id: "m_remed_12", text: "Củng cố 100% câu sai Lượt 2 (+150 XP)", isDone: false }
+            ],
+            11: [
+                { id: "m_login_11", text: "Đăng nhập rèn luyện hôm nay (+50 XP)", isDone: true },
+                { id: "m_quiz_11", text: "Luyện 10 câu Dao động & Sóng cơ (+100 XP)", isDone: false },
+                { id: "m_remed_11", text: "Khám phá mô phỏng Chu kì con lắc (+150 XP)", isDone: false }
+            ],
+            10: [
+                { id: "m_login_10", text: "Đăng nhập rèn luyện hôm nay (+50 XP)", isDone: true },
+                { id: "m_quiz_10", text: "Giải đề Động học & 3 Định luật Newton (+100 XP)", isDone: false },
+                { id: "m_remed_10", text: "Chinh phục thử thách Rơi tự do (+150 XP)", isDone: false }
+            ],
+            9: [
+                { id: "m_login_9", text: "Đăng nhập rèn luyện hôm nay (+50 XP)", isDone: true },
+                { id: "m_quiz_9", text: "Luyện 10 câu Định luật Ôm & Mạch điện (+100 XP)", isDone: false },
+                { id: "m_remed_9", text: "Chinh phục Trùm Lord Ohm (+150 XP)", isDone: false }
+            ]
+        };
+
+        const GRADE_PROFILES = {
+            12: { name: "Thí sinh 2025", role: "Lớp 12 • Thi Đấu" },
+            11: { name: "Học sinh 2026", role: "Lớp 11 • Chuyên Đề" },
+            10: { name: "Học sinh 2027", role: "Lớp 10 • Nền Tảng" },
+            9:  { name: "Học sinh THCS", role: "Lớp 9 • Ôn Thi Vào 10" }
+        };
+
+        function renderJourneyLessonsForGrade(grade) {
+            const data = GRADE_JOURNEY_DATA[grade] || GRADE_JOURNEY_DATA[12];
+            const badgeEl = document.querySelector('.journey-badge');
+            const titleEl = document.querySelector('.journey-title');
+            const subEl = document.querySelector('.journey-subtitle');
+            const gridEl = document.querySelector('.journey-cards-grid');
+
+            if (badgeEl) badgeEl.textContent = data.badge;
+            if (titleEl) titleEl.textContent = data.title;
+            if (subEl) subEl.textContent = data.subtitle;
+
+            if (gridEl) {
+                gridEl.innerHTML = data.lessons.map(l => `
+                    <div class="journey-lesson-card" data-lesson-id="${l.id}" data-unit-key="${l.unitKey}">
+                        <div class="j-card-media">
+                            <img src="${l.img}" alt="${l.title}" class="j-media-img" loading="lazy">
+                            <div class="j-media-overlay"></div>
+                            <span class="j-media-badge">${l.chapter}</span>
+                            <span class="j-media-count">${l.count}</span>
+                        </div>
+                        <div class="j-card-body">
+                            <div class="j-card-title-row">
+                                <div class="j-card-icon">${l.icon}</div>
+                                <h4>${l.title}</h4>
+                            </div>
+                            <p class="j-card-desc">${l.desc}</p>
+                            <div class="j-card-tags">
+                                ${l.tags.map(t => `<span class="j-tag">📌 ${t}</span>`).join('')}
+                            </div>
+                        </div>
+                        <div class="j-card-actions">
+                            <button type="button" class="btn-j-action btn-j-learn" data-lesson-id="${l.id}">
+                                <span>🚀 Học Mô Phỏng 4E</span>
+                            </button>
+                            <button type="button" class="btn-j-action btn-j-drill" data-unit-key="${l.unitKey}">
+                                <span>📝 Luyện Đề</span>
+                            </button>
+                        </div>
+                    </div>
+                `).join('');
+
+                // Re-bind events in gameInstance
+                if (window.gameInstance && typeof window.gameInstance.bindJourneyHubEvents === 'function') {
+                    window.gameInstance.bindJourneyHubEvents();
+                }
+            }
+        }
+
+        function renderMissionsForGrade(grade) {
+            const listEl = document.querySelector('.streak-mission-list');
+            if (!listEl) return;
+            const missions = GRADE_MISSIONS_DATA[grade] || GRADE_MISSIONS_DATA[12];
+            
+            // Check completed history
+            let hasCompletedQuiz = false;
+            try {
+                const history = JSON.parse(localStorage.getItem('wayground_history') || '[]');
+                if (history && history.length > 0) hasCompletedQuiz = true;
+            } catch (e) {}
+
+            listEl.innerHTML = missions.map((m, idx) => {
+                let done = m.isDone;
+                if (idx === 1 && hasCompletedQuiz) done = true;
+                return `
+                    <div class="streak-mission-item ${done ? 'done' : ''}">
+                        <span class="mission-check">${done ? '✓' : '○'}</span>
+                        <span>${m.text}</span>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function updateProfileForGrade(grade) {
+            const prof = GRADE_PROFILES[grade] || GRADE_PROFILES[12];
+            const nameEl = document.getElementById('header-student-name');
+            const classEl = document.querySelector('.profile-class-mini');
+            if (nameEl) nameEl.textContent = prof.name;
+            if (classEl) classEl.textContent = prof.role;
+        }
 
         function setSubject(grade) {
             grade = parseInt(grade);
@@ -1898,6 +2059,11 @@
                 window.microEngine.loadGradeData(grade);
             }
 
+            // Update Dynamic Journey lessons & Bento missions
+            renderJourneyLessonsForGrade(grade);
+            renderMissionsForGrade(grade);
+            updateProfileForGrade(grade);
+
             if (window.gameInstance && typeof window.gameInstance.updatePresetCountTags === 'function') {
                 window.gameInstance.updatePresetCountTags();
             }
@@ -1908,6 +2074,9 @@
                 gradeButtons[g].addEventListener('click', () => setSubject(g));
             }
         });
+
+        // Khởi tạo bài học và nhiệm vụ mặc định Lớp 12
+        setSubject(12);
 
         // Xử lý nút mở Lộ trình Micro-Learning
         if (btnMicro) {

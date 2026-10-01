@@ -996,32 +996,24 @@ class WaygroundGame {
     startDrillForUnit(unitKey) {
         if (typeof QUESTION_BANK === 'undefined' || !QUESTION_BANK[unitKey]) return;
         
-        // Cấu hình tab by-unit
-        this.config.activeTab = 'by-unit';
-        if (this.tabBtnByUnit) {
-            document.querySelectorAll('.lobby-tab-btn').forEach(btn => btn.classList.remove('active'));
-            this.tabBtnByUnit.classList.add('active');
-        }
-        if (this.panelPresets) this.panelPresets.classList.remove('active');
-        if (this.panelCustom) this.panelCustom.classList.remove('active');
-        if (this.panelByUnit) this.panelByUnit.classList.add('active');
+        const unitQuestions = QUESTION_BANK[unitKey]?.questions || [];
+        if (unitQuestions.length === 0) return;
 
-        // Đặt unit này = 10 câu (hoặc max), các unit khác = 0
-        const allUnits = ['unit1', 'unit2', 'unit3', 'unit4', 'unit5', 'unit6', 'unit7', 'unit8'];
-        allUnits.forEach(u => {
-            if (this.byUnitConfig[u]) {
-                const targetCount = (u === unitKey) ? Math.min(10, QUESTION_BANK[u].questions.length) : 0;
-                this.byUnitConfig[u].count = targetCount;
-                const inp = document.getElementById(`count-input-${u}`);
-                if (inp) inp.value = targetCount;
-                
-                // Đồng bộ pills
-                document.querySelectorAll(`.matrix-pill[data-unit="${u}"]`).forEach(p => {
-                    const v = parseInt(p.dataset.val, 10);
-                    p.classList.toggle('active', v === targetCount);
-                });
-            }
-        });
+        // Cấu hình làm bài trực tiếp theo bài học đã chọn
+        this.config.activeTab = 'preset';
+        this.config.selectedUnits = [unitKey];
+        this.config.unit = unitKey;
+        this.config.questionType = 'all';
+        this.config.mode = 'all';
+        this.config.count = Math.min(10, unitQuestions.length);
+
+        if (this.tabBtnPresets) {
+            document.querySelectorAll('.lobby-tab-btn').forEach(btn => btn.classList.remove('active'));
+            this.tabBtnPresets.classList.add('active');
+        }
+        if (this.panelPresets) this.panelPresets.classList.add('active');
+        if (this.panelCustom) this.panelCustom.classList.remove('active');
+        if (this.panelByUnit) this.panelByUnit.classList.remove('active');
 
         this.updateLobbyPreview();
 
@@ -1033,26 +1025,26 @@ class WaygroundGame {
 
     bindJourneyHubEvents() {
         document.querySelectorAll('.btn-j-learn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
+            btn.onclick = (e) => {
                 e.stopPropagation();
                 const lessonId = btn.dataset.lessonId;
                 if (window.microEngine) {
                     window.microEngine.openLesson(lessonId);
                 }
-            });
+            };
         });
 
         document.querySelectorAll('.btn-j-drill').forEach(btn => {
-            btn.addEventListener('click', (e) => {
+            btn.onclick = (e) => {
                 e.stopPropagation();
                 const unitKey = btn.dataset.unitKey;
                 this.startDrillForUnit(unitKey);
-            });
+            };
         });
 
         const btnJourneyAll = document.getElementById('btn-journey-open-all-micro');
         if (btnJourneyAll) {
-            btnJourneyAll.addEventListener('click', () => {
+            btnJourneyAll.onclick = () => {
                 if (window.microEngine) {
                     window.microEngine.show();
                     const lobby = document.getElementById('screen-lobby');
@@ -1061,7 +1053,7 @@ class WaygroundGame {
                         lobby.classList.remove('active');
                     }
                 }
-            });
+            };
         }
     }
 
