@@ -85,6 +85,7 @@ class WaygroundGame {
         };
 
         this.initDOMReferences();
+        this.initThemeToggle();
         this.bindJourneyHubEvents();
         this.initByUnitDrawers();
         this.bindEvents();
@@ -238,6 +239,12 @@ class WaygroundGame {
         // Sound Toggle
         this.btnToggleSound = document.getElementById('btn-toggle-sound');
 
+        // Theme Toggle & Modern Bento Controls
+        this.btnToggleTheme = document.getElementById('btn-toggle-theme');
+        this.btnHeroQuickStart = document.getElementById('btn-hero-quick-start');
+        this.btnHeroScrollJourney = document.getElementById('btn-hero-scroll-journey');
+        this.headerStudentName = document.getElementById('header-student-name');
+
         // Image Zoom Modal
         this.imageZoomModal = document.getElementById('image-zoom-modal');
         this.imageZoomImg = document.getElementById('image-zoom-img');
@@ -282,10 +289,60 @@ class WaygroundGame {
             const savedClass = localStorage.getItem('wayground_student_class');
             if (savedName && this.inputStudentName) this.inputStudentName.value = savedName;
             if (savedClass && this.inputStudentClass) this.inputStudentClass.value = savedClass;
+            if (savedName && this.headerStudentName) this.headerStudentName.textContent = savedName;
         } catch (e) {}
     }
 
+    initThemeToggle() {
+        const savedTheme = localStorage.getItem('wayground_theme') || 'light';
+        const applyTheme = (theme) => {
+            if (theme === 'dark') {
+                document.body.classList.add('dark-theme');
+                if (this.btnToggleTheme) this.btnToggleTheme.textContent = '🌙';
+            } else {
+                document.body.classList.remove('dark-theme');
+                if (this.btnToggleTheme) this.btnToggleTheme.textContent = '☀️';
+            }
+        };
+
+        applyTheme(savedTheme);
+
+        if (this.btnToggleTheme) {
+            this.btnToggleTheme.addEventListener('click', () => {
+                const isDark = document.body.classList.contains('dark-theme');
+                const newTheme = isDark ? 'light' : 'dark';
+                localStorage.setItem('wayground_theme', newTheme);
+                applyTheme(newTheme);
+                if (window.soundEngine) soundEngine.playClick();
+            });
+        }
+    }
+
     bindEvents() {
+        // Bento Hero CTAs
+        if (this.btnHeroQuickStart) {
+            this.btnHeroQuickStart.addEventListener('click', () => {
+                if (this.btnQuickStart) this.btnQuickStart.click();
+            });
+        }
+        if (this.btnHeroScrollJourney) {
+            this.btnHeroScrollJourney.addEventListener('click', () => {
+                const hub = document.querySelector('.learning-journey-hub');
+                if (hub) hub.scrollIntoView({ behavior: 'smooth' });
+                if (window.soundEngine) soundEngine.playClick();
+            });
+        }
+
+        // Keep header profile chip in sync with student name input
+        if (this.inputStudentName) {
+            this.inputStudentName.addEventListener('input', (e) => {
+                const name = e.target.value.trim();
+                if (this.headerStudentName) {
+                    this.headerStudentName.textContent = name || 'Thí sinh 2025';
+                }
+            });
+        }
+
         // Sound toggle
         this.btnToggleSound.addEventListener('click', () => {
             const isEnabled = soundEngine.toggleSound();

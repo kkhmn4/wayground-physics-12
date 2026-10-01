@@ -48,7 +48,31 @@
             <button type="button" id="btn-sub-phy11" class="sub-tab-btn" data-grade="11" style="border: none; background: transparent; color: #94A3B8; padding: 6px 12px; border-radius: 20px; font-weight: 700; font-size: 0.8rem; cursor: pointer; transition: all 0.2s;">🌊 Lớp 11</button>
             <button type="button" id="btn-sub-phy12" class="sub-tab-btn active" data-grade="12" style="border: none; background: #0284C7; color: #fff; padding: 6px 12px; border-radius: 20px; font-weight: 700; font-size: 0.8rem; cursor: pointer; transition: all 0.2s;">⚛️ Lớp 12</button>
         </div>
+
+        <!-- Header Gamification Bar (Gen Z Ergonomics) -->
+        <div class="header-gamification-bar">
+            <div class="streak-flame-pill" id="header-streak-pill" title="Chuỗi ngày học liên tục">
+                <span class="flame-icon">🔥</span>
+                <span class="streak-count" id="header-streak-count">5 Ngày</span>
+            </div>
+            <div class="xp-level-pill" id="header-xp-pill" title="Cấp độ và XP tích lũy">
+                <span class="xp-tier-badge" id="header-level-badge">Lv.3</span>
+                <span class="xp-text" id="header-xp-text">1,450 XP</span>
+                <div class="xp-progress-track">
+                    <div class="xp-progress-fill" style="width: 72%;"></div>
+                </div>
+            </div>
+            <div class="student-profile-chip" id="header-student-chip" title="Học sinh đang luyện thi">
+                <div class="profile-avatar-mini">🧑‍🎓</div>
+                <div class="profile-meta-mini">
+                    <span class="profile-name-mini" id="header-student-name">Thí sinh 2025</span>
+                    <span class="profile-class-mini">Lớp 12 • Thi Đấu</span>
+                </div>
+            </div>
+        </div>
+
         <div class="header-controls">
+            <button id="btn-toggle-theme" class="icon-btn" title="Đổi giao diện Sáng / Tối (Light / Dark Theme)" aria-label="Toggle Theme">☀️</button>
             <button id="btn-open-microlearning" class="btn-arcade-nav" style="background: linear-gradient(135deg, #7C3AED, #06B6D4); border-color: #38BDF8;" title="Mở Lộ Trình Micro-Learning 9physic (Vừa chơi vừa học)">
                 <span>🚀 Học Micro-Learning</span>
             </button>
@@ -73,10 +97,49 @@
              ========================================================= -->
         <section id="screen-lobby" class="screen active">
             <div class="lobby-card">
-                <div class="hero-banner">
-                    <span class="hero-pill">⚡ Đấu Trường Thích Ứng & Củng Cố Lượt 2</span>
-                    <h2 class="hero-title">Đấu Trường Nhiệt Học 12</h2>
-                    <p class="hero-desc">Luyện tập trắc nghiệm ABCD và Đúng/Sai 4 lệnh chuẩn Bộ GD&ĐT, tự động ghi nhận báo cáo và kích hoạt Vòng 2 củng cố câu sai!</p>
+                <!-- Bento Hero Banner (Modern Gen Z EdTech Hub) -->
+                <div class="bento-hero-banner">
+                    <div class="hero-left-col">
+                        <div class="hero-badge-row">
+                            <span class="hero-pill">⚡ Đấu Trường Thích Ứng & Củng Cố Lượt 2</span>
+                            <span class="hero-pill hero-pill-blue">🎯 Chuẩn Cấu Trúc GDPT 2018</span>
+                        </div>
+                        <h2 class="hero-title">Đấu Trường Vật Lí 12 • Gen Z Modern Hub</h2>
+                        <p class="hero-desc">Luyện tập 3 dạng thức trắc nghiệm (ABCD • Đúng/Sai 4 lệnh • Trả lời ngắn điền số). Tự động phân tích năng lực và kích hoạt Lượt 2 củng cố thích ứng!</p>
+                        <div class="hero-action-row">
+                            <button type="button" class="btn-hero-primary" id="btn-hero-quick-start">
+                                <span>⚡ Luyện Ngay 10 Câu</span>
+                            </button>
+                            <button type="button" class="btn-hero-secondary" id="btn-hero-scroll-journey">
+                                <span>🧭 Chọn Theo Bài Học</span>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="hero-right-col">
+                        <div class="hero-streak-card">
+                            <div class="streak-card-top">
+                                <span class="streak-fire-big">🔥</span>
+                                <div class="streak-text-group">
+                                    <span class="streak-title">Chuỗi ngày học</span>
+                                    <span class="streak-days-big" id="hero-streak-count">5 Ngày Liên Tục</span>
+                                </div>
+                            </div>
+                            <div class="streak-mission-list">
+                                <div class="streak-mission-item done">
+                                    <span class="mission-check">✓</span>
+                                    <span>Đăng nhập rèn luyện hôm nay (+50 XP)</span>
+                                </div>
+                                <div class="streak-mission-item done">
+                                    <span class="mission-check">✓</span>
+                                    <span>Hoàn thành 1 đề thi thử (+100 XP)</span>
+                                </div>
+                                <div class="streak-mission-item">
+                                    <span class="mission-check">○</span>
+                                    <span>Củng cố 100% câu sai Lượt 2</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Quick-Start 1-Click Action for Students -->
@@ -150,7 +213,7 @@
                                 <img src="images/three_states_matter.jpg" alt="Mô hình cấu trúc chất và sự chuyển thể" class="j-media-img" loading="lazy">
                                 <div class="j-media-overlay"></div>
                                 <span class="j-media-badge">Chương 1</span>
-                                <span class="j-media-count">22 câu hỏi</span>
+                                <span class="j-media-count">24 câu hỏi</span>
                             </div>
                             <div class="j-card-body">
                                 <div class="j-card-title-row">
@@ -179,7 +242,7 @@
                                 <img src="images/dl1_thermodynamics_piston.jpg" alt="Nội năng và định luật I NĐLH" class="j-media-img" loading="lazy">
                                 <div class="j-media-overlay"></div>
                                 <span class="j-media-badge">Chương 1</span>
-                                <span class="j-media-count">22 câu hỏi</span>
+                                <span class="j-media-count">24 câu hỏi</span>
                             </div>
                             <div class="j-card-body">
                                 <div class="j-card-title-row">
@@ -208,7 +271,7 @@
                                 <img src="images/three_temperature_scales.jpg" alt="Nhiệt độ và các thang nhiệt kế" class="j-media-img" loading="lazy">
                                 <div class="j-media-overlay"></div>
                                 <span class="j-media-badge">Chương 1</span>
-                                <span class="j-media-count">22 câu hỏi</span>
+                                <span class="j-media-count">24 câu hỏi</span>
                             </div>
                             <div class="j-card-body">
                                 <div class="j-card-title-row">
@@ -237,7 +300,7 @@
                                 <img src="images/calorimeter_specific_heat.jpg" alt="Thí nghiệm đo nhiệt dung riêng" class="j-media-img" loading="lazy">
                                 <div class="j-media-overlay"></div>
                                 <span class="j-media-badge">Chương 1</span>
-                                <span class="j-media-count">10 câu hỏi</span>
+                                <span class="j-media-count">24 câu hỏi</span>
                             </div>
                             <div class="j-card-body">
                                 <div class="j-card-title-row">
@@ -266,7 +329,7 @@
                                 <img src="images/phase_transition_diagram.jpg" alt="Nhiệt nóng chảy và nhiệt hóa hơi" class="j-media-img" loading="lazy">
                                 <div class="j-media-overlay"></div>
                                 <span class="j-media-badge">Chương 1</span>
-                                <span class="j-media-count">10 câu hỏi</span>
+                                <span class="j-media-count">24 câu hỏi</span>
                             </div>
                             <div class="j-card-body">
                                 <div class="j-card-title-row">
@@ -295,7 +358,7 @@
                                 <img src="images/brownian_motion.jpg" alt="Mô hình động học phân tử chất khí" class="j-media-img" loading="lazy">
                                 <div class="j-media-overlay"></div>
                                 <span class="j-media-badge">Chương 2</span>
-                                <span class="j-media-count">10 câu hỏi</span>
+                                <span class="j-media-count">24 câu hỏi</span>
                             </div>
                             <div class="j-card-body">
                                 <div class="j-card-title-row">
@@ -324,7 +387,7 @@
                                 <img src="images/boyle_law_isotherm.jpg" alt="Định luật Boyle đẳng nhiệt" class="j-media-img" loading="lazy">
                                 <div class="j-media-overlay"></div>
                                 <span class="j-media-badge">Chương 2</span>
-                                <span class="j-media-count">10 câu hỏi</span>
+                                <span class="j-media-count">24 câu hỏi</span>
                             </div>
                             <div class="j-card-body">
                                 <div class="j-card-title-row">
@@ -353,7 +416,7 @@
                                 <img src="images/isobaric_work_pv.jpg" alt="Định luật Charles và khí lí tưởng" class="j-media-img" loading="lazy">
                                 <div class="j-media-overlay"></div>
                                 <span class="j-media-badge">Chương 2</span>
-                                <span class="j-media-count">10 câu hỏi</span>
+                                <span class="j-media-count">24 câu hỏi</span>
                             </div>
                             <div class="j-card-body">
                                 <div class="j-card-title-row">
@@ -1092,6 +1155,7 @@
                         </div>
                     </div>
                 </div>
+                </div> <!-- End #panel-custom -->
 
                 <!-- TẤM VÉ BÀI THI CỦA BẠN (MATCH TICKET SUMMARY SIÊU GỌN VÀ DỄ HIỂU) -->
                 <div id="lobby-summary-card" class="lobby-summary-card">
