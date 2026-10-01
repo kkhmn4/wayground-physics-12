@@ -1,6 +1,6 @@
-# ⚛️ Wayground Physics 12 - Đấu Trường Trắc Nghiệm & Củng Cố Kiến Thức
+# ⚛️ Wayground Physics (12 & 9physics) - Đấu Trường Trắc Nghiệm & Củng Cố Kiến Thức
 
-> **Nền tảng học tập trò chơi hóa (Gamified Learning Web App)** môn **Vật Lí 12 - Chương 1: Vật Lí Nhiệt (Chương trình GDPT 2018)** với cơ chế củng cố thích ứng Vòng 2 và phân tích học tập thời gian thực cho giáo viên.
+> **Nền tảng học tập trò chơi hóa (Gamified Learning Web App)** môn **Vật Lí 12 (Vật Lí Nhiệt)** & **Vật Lí 9 (9physics: Điện học, Điện từ học, Quang học - Chương trình GDPT 2018)** với cơ chế củng cố thích ứng Vòng 2 và phân tích học tập thời gian thực cho giáo viên.
 
 🌐 **Trải nghiệm trực tuyến (Live Demo):** [https://kkhmn4.github.io/wayground-physics-12/](https://kkhmn4.github.io/wayground-physics-12/)
 

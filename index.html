@@ -18,8 +18,10 @@
     <link rel="stylesheet" href="lib/katex/katex.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" integrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI+WdtXRGWt2kTvGFasHpSy3SV" crossorigin="anonymous">
 
-    <!-- Main Stylesheet -->
+    <!-- Main Stylesheet, Mini-Games Stylesheet & Micro-Learning Stylesheet -->
     <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/minigames.css?v=6.0.0">
+    <link rel="stylesheet" href="css/micro_learning.css?v=1.0.0">
 </head>
 <body>
 
@@ -32,13 +34,27 @@
     <!-- App Header -->
     <header class="app-header">
         <div class="brand-badge">
-            <div class="brand-logo-icon">⚛️</div>
+            <div class="brand-logo-icon" id="brand-logo-icon">⚛️</div>
             <div class="brand-text">
-                <h1>WAYGROUND</h1>
-                <span>Vật Lí 12 • GDPT 2018</span>
+                <h1 id="brand-title">WAYGROUND</h1>
+                <span id="brand-sub">Vật Lí 12 • GDPT 2018</span>
             </div>
         </div>
+
+        <!-- Subject Switcher: Physics 9, 10, 11, 12 -->
+        <div class="subject-switcher" id="subject-switcher" style="display: flex; gap: 4px; background: rgba(255,255,255,0.06); padding: 4px; border-radius: 30px; border: 1px solid rgba(255,255,255,0.12); margin-left: 8px;">
+            <button type="button" id="btn-sub-phy9" class="sub-tab-btn" data-grade="9" style="border: none; background: transparent; color: #94A3B8; padding: 6px 12px; border-radius: 20px; font-weight: 700; font-size: 0.8rem; cursor: pointer; transition: all 0.2s;">⚡ Lớp 9</button>
+            <button type="button" id="btn-sub-phy10" class="sub-tab-btn" data-grade="10" style="border: none; background: transparent; color: #94A3B8; padding: 6px 12px; border-radius: 20px; font-weight: 700; font-size: 0.8rem; cursor: pointer; transition: all 0.2s;">🚗 Lớp 10</button>
+            <button type="button" id="btn-sub-phy11" class="sub-tab-btn" data-grade="11" style="border: none; background: transparent; color: #94A3B8; padding: 6px 12px; border-radius: 20px; font-weight: 700; font-size: 0.8rem; cursor: pointer; transition: all 0.2s;">🌊 Lớp 11</button>
+            <button type="button" id="btn-sub-phy12" class="sub-tab-btn active" data-grade="12" style="border: none; background: #0284C7; color: #fff; padding: 6px 12px; border-radius: 20px; font-weight: 700; font-size: 0.8rem; cursor: pointer; transition: all 0.2s;">⚛️ Lớp 12</button>
+        </div>
         <div class="header-controls">
+            <button id="btn-open-microlearning" class="btn-arcade-nav" style="background: linear-gradient(135deg, #7C3AED, #06B6D4); border-color: #38BDF8;" title="Mở Lộ Trình Micro-Learning 9physic (Vừa chơi vừa học)">
+                <span>🚀 Học Micro-Learning</span>
+            </button>
+            <button id="btn-open-minigames" class="btn-arcade-nav" title="Mở Khu Mini-Game Trực Quan (Lật Thẻ • Gắn Nhãn • Phân Loại)">
+                <span>🎮 Khu Mini-Game</span>
+            </button>
             <button id="btn-open-teacher-dashboard" class="btn-teacher-portal" title="Mở Cổng Quản Lý Giáo Viên (Yêu cầu mật khẩu)">
                 <span>🎓 Cổng Giáo Viên (Khóa Mã)</span>
             </button>
@@ -63,13 +79,303 @@
                     <p class="hero-desc">Luyện tập trắc nghiệm ABCD và Đúng/Sai 4 lệnh chuẩn Bộ GD&ĐT, tự động ghi nhận báo cáo và kích hoạt Vòng 2 củng cố câu sai!</p>
                 </div>
 
-                <!-- Teacher Quick Access Banner -->
+                <!-- Quick-Start 1-Click Action for Students -->
+                <div class="quick-start-banner" id="btn-quick-start" title="Nhấp để vào làm ngay bộ 10 câu trắc nghiệm & đúng/sai chuẩn cấu trúc đề thi">
+                    <div class="quick-start-left">
+                        <div class="quick-start-icon-wrap">⚡</div>
+                        <div class="quick-start-text">
+                            <div class="quick-start-title-row">
+                                <h4>Luyện Nhanh 10 Câu Thi Đấu</h4>
+                                <span class="quick-badge">🚀 1-Click Vào Ngay</span>
+                            </div>
+                            <p>Đề thi ngẫu nhiên chuẩn GDPT 2018 (Hỗn hợp Trắc nghiệm ABCD & Đúng/Sai 4 lệnh).</p>
+                        </div>
+                    </div>
+                    <button type="button" class="btn-quick-action">
+                        <span>Luyện Ngay</span>
+                        <span class="btn-arrow">➔</span>
+                    </button>
+                </div>
+
+                <!-- Mini-Game Arcade Quick Access Banner -->
+                <div class="arcade-quick-banner" id="banner-open-minigames" title="Khám phá 3 Mini-Game ôn tập trực quan bằng hình ảnh: Lật Thẻ, Gắn Nhãn Sơ Đồ, Phân Loại Siêu Tốc">
+                    <div class="arcade-banner-icon">🎮</div>
+                    <div class="arcade-banner-text">
+                        <div class="arcade-banner-title-row">
+                            <h4>Khu Mini-Game Trực Quan (Lật Thẻ • Gắn Nhãn • Phân Loại)</h4>
+                            <span class="arcade-new-badge">✨ Đa Dạng Thể Loại</span>
+                        </div>
+                        <p>Ôn tập kiến thức theo bài thông qua 29 hình ảnh minh họa khoa học và trò chơi tương tác!</p>
+                    </div>
+                    <button type="button" class="btn-arcade-action">
+                        <span>Chơi Ngay</span>
+                        <span class="btn-arrow">➔</span>
+                    </button>
+                </div>
+
+                <!-- Teacher Quick Access Subtle Banner -->
                 <div class="teacher-quick-banner" id="banner-teacher-portal" title="Nhấp để xác thực mật khẩu mở Bảng Giáo Viên">
                     <div class="banner-badge-icon">🎓</div>
                     <div class="banner-text">
-                        <strong>Dành Cho Giáo Viên:</strong> Nhấp vào đây để mở <strong>Bảng Quản Lý Học Sinh & Điểm Số (Yêu cầu Mật khẩu Bảo mật)</strong>
+                        <strong>Dành Cho Giáo Viên:</strong> Nhấp vào đây để mở <strong>Bảng Quản Lý Học Sinh & Điểm Số</strong>
                     </div>
                     <span class="banner-arrow">➔</span>
+                </div>
+
+                
+                <!-- =========================================================
+                     KHU VỰC CỐT LÕI: LỘ TRÌNH HỌC TẬP THEO TỪNG BÀI SGK 2018
+                     Cho phép học sinh vào học từng bài theo đúng chương trình
+                     ========================================================= -->
+                <div class="learning-journey-hub">
+                    <div class="journey-hub-header">
+                        <div class="journey-header-left">
+                            <span class="journey-badge">📚 CHƯƠNG TRÌNH VẬT LÍ 12 • GDPT 2018</span>
+                            <h3 class="journey-title">🧭 Lộ Trình Học Tập & Luyện Đề Theo Từng Bài Học</h3>
+                            <p class="journey-subtitle">Chọn bài học trên lớp để học lý thuyết tương tác mô phỏng hoặc vào luyện đề trắc nghiệm phân hóa chuẩn cấu trúc Bộ GD&ĐT.</p>
+                        </div>
+                        <div class="journey-header-right">
+                            <button type="button" class="btn-journey-view-all" id="btn-journey-open-all-micro">
+                                🚀 Xem Bản Đồ Lộ Trình 4E
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Grid 8 Bài Học SGK Lớp 12 -->
+                                        <!-- Grid 8 Bài Học SGK Lớp 12 với Thumbnail Ảnh Khoa Học Trực Quan -->
+                    <div class="journey-cards-grid">
+                        <!-- Bài 1 -->
+                        <div class="journey-lesson-card" data-lesson-id="p12_l01_cau_truc_chat_chuyen_the" data-unit-key="unit1">
+                            <div class="j-card-media">
+                                <img src="images/three_states_matter.jpg" alt="Mô hình cấu trúc chất và sự chuyển thể" class="j-media-img" loading="lazy">
+                                <div class="j-media-overlay"></div>
+                                <span class="j-media-badge">Chương 1</span>
+                                <span class="j-media-count">22 câu hỏi</span>
+                            </div>
+                            <div class="j-card-body">
+                                <div class="j-card-title-row">
+                                    <div class="j-card-icon">🧊</div>
+                                    <h4>Bài 1: Cấu Trúc Chất. Sự Chuyển Thể</h4>
+                                </div>
+                                <p class="j-card-desc">Mô hình phân tử, chất rắn kết tinh vs vô định hình, đường biểu diễn chuyển thể nhiệt.</p>
+                                <div class="j-card-tags">
+                                    <span class="j-tag">🔬 Mô hình động học</span>
+                                    <span class="j-tag">🧊 Rắn • Lỏng • Khí</span>
+                                </div>
+                            </div>
+                            <div class="j-card-actions">
+                                <button type="button" class="btn-j-action btn-j-learn" data-lesson-id="p12_l01_cau_truc_chat_chuyen_the">
+                                    <span>🚀 Học Bài Này</span>
+                                </button>
+                                <button type="button" class="btn-j-action btn-j-drill" data-unit-key="unit1">
+                                    <span>📝 Luyện Đề</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Bài 2 -->
+                        <div class="journey-lesson-card" data-lesson-id="p12_l02_noi_nang_dinh_luat_1" data-unit-key="unit2">
+                            <div class="j-card-media">
+                                <img src="images/dl1_thermodynamics_piston.jpg" alt="Nội năng và định luật I NĐLH" class="j-media-img" loading="lazy">
+                                <div class="j-media-overlay"></div>
+                                <span class="j-media-badge">Chương 1</span>
+                                <span class="j-media-count">22 câu hỏi</span>
+                            </div>
+                            <div class="j-card-body">
+                                <div class="j-card-title-row">
+                                    <div class="j-card-icon">⚙️</div>
+                                    <h4>Bài 2: Nội Năng & Định Luật I NĐLH</h4>
+                                </div>
+                                <p class="j-card-desc">Khái niệm nội năng, hai cách biến đổi nội năng, hệ thức $\Delta U = A + Q$ và quy ước dấu.</p>
+                                <div class="j-card-tags">
+                                    <span class="j-tag">⚙️ Công $A$ & Nhiệt $Q$</span>
+                                    <span class="j-tag">🔥 Quy ước dấu $\Delta U$</span>
+                                </div>
+                            </div>
+                            <div class="j-card-actions">
+                                <button type="button" class="btn-j-action btn-j-learn" data-lesson-id="p12_l02_noi_nang_dinh_luat_1">
+                                    <span>🚀 Học Bài Này</span>
+                                </button>
+                                <button type="button" class="btn-j-action btn-j-drill" data-unit-key="unit2">
+                                    <span>📝 Luyện Đề</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Bài 3 -->
+                        <div class="journey-lesson-card" data-lesson-id="p12_l03_nhiet_do_thang_nhiet_ke" data-unit-key="unit3">
+                            <div class="j-card-media">
+                                <img src="images/three_temperature_scales.jpg" alt="Nhiệt độ và các thang nhiệt kế" class="j-media-img" loading="lazy">
+                                <div class="j-media-overlay"></div>
+                                <span class="j-media-badge">Chương 1</span>
+                                <span class="j-media-count">22 câu hỏi</span>
+                            </div>
+                            <div class="j-card-body">
+                                <div class="j-card-title-row">
+                                    <div class="j-card-icon">🌡️</div>
+                                    <h4>Bài 3: Nhiệt Độ. Thang Đo & Nhiệt Kế</h4>
+                                </div>
+                                <p class="j-card-desc">Thang Celsius, Kelvin tuyệt đối, nguyên lí hoạt động nhiệt kế thủy ngân, rượu, hồng ngoại.</p>
+                                <div class="j-card-tags">
+                                    <span class="j-tag">🌡️ Thang Celsius & Kelvin</span>
+                                    <span class="j-tag">❄️ 0 K Tuyệt đối</span>
+                                </div>
+                            </div>
+                            <div class="j-card-actions">
+                                <button type="button" class="btn-j-action btn-j-learn" data-lesson-id="p12_l03_nhiet_do_thang_nhiet_ke">
+                                    <span>🚀 Học Bài Này</span>
+                                </button>
+                                <button type="button" class="btn-j-action btn-j-drill" data-unit-key="unit3">
+                                    <span>📝 Luyện Đề</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Bài 4 -->
+                        <div class="journey-lesson-card" data-lesson-id="p12_l04_nhiet_dung_rieng_thi_nghiem" data-unit-key="unit4">
+                            <div class="j-card-media">
+                                <img src="images/calorimeter_specific_heat.jpg" alt="Thí nghiệm đo nhiệt dung riêng" class="j-media-img" loading="lazy">
+                                <div class="j-media-overlay"></div>
+                                <span class="j-media-badge">Chương 1</span>
+                                <span class="j-media-count">10 câu hỏi</span>
+                            </div>
+                            <div class="j-card-body">
+                                <div class="j-card-title-row">
+                                    <div class="j-card-icon">🔥</div>
+                                    <h4>Bài 4: Nhiệt Dung Riêng & Thí Nghiệm</h4>
+                                </div>
+                                <p class="j-card-desc">Định nghĩa nhiệt dung riêng $c$, công thức $Q = mc\Delta t$, thí nghiệm nhiệt lượng kế & Oát kế.</p>
+                                <div class="j-card-tags">
+                                    <span class="j-tag">⚡ Oát kế & Cân điện tử</span>
+                                    <span class="j-tag">🧪 Bình nhiệt lượng kế</span>
+                                </div>
+                            </div>
+                            <div class="j-card-actions">
+                                <button type="button" class="btn-j-action btn-j-learn" data-lesson-id="p12_l04_nhiet_dung_rieng_thi_nghiem">
+                                    <span>🚀 Học Bài Này</span>
+                                </button>
+                                <button type="button" class="btn-j-action btn-j-drill" data-unit-key="unit4">
+                                    <span>📝 Luyện Đề</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Bài 5 -->
+                        <div class="journey-lesson-card" data-lesson-id="p12_l05_nhiet_nong_chay_hoa_hoi" data-unit-key="unit5">
+                            <div class="j-card-media">
+                                <img src="images/phase_transition_diagram.jpg" alt="Nhiệt nóng chảy và nhiệt hóa hơi" class="j-media-img" loading="lazy">
+                                <div class="j-media-overlay"></div>
+                                <span class="j-media-badge">Chương 1</span>
+                                <span class="j-media-count">10 câu hỏi</span>
+                            </div>
+                            <div class="j-card-body">
+                                <div class="j-card-title-row">
+                                    <div class="j-card-icon">💨</div>
+                                    <h4>Bài 5: Nhiệt Nóng Chảy & Hóa Hơi Riêng</h4>
+                                </div>
+                                <p class="j-card-desc">Nhiệt nóng chảy riêng $\lambda$, nhiệt hóa hơi riêng $L$, đồ thị chuyển thể và thực hành đo.</p>
+                                <div class="j-card-tags">
+                                    <span class="j-tag">🧊 Nước đá nóng chảy $\lambda$</span>
+                                    <span class="j-tag">💨 Hóa hơi sôi $L$</span>
+                                </div>
+                            </div>
+                            <div class="j-card-actions">
+                                <button type="button" class="btn-j-action btn-j-learn" data-lesson-id="p12_l05_nhiet_nong_chay_hoa_hoi">
+                                    <span>🚀 Học Bài Này</span>
+                                </button>
+                                <button type="button" class="btn-j-action btn-j-drill" data-unit-key="unit5">
+                                    <span>📝 Luyện Đề</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Bài 6 -->
+                        <div class="journey-lesson-card" data-lesson-id="p12_l06_mo_hinh_chat_khi" data-unit-key="unit6">
+                            <div class="j-card-media">
+                                <img src="images/brownian_motion.jpg" alt="Mô hình động học phân tử chất khí" class="j-media-img" loading="lazy">
+                                <div class="j-media-overlay"></div>
+                                <span class="j-media-badge">Chương 2</span>
+                                <span class="j-media-count">10 câu hỏi</span>
+                            </div>
+                            <div class="j-card-body">
+                                <div class="j-card-title-row">
+                                    <div class="j-card-icon">🎈</div>
+                                    <h4>Bài 6: Mô Hình Động Học Chất Khí</h4>
+                                </div>
+                                <p class="j-card-desc">Thuyết động học phân tử, chuyển động Brown, nguồn gốc áp suất khí và nhiệt độ tuyệt đối.</p>
+                                <div class="j-card-tags">
+                                    <span class="j-tag">🔬 Chuyển động Brown</span>
+                                    <span class="j-tag">🎈 Áp suất va chạm khí</span>
+                                </div>
+                            </div>
+                            <div class="j-card-actions">
+                                <button type="button" class="btn-j-action btn-j-learn" data-lesson-id="p12_l06_mo_hinh_chat_khi">
+                                    <span>🚀 Học Bài Này</span>
+                                </button>
+                                <button type="button" class="btn-j-action btn-j-drill" data-unit-key="unit6">
+                                    <span>📝 Luyện Đề</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Bài 7 -->
+                        <div class="journey-lesson-card" data-lesson-id="p12_l07_dinh_luat_boyle" data-unit-key="unit7">
+                            <div class="j-card-media">
+                                <img src="images/boyle_law_isotherm.jpg" alt="Định luật Boyle đẳng nhiệt" class="j-media-img" loading="lazy">
+                                <div class="j-media-overlay"></div>
+                                <span class="j-media-badge">Chương 2</span>
+                                <span class="j-media-count">10 câu hỏi</span>
+                            </div>
+                            <div class="j-card-body">
+                                <div class="j-card-title-row">
+                                    <div class="j-card-icon">📉</div>
+                                    <h4>Bài 7: Định Luật Boyle – Đẳng Nhiệt</h4>
+                                </div>
+                                <p class="j-card-desc">Quá trình đẳng nhiệt, định luật Boyle $p V = \text{const}$, đường Hyperbol $p-V$ và thí nghiệm xilanh.</p>
+                                <div class="j-card-tags">
+                                    <span class="j-tag">📉 Đồ thị Hyperbol $p-V$</span>
+                                    <span class="j-tag">🧪 Xilanh có áp kế</span>
+                                </div>
+                            </div>
+                            <div class="j-card-actions">
+                                <button type="button" class="btn-j-action btn-j-learn" data-lesson-id="p12_l07_dinh_luat_boyle">
+                                    <span>🚀 Học Bài Này</span>
+                                </button>
+                                <button type="button" class="btn-j-action btn-j-drill" data-unit-key="unit7">
+                                    <span>📝 Luyện Đề</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Bài 8 -->
+                        <div class="journey-lesson-card" data-lesson-id="p12_l08_dinh_luat_charles_pttt" data-unit-key="unit8">
+                            <div class="j-card-media">
+                                <img src="images/isobaric_work_pv.jpg" alt="Định luật Charles và khí lí tưởng" class="j-media-img" loading="lazy">
+                                <div class="j-media-overlay"></div>
+                                <span class="j-media-badge">Chương 2</span>
+                                <span class="j-media-count">10 câu hỏi</span>
+                            </div>
+                            <div class="j-card-body">
+                                <div class="j-card-title-row">
+                                    <div class="j-card-icon">📈</div>
+                                    <h4>Bài 8: Định Luật Charles & Khí Lí Tưởng</h4>
+                                </div>
+                                <p class="j-card-desc">Quá trình đẳng áp, định luật Charles $\frac{V}{T} = \text{const}$, phương trình Clapeyron - Mendeleev.</p>
+                                <div class="j-card-tags">
+                                    <span class="j-tag">📈 Đường đẳng áp $V-T$</span>
+                                    <span class="j-tag">📐 Phương trình Clapeyron</span>
+                                </div>
+                            </div>
+                            <div class="j-card-actions">
+                                <button type="button" class="btn-j-action btn-j-learn" data-lesson-id="p12_l08_dinh_luat_charles_pttt">
+                                    <span>🚀 Học Bài Này</span>
+                                </button>
+                                <button type="button" class="btn-j-action btn-j-drill" data-unit-key="unit8">
+                                    <span>📝 Luyện Đề</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Student Profile Input -->
@@ -84,236 +390,743 @@
                     </div>
                 </div>
 
-                <!-- Config: Chọn Bài Học -->
-                <div class="config-group">
-                    <h3 class="group-title">📚 1. Chọn Bài Học Ôn Tập</h3>
-                    <div class="pill-grid">
-                        <div class="select-card unit-card active" data-unit="all">
-                            <div class="select-card-icon">🌟</div>
-                            <div class="select-card-info">
-                                <div class="card-title-row">
-                                    <h4>Tổng Hợp Cả 3 Bài</h4>
-                                    <span class="card-count-badge badge-gold">✨ 66 câu hỏi</span>
-                                </div>
-                                <p>Toàn bộ kiến thức Chương 1 (Bài 1 + Bài 2 + Bài 3)</p>
+                <!-- TƯ DUY MỚI: BỘ CHUYỂN ĐỔI 3 CHẾ ĐỘ CHỌN ĐỀ CỰC KỲ RÕ RÀNG -->
+                <div class="lobby-mode-tabs">
+                    <button type="button" class="lobby-tab-btn active" id="tab-btn-presets">
+                        ⚡ GÓI ĐỀ CÓ SẴN (Nhanh Nhất)
+                    </button>
+                    <button type="button" class="lobby-tab-btn" id="tab-btn-by-unit">
+                        📚 CHỌN CÂU THEO TỪNG BÀI (Chi Tiết Số Câu)
+                    </button>
+                    <button type="button" class="lobby-tab-btn" id="tab-btn-custom">
+                        🎲 TỰ CHỌN TỔNG HỢP (Kéo Slider)
+                    </button>
+                </div>
+
+                <!-- TAB 1: GÓI LUYỆN ĐỀ CÓ SẴN (PRESETS CHO HỌC SINH LỚP 12) -->
+                <div id="panel-presets" class="lobby-panel active">
+                    <p class="panel-guide-text">💡 <em>Chọn nhanh các gói đề quen thuộc chuẩn bị cho kiểm tra và thi Tốt nghiệp THPT:</em></p>
+                    <div class="preset-cards-grid">
+                        <div class="preset-card" data-preset="quick5">
+                            <div class="preset-badge">⚡ 3 phút</div>
+                            <div class="preset-icon">⚡</div>
+                            <div class="preset-info">
+                                <h4>Khởi Động Nhanh</h4>
+                                <div class="preset-count-tag">5 CÂU HỎI</div>
+                                <p>5 câu nhận biết căn bản để khởi động nhanh trí não.</p>
                             </div>
                         </div>
-                        <div class="select-card unit-card" data-unit="unit1">
-                            <div class="select-card-icon">🧊</div>
-                            <div class="select-card-info">
-                                <div class="card-title-row">
-                                    <h4>Bài 1: Cấu Trúc Chất</h4>
-                                    <span class="card-count-badge">📚 22 câu</span>
-                                </div>
-                                <p>19 trắc nghiệm ABCD + 3 câu Đúng/Sai (12 lệnh)</p>
+
+                        <div class="preset-card active" data-preset="test15p">
+                            <div class="preset-badge badge-popular">🌟 Phổ biến nhất</div>
+                            <div class="preset-icon">📝</div>
+                            <div class="preset-info">
+                                <h4>Kiểm Tra 15 Phút</h4>
+                                <div class="preset-count-tag">10 CÂU HỎI</div>
+                                <p>10 câu trắc nghiệm tổng hợp ôn tập đều đặn mỗi ngày.</p>
                             </div>
                         </div>
-                        <div class="select-card unit-card" data-unit="unit2">
-                            <div class="select-card-icon">🔥</div>
-                            <div class="select-card-info">
-                                <div class="card-title-row">
-                                    <h4>Bài 2: Nội Năng & ĐL I</h4>
-                                    <span class="card-count-badge">📚 22 câu</span>
-                                </div>
-                                <p>19 trắc nghiệm ABCD + 3 câu Đúng/Sai (ΔU = A + Q)</p>
+
+                        <div class="preset-card" data-preset="test45p">
+                            <div class="preset-badge">🎯 Chuẩn 1 tiết</div>
+                            <div class="preset-icon">🎯</div>
+                            <div class="preset-info">
+                                <h4>Kiểm Tra 1 Tiết</h4>
+                                <div class="preset-count-tag">20 CÂU HỎI</div>
+                                <p>16 câu ABCD + 4 câu Đúng/Sai. Đầy đủ các mức độ.</p>
                             </div>
                         </div>
-                        <div class="select-card unit-card" data-unit="unit3">
-                            <div class="select-card-icon">🌡️</div>
-                            <div class="select-card-info">
-                                <div class="card-title-row">
-                                    <h4>Bài 3: Thang Nhiệt Độ</h4>
-                                    <span class="card-count-badge">📚 22 câu</span>
-                                </div>
-                                <p>19 trắc nghiệm ABCD + 3 câu Đúng/Sai (Celsius, Kelvin)</p>
+
+                        <div class="preset-card" data-preset="grad28">
+                            <div class="preset-badge badge-ministry">🏛️ Chuẩn Bộ GD&ĐT</div>
+                            <div class="preset-icon">🏛️</div>
+                            <div class="preset-info">
+                                <h4>Thi Tốt Nghiệp THPT</h4>
+                                <div class="preset-count-tag">28 CÂU / LỆNH</div>
+                                <p>Đúng cấu trúc: 18 câu ABCD + 4 câu Đúng/Sai (16 ý).</p>
+                            </div>
+                        </div>
+
+                        <div class="preset-card" data-preset="hard15">
+                            <div class="preset-badge badge-fire">🔥 Phân hóa 9-10</div>
+                            <div class="preset-icon">🚀</div>
+                            <div class="preset-info">
+                                <h4>Thử Thách Vận Dụng Cao</h4>
+                                <div class="preset-count-tag">15 CÂU KHÓ</div>
+                                <p>Toàn bộ các câu phân hóa mức 9-10 điểm và đồ thị nhiệt.</p>
+                            </div>
+                        </div>
+
+                        <div class="preset-card" data-preset="all66">
+                            <div class="preset-badge">🌟 Toàn diện</div>
+                            <div class="preset-icon">🏆</div>
+                            <div class="preset-info">
+                                <h4>Chinh Phục Toàn Bộ</h4>
+                                <div class="preset-count-tag">LÀM HẾT 120 CÂU</div>
+                                <p>Quét sạch 100% kho câu hỏi Chương 1 & Chương 2 (8 bài học SGK).</p>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Config: Chọn Dạng Câu Hỏi -->
-                <div class="config-group">
-                    <h3 class="group-title">🎯 2. Chọn Dạng Câu Hỏi</h3>
-                    <div class="pill-grid">
-                        <div class="select-card type-card active" data-type="all">
-                            <div class="select-card-icon">🎲</div>
-                            <div class="select-card-info">
-                                <div class="card-title-row">
-                                    <h4>Hỗn Hợp Cả Hai Dạng</h4>
-                                    <span class="card-count-badge badge-blue">🎲 Đầy đủ 2 dạng</span>
+                <!-- TAB 2: CHỌN CÂU THEO TỪNG BÀI (PHÂN BỔ SỐ CÂU & CHỌN CÂU HỎI CHI TIẾT) -->
+                <div id="panel-by-unit" class="lobby-panel">
+                    <p class="panel-guide-text">💡 <em>Tùy chỉnh số lượng câu hỏi cho từng bài học hoặc mở danh sách để tự tay tích chọn từng câu:</em></p>
+                    
+                    <div class="unit-breakdown-container">
+                        <!-- Bài 1: Cấu trúc chất -->
+                        <div class="unit-matrix-card" data-unit="unit1">
+                            <div class="matrix-card-header">
+                                <div class="matrix-unit-info">
+                                    <div class="matrix-unit-visual-wrap"><img src="images/three_states_matter.jpg" alt="Bài 1" class="matrix-unit-thumb"><span class="matrix-unit-icon-badge">🧊</span></div>
+                                    <div>
+                                        <h4>Bài 1: Cấu Trúc Chất. Sự Chuyển Thể</h4>
+                                        <span class="matrix-unit-sub">Kho câu hỏi: 22 câu (19 trắc nghiệm ABCD + 3 Đúng/Sai 4 ý)</span>
+                                    </div>
                                 </div>
-                                <p>Trộn lẫn cả Trắc nghiệm ABCD & Đúng/Sai 4 lệnh chuẩn Bộ</p>
+                                <div class="matrix-count-stepper">
+                                    <button type="button" class="stepper-btn btn-stepper-sub" data-unit="unit1" title="Giảm 1 câu">−</button>
+                                    <input type="number" class="stepper-input" id="count-input-unit1" min="0" max="22" value="5" data-unit="unit1">
+                                    <button type="button" class="stepper-btn btn-stepper-add" data-unit="unit1" title="Tăng 1 câu">+</button>
+                                    <span class="stepper-unit-label">câu</span>
+                                </div>
+                            </div>
+
+                            <div class="matrix-quick-pills">
+                                <span class="pills-label">Chọn nhanh:</span>
+                                <button type="button" class="matrix-pill" data-unit="unit1" data-val="0">0 câu</button>
+                                <button type="button" class="matrix-pill active" data-unit="unit1" data-val="5">5 câu</button>
+                                <button type="button" class="matrix-pill" data-unit="unit1" data-val="10">10 câu</button>
+                                <button type="button" class="matrix-pill" data-unit="unit1" data-val="22">Cả 22 câu</button>
+                                <button type="button" class="btn-toggle-drawer" data-unit="unit1">
+                                    📋 Xem & Chọn từng câu (<span id="selected-detail-count-unit1">5</span>/22) <span class="drawer-arrow">▼</span>
+                                </button>
+                            </div>
+
+                            <div class="unit-questions-drawer" id="drawer-unit1" style="display: none;">
+                                <div class="drawer-actions-row">
+                                    <span class="drawer-title">Danh sách 22 câu hỏi Bài 1:</span>
+                                    <div class="drawer-btn-group">
+                                        <button type="button" class="drawer-action-btn btn-select-all" data-unit="unit1">Chọn tất cả 22 câu</button>
+                                        <button type="button" class="drawer-action-btn btn-clear-all" data-unit="unit1">Bỏ chọn hết (0)</button>
+                                    </div>
+                                </div>
+                                <div class="drawer-questions-list" id="questions-list-unit1"></div>
                             </div>
                         </div>
-                        <div class="select-card type-card" data-type="multiple_choice">
-                            <div class="select-card-icon">🔤</div>
-                            <div class="select-card-info">
-                                <div class="card-title-row">
-                                    <h4>Trắc Nghiệm 4 Lựa Chọn</h4>
-                                    <span class="card-count-badge">🔤 19 câu/bài (Tổng 57)</span>
+
+                        <!-- Bài 2: Nội năng & ĐL I -->
+                        <div class="unit-matrix-card" data-unit="unit2">
+                            <div class="matrix-card-header">
+                                <div class="matrix-unit-info">
+                                    <div class="matrix-unit-visual-wrap"><img src="images/dl1_thermodynamics_piston.jpg" alt="Bài 2" class="matrix-unit-thumb"><span class="matrix-unit-icon-badge">⚙️</span></div>
+                                    <div>
+                                        <h4>Bài 2: Nội Năng & Định Luật I Nhiệt Động Lực Học</h4>
+                                        <span class="matrix-unit-sub">Kho câu hỏi: 22 câu (19 trắc nghiệm ABCD + 3 Đúng/Sai 4 ý)</span>
+                                    </div>
                                 </div>
-                                <p>4 ô màu sắc kinh điển A, B, C, D (chọn 1 đáp án đúng)</p>
+                                <div class="matrix-count-stepper">
+                                    <button type="button" class="stepper-btn btn-stepper-sub" data-unit="unit2" title="Giảm 1 câu">−</button>
+                                    <input type="number" class="stepper-input" id="count-input-unit2" min="0" max="22" value="5" data-unit="unit2">
+                                    <button type="button" class="stepper-btn btn-stepper-add" data-unit="unit2" title="Tăng 1 câu">+</button>
+                                    <span class="stepper-unit-label">câu</span>
+                                </div>
+                            </div>
+
+                            <div class="matrix-quick-pills">
+                                <span class="pills-label">Chọn nhanh:</span>
+                                <button type="button" class="matrix-pill" data-unit="unit2" data-val="0">0 câu</button>
+                                <button type="button" class="matrix-pill active" data-unit="unit2" data-val="5">5 câu</button>
+                                <button type="button" class="matrix-pill" data-unit="unit2" data-val="10">10 câu</button>
+                                <button type="button" class="matrix-pill" data-unit="unit2" data-val="22">Cả 22 câu</button>
+                                <button type="button" class="btn-toggle-drawer" data-unit="unit2">
+                                    📋 Xem & Chọn từng câu (<span id="selected-detail-count-unit2">5</span>/22) <span class="drawer-arrow">▼</span>
+                                </button>
+                            </div>
+
+                            <div class="unit-questions-drawer" id="drawer-unit2" style="display: none;">
+                                <div class="drawer-actions-row">
+                                    <span class="drawer-title">Danh sách 22 câu hỏi Bài 2:</span>
+                                    <div class="drawer-btn-group">
+                                        <button type="button" class="drawer-action-btn btn-select-all" data-unit="unit2">Chọn tất cả 22 câu</button>
+                                        <button type="button" class="drawer-action-btn btn-clear-all" data-unit="unit2">Bỏ chọn hết (0)</button>
+                                    </div>
+                                </div>
+                                <div class="drawer-questions-list" id="questions-list-unit2"></div>
                             </div>
                         </div>
-                        <div class="select-card type-card" data-type="multi_tf">
-                            <div class="select-card-icon">⚖️</div>
-                            <div class="select-card-info">
-                                <div class="card-title-row">
-                                    <h4>Đúng / Sai Chuẩn Bộ GD&ĐT</h4>
-                                    <span class="card-count-badge badge-purple">⚖️ 3 câu lớn (12 lệnh/bài)</span>
+
+                        <!-- Bài 3: Thang nhiệt độ -->
+                        <div class="unit-matrix-card" data-unit="unit3">
+                            <div class="matrix-card-header">
+                                <div class="matrix-unit-info">
+                                    <div class="matrix-unit-visual-wrap"><img src="images/three_temperature_scales.jpg" alt="Bài 3" class="matrix-unit-thumb"><span class="matrix-unit-icon-badge">🌡️</span></div>
+                                    <div>
+                                        <h4>Bài 3: Nhiệt Độ. Thang Nhiệt Độ – Nhiệt Kế</h4>
+                                        <span class="matrix-unit-sub">Kho câu hỏi: 22 câu (19 trắc nghiệm ABCD + 3 Đúng/Sai 4 ý)</span>
+                                    </div>
                                 </div>
-                                <p>Câu dẫn thực tế + 4 lệnh a, b, c, d (Tổng 9 câu - 36 lệnh)</p>
+                                <div class="matrix-count-stepper">
+                                    <button type="button" class="stepper-btn btn-stepper-sub" data-unit="unit3" title="Giảm 1 câu">−</button>
+                                    <input type="number" class="stepper-input" id="count-input-unit3" min="0" max="22" value="5" data-unit="unit3">
+                                    <button type="button" class="stepper-btn btn-stepper-add" data-unit="unit3" title="Tăng 1 câu">+</button>
+                                    <span class="stepper-unit-label">câu</span>
+                                </div>
+                            </div>
+
+                            <div class="matrix-quick-pills">
+                                <span class="pills-label">Chọn nhanh:</span>
+                                <button type="button" class="matrix-pill" data-unit="unit3" data-val="0">0 câu</button>
+                                <button type="button" class="matrix-pill active" data-unit="unit3" data-val="5">5 câu</button>
+                                <button type="button" class="matrix-pill" data-unit="unit3" data-val="10">10 câu</button>
+                                <button type="button" class="matrix-pill" data-unit="unit3" data-val="22">Cả 22 câu</button>
+                                <button type="button" class="btn-toggle-drawer" data-unit="unit3">
+                                    📋 Xem & Chọn từng câu (<span id="selected-detail-count-unit3">5</span>/22) <span class="drawer-arrow">▼</span>
+                                </button>
+                            </div>
+
+                            <div class="unit-questions-drawer" id="drawer-unit3" style="display: none;">
+                                <div class="drawer-actions-row">
+                                    <span class="drawer-title">Danh sách 22 câu hỏi Bài 3:</span>
+                                    <div class="drawer-btn-group">
+                                        <button type="button" class="drawer-action-btn btn-select-all" data-unit="unit3">Chọn tất cả 22 câu</button>
+                                        <button type="button" class="drawer-action-btn btn-clear-all" data-unit="unit3">Bỏ chọn hết (0)</button>
+                                    </div>
+                                </div>
+                                <div class="drawer-questions-list" id="questions-list-unit3"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    
+                        <!-- Bài 4: Nhiệt dung riêng -->
+                        <div class="unit-matrix-card" data-unit="unit4">
+                            <div class="matrix-card-header">
+                                <div class="matrix-unit-info">
+                                    <div class="matrix-unit-visual-wrap"><img src="images/calorimeter_specific_heat.jpg" alt="Bài 4" class="matrix-unit-thumb"><span class="matrix-unit-icon-badge">🔥</span></div>
+                                    <div>
+                                        <h4>Bài 4: Nhiệt Dung Riêng & Thí Nghiệm Thực Hành</h4>
+                                        <span class="matrix-unit-sub">Kho câu hỏi: 10 câu (8 trắc nghiệm ABCD + 2 Đúng/Sai 4 ý)</span>
+                                    </div>
+                                </div>
+                                <div class="matrix-count-stepper">
+                                    <button type="button" class="stepper-btn btn-stepper-sub" data-unit="unit4" title="Giảm 1 câu">−</button>
+                                    <input type="number" class="stepper-input" id="count-input-unit4" min="0" max="10" value="0" data-unit="unit4">
+                                    <button type="button" class="stepper-btn btn-stepper-add" data-unit="unit4" title="Tăng 1 câu">+</button>
+                                    <span class="stepper-unit-label">câu</span>
+                                </div>
+                            </div>
+                            <div class="matrix-quick-pills">
+                                <span class="pills-label">Chọn nhanh:</span>
+                                <button type="button" class="matrix-pill" data-unit="unit4" data-val="0">0 câu</button>
+                                <button type="button" class="matrix-pill" data-unit="unit4" data-val="5">5 câu</button>
+                                <button type="button" class="matrix-pill" data-unit="unit4" data-val="10">Cả 10 câu</button>
+                                <button type="button" class="btn-toggle-drawer" data-unit="unit4">
+                                    📋 Xem & Chọn từng câu (<span id="selected-detail-count-unit4">0</span>/10) <span class="drawer-arrow">▼</span>
+                                </button>
+                            </div>
+                            <div class="unit-questions-drawer" id="drawer-unit4" style="display: none;">
+                                <div class="drawer-actions-row">
+                                    <span class="drawer-title">Danh sách 10 câu hỏi Bài 4:</span>
+                                    <div class="drawer-btn-group">
+                                        <button type="button" class="drawer-action-btn btn-select-all" data-unit="unit4">Chọn tất cả 10 câu</button>
+                                        <button type="button" class="drawer-action-btn btn-clear-all" data-unit="unit4">Bỏ chọn hết (0)</button>
+                                    </div>
+                                </div>
+                                <div class="drawer-questions-list" id="questions-list-unit4"></div>
+                            </div>
+                        </div>
+
+                        <!-- Bài 5: Nhiệt nóng chảy & hóa hơi riêng -->
+                        <div class="unit-matrix-card" data-unit="unit5">
+                            <div class="matrix-card-header">
+                                <div class="matrix-unit-info">
+                                    <div class="matrix-unit-visual-wrap"><img src="images/phase_transition_diagram.jpg" alt="Bài 5" class="matrix-unit-thumb"><span class="matrix-unit-icon-badge">💨</span></div>
+                                    <div>
+                                        <h4>Bài 5: Nhiệt Nóng Chảy Riêng & Nhiệt Hóa Hơi Riêng</h4>
+                                        <span class="matrix-unit-sub">Kho câu hỏi: 10 câu (8 trắc nghiệm ABCD + 2 Đúng/Sai 4 ý)</span>
+                                    </div>
+                                </div>
+                                <div class="matrix-count-stepper">
+                                    <button type="button" class="stepper-btn btn-stepper-sub" data-unit="unit5" title="Giảm 1 câu">−</button>
+                                    <input type="number" class="stepper-input" id="count-input-unit5" min="0" max="10" value="0" data-unit="unit5">
+                                    <button type="button" class="stepper-btn btn-stepper-add" data-unit="unit5" title="Tăng 1 câu">+</button>
+                                    <span class="stepper-unit-label">câu</span>
+                                </div>
+                            </div>
+                            <div class="matrix-quick-pills">
+                                <span class="pills-label">Chọn nhanh:</span>
+                                <button type="button" class="matrix-pill" data-unit="unit5" data-val="0">0 câu</button>
+                                <button type="button" class="matrix-pill" data-unit="unit5" data-val="5">5 câu</button>
+                                <button type="button" class="matrix-pill" data-unit="unit5" data-val="10">Cả 10 câu</button>
+                                <button type="button" class="btn-toggle-drawer" data-unit="unit5">
+                                    📋 Xem & Chọn từng câu (<span id="selected-detail-count-unit5">0</span>/10) <span class="drawer-arrow">▼</span>
+                                </button>
+                            </div>
+                            <div class="unit-questions-drawer" id="drawer-unit5" style="display: none;">
+                                <div class="drawer-actions-row">
+                                    <span class="drawer-title">Danh sách 10 câu hỏi Bài 5:</span>
+                                    <div class="drawer-btn-group">
+                                        <button type="button" class="drawer-action-btn btn-select-all" data-unit="unit5">Chọn tất cả 10 câu</button>
+                                        <button type="button" class="drawer-action-btn btn-clear-all" data-unit="unit5">Bỏ chọn hết (0)</button>
+                                    </div>
+                                </div>
+                                <div class="drawer-questions-list" id="questions-list-unit5"></div>
+                            </div>
+                        </div>
+
+                        <!-- Bài 6: Mô hình động học chất khí -->
+                        <div class="unit-matrix-card" data-unit="unit6">
+                            <div class="matrix-card-header">
+                                <div class="matrix-unit-info">
+                                    <div class="matrix-unit-visual-wrap"><img src="images/brownian_motion.jpg" alt="Bài 6" class="matrix-unit-thumb"><span class="matrix-unit-icon-badge">🎈</span></div>
+                                    <div>
+                                        <h4>Bài 6: Mô Hình Động Học Phân Tử Chất Khí</h4>
+                                        <span class="matrix-unit-sub">Kho câu hỏi: 10 câu (8 trắc nghiệm ABCD + 2 Đúng/Sai 4 ý)</span>
+                                    </div>
+                                </div>
+                                <div class="matrix-count-stepper">
+                                    <button type="button" class="stepper-btn btn-stepper-sub" data-unit="unit6" title="Giảm 1 câu">−</button>
+                                    <input type="number" class="stepper-input" id="count-input-unit6" min="0" max="10" value="0" data-unit="unit6">
+                                    <button type="button" class="stepper-btn btn-stepper-add" data-unit="unit6" title="Tăng 1 câu">+</button>
+                                    <span class="stepper-unit-label">câu</span>
+                                </div>
+                            </div>
+                            <div class="matrix-quick-pills">
+                                <span class="pills-label">Chọn nhanh:</span>
+                                <button type="button" class="matrix-pill" data-unit="unit6" data-val="0">0 câu</button>
+                                <button type="button" class="matrix-pill" data-unit="unit6" data-val="5">5 câu</button>
+                                <button type="button" class="matrix-pill" data-unit="unit6" data-val="10">Cả 10 câu</button>
+                                <button type="button" class="btn-toggle-drawer" data-unit="unit6">
+                                    📋 Xem & Chọn từng câu (<span id="selected-detail-count-unit6">0</span>/10) <span class="drawer-arrow">▼</span>
+                                </button>
+                            </div>
+                            <div class="unit-questions-drawer" id="drawer-unit6" style="display: none;">
+                                <div class="drawer-actions-row">
+                                    <span class="drawer-title">Danh sách 10 câu hỏi Bài 6:</span>
+                                    <div class="drawer-btn-group">
+                                        <button type="button" class="drawer-action-btn btn-select-all" data-unit="unit6">Chọn tất cả 10 câu</button>
+                                        <button type="button" class="drawer-action-btn btn-clear-all" data-unit="unit6">Bỏ chọn hết (0)</button>
+                                    </div>
+                                </div>
+                                <div class="drawer-questions-list" id="questions-list-unit6"></div>
+                            </div>
+                        </div>
+
+                        <!-- Bài 7: Định luật Boyle -->
+                        <div class="unit-matrix-card" data-unit="unit7">
+                            <div class="matrix-card-header">
+                                <div class="matrix-unit-info">
+                                    <div class="matrix-unit-visual-wrap"><img src="images/boyle_law_isotherm.jpg" alt="Bài 7" class="matrix-unit-thumb"><span class="matrix-unit-icon-badge">📉</span></div>
+                                    <div>
+                                        <h4>Bài 7: Định Luật Boyle – Quá Trình Đẳng Nhiệt</h4>
+                                        <span class="matrix-unit-sub">Kho câu hỏi: 10 câu (8 trắc nghiệm ABCD + 2 Đúng/Sai 4 ý)</span>
+                                    </div>
+                                </div>
+                                <div class="matrix-count-stepper">
+                                    <button type="button" class="stepper-btn btn-stepper-sub" data-unit="unit7" title="Giảm 1 câu">−</button>
+                                    <input type="number" class="stepper-input" id="count-input-unit7" min="0" max="10" value="0" data-unit="unit7">
+                                    <button type="button" class="stepper-btn btn-stepper-add" data-unit="unit7" title="Tăng 1 câu">+</button>
+                                    <span class="stepper-unit-label">câu</span>
+                                </div>
+                            </div>
+                            <div class="matrix-quick-pills">
+                                <span class="pills-label">Chọn nhanh:</span>
+                                <button type="button" class="matrix-pill" data-unit="unit7" data-val="0">0 câu</button>
+                                <button type="button" class="matrix-pill" data-unit="unit7" data-val="5">5 câu</button>
+                                <button type="button" class="matrix-pill" data-unit="unit7" data-val="10">Cả 10 câu</button>
+                                <button type="button" class="btn-toggle-drawer" data-unit="unit7">
+                                    📋 Xem & Chọn từng câu (<span id="selected-detail-count-unit7">0</span>/10) <span class="drawer-arrow">▼</span>
+                                </button>
+                            </div>
+                            <div class="unit-questions-drawer" id="drawer-unit7" style="display: none;">
+                                <div class="drawer-actions-row">
+                                    <span class="drawer-title">Danh sách 10 câu hỏi Bài 7:</span>
+                                    <div class="drawer-btn-group">
+                                        <button type="button" class="drawer-action-btn btn-select-all" data-unit="unit7">Chọn tất cả 10 câu</button>
+                                        <button type="button" class="drawer-action-btn btn-clear-all" data-unit="unit7">Bỏ chọn hết (0)</button>
+                                    </div>
+                                </div>
+                                <div class="drawer-questions-list" id="questions-list-unit7"></div>
+                            </div>
+                        </div>
+
+                        <!-- Bài 8: Định luật Charles & PTTT -->
+                        <div class="unit-matrix-card" data-unit="unit8">
+                            <div class="matrix-card-header">
+                                <div class="matrix-unit-info">
+                                    <div class="matrix-unit-visual-wrap"><img src="images/isobaric_work_pv.jpg" alt="Bài 8" class="matrix-unit-thumb"><span class="matrix-unit-icon-badge">📈</span></div>
+                                    <div>
+                                        <h4>Bài 8: Định Luật Charles & Khí Lí Tưởng</h4>
+                                        <span class="matrix-unit-sub">Kho câu hỏi: 10 câu (8 trắc nghiệm ABCD + 2 Đúng/Sai 4 ý)</span>
+                                    </div>
+                                </div>
+                                <div class="matrix-count-stepper">
+                                    <button type="button" class="stepper-btn btn-stepper-sub" data-unit="unit8" title="Giảm 1 câu">−</button>
+                                    <input type="number" class="stepper-input" id="count-input-unit8" min="0" max="10" value="0" data-unit="unit8">
+                                    <button type="button" class="stepper-btn btn-stepper-add" data-unit="unit8" title="Tăng 1 câu">+</button>
+                                    <span class="stepper-unit-label">câu</span>
+                                </div>
+                            </div>
+                            <div class="matrix-quick-pills">
+                                <span class="pills-label">Chọn nhanh:</span>
+                                <button type="button" class="matrix-pill" data-unit="unit8" data-val="0">0 câu</button>
+                                <button type="button" class="matrix-pill" data-unit="unit8" data-val="5">5 câu</button>
+                                <button type="button" class="matrix-pill" data-unit="unit8" data-val="10">Cả 10 câu</button>
+                                <button type="button" class="btn-toggle-drawer" data-unit="unit8">
+                                    📋 Xem & Chọn từng câu (<span id="selected-detail-count-unit8">0</span>/10) <span class="drawer-arrow">▼</span>
+                                </button>
+                            </div>
+                            <div class="unit-questions-drawer" id="drawer-unit8" style="display: none;">
+                                <div class="drawer-actions-row">
+                                    <span class="drawer-title">Danh sách 10 câu hỏi Bài 8:</span>
+                                    <div class="drawer-btn-group">
+                                        <button type="button" class="drawer-action-btn btn-select-all" data-unit="unit8">Chọn tất cả 10 câu</button>
+                                        <button type="button" class="drawer-action-btn btn-clear-all" data-unit="unit8">Bỏ chọn hết (0)</button>
+                                    </div>
+                                </div>
+                                <div class="drawer-questions-list" id="questions-list-unit8"></div>
+                            </div>
+                        </div>
+
+                    <!-- Live matrix total bar -->
+                    <div class="matrix-total-bar">
+                        <span class="matrix-total-icon">📊</span>
+                        <div class="matrix-total-text">
+                            <span>Tổng số câu bài thi: <strong id="matrix-total-count">15 câu</strong></span>
+                            <span class="matrix-total-breakdown" id="matrix-total-breakdown">(Bài 1: 5 câu • Bài 2: 5 câu • Bài 3: 5 câu)</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB 3: TỰ CHỌN TỔNG HỢP (CUSTOM CONFIGURATION) -->
+                <div id="panel-custom" class="lobby-panel">
+                    <!-- Config: Chọn Bài Học (Hỗ trợ Đa Chọn) -->
+                    <div class="config-group">
+                        <div class="group-title-row">
+                            <h3 class="group-title">📚 1. Chọn Bài Học Ôn Tập</h3>
+                            <span class="group-hint">Có thể chọn 1 bài, nhiều bài hoặc cả chương</span>
+                        </div>
+                        <div class="pill-grid">
+                            <div class="select-card unit-card active" data-unit="all">
+                                <div class="select-card-icon">🌟</div>
+                                <div class="select-card-info">
+                                    <div class="card-title-row">
+                                        <h4>Tất Cả 8 Bài Học</h4>
+                                        <span class="card-count-badge badge-gold">192 câu</span>
+                                    </div>
+                                    <p>Tổng hợp Chương 1: Vật lí nhiệt & Chương 2: Khí lí tưởng</p>
+                                </div>
+                            </div>
+                            <div class="select-card unit-card" data-unit="unit1">
+                                <div class="select-card-icon">🧊</div>
+                                <div class="select-card-info">
+                                    <div class="card-title-row">
+                                        <h4>Bài 1: Cấu Trúc Chất</h4>
+                                        <span class="card-count-badge">24 câu</span>
+                                    </div>
+                                    <p>Mô hình phân tử, cấu trúc chất & sự chuyển thể</p>
+                                </div>
+                            </div>
+                            <div class="select-card unit-card" data-unit="unit2">
+                                <div class="select-card-icon">🔥</div>
+                                <div class="select-card-info">
+                                    <div class="card-title-row">
+                                        <h4>Bài 2: Nội Năng & ĐL I</h4>
+                                        <span class="card-count-badge">24 câu</span>
+                                    </div>
+                                    <p>Nội năng và định luật I nhiệt động lực học</p>
+                                </div>
+                            </div>
+                            <div class="select-card unit-card" data-unit="unit3">
+                                <div class="select-card-icon">🌡️</div>
+                                <div class="select-card-info">
+                                    <div class="card-title-row">
+                                        <h4>Bài 3: Thang Nhiệt Độ</h4>
+                                        <span class="card-count-badge">24 câu</span>
+                                    </div>
+                                    <p>Nhiệt độ, thang Celsius, Kelvin & các loại nhiệt kế</p>
+                                </div>
+                            </div>
+                            <div class="select-card unit-card" data-unit="unit4">
+                                <div class="select-card-icon">🧪</div>
+                                <div class="select-card-info">
+                                    <div class="card-title-row">
+                                        <h4>Bài 4: Nhiệt Dung Riêng</h4>
+                                        <span class="card-count-badge">24 câu</span>
+                                    </div>
+                                    <p>Nhiệt dung riêng & thí nghiệm nhiệt lượng kế</p>
+                                </div>
+                            </div>
+                            <div class="select-card unit-card" data-unit="unit5">
+                                <div class="select-card-icon">💨</div>
+                                <div class="select-card-info">
+                                    <div class="card-title-row">
+                                        <h4>Bài 5: Nhiệt Nóng Chảy & Hóa Hơi</h4>
+                                        <span class="card-count-badge">24 câu</span>
+                                    </div>
+                                    <p>Nhiệt nóng chảy riêng $\lambda$ & nhiệt hóa hơi riêng $L$</p>
+                                </div>
+                            </div>
+                            <div class="select-card unit-card" data-unit="unit6">
+                                <div class="select-card-icon">🎈</div>
+                                <div class="select-card-info">
+                                    <div class="card-title-row">
+                                        <h4>Bài 6: Động Học Chất Khí</h4>
+                                        <span class="card-count-badge">24 câu</span>
+                                    </div>
+                                    <p>Thuyết động học phân tử, Brown & áp suất khí</p>
+                                </div>
+                            </div>
+                            <div class="select-card unit-card" data-unit="unit7">
+                                <div class="select-card-icon">📉</div>
+                                <div class="select-card-info">
+                                    <div class="card-title-row">
+                                        <h4>Bài 7: Định Luật Boyle</h4>
+                                        <span class="card-count-badge">24 câu</span>
+                                    </div>
+                                    <p>Đẳng nhiệt, định luật Boyle & đồ thị Hyperbol</p>
+                                </div>
+                            </div>
+                            <div class="select-card unit-card" data-unit="unit8">
+                                <div class="select-card-icon">📈</div>
+                                <div class="select-card-info">
+                                    <div class="card-title-row">
+                                        <h4>Bài 8: Charles & Khí Lí Tưởng</h4>
+                                        <span class="card-count-badge">24 câu</span>
+                                    </div>
+                                    <p>Định luật Charles & phương trình Clapeyron</p>
+                                </div>
+                            </div>
+                        </div>
+
+                    <!-- Config: Chọn Dạng Câu Hỏi -->
+                    <div class="config-group">
+                        <h3 class="group-title">🎯 2. Chọn Dạng Câu Hỏi (Chuẩn Cấu Trúc Bộ GD&ĐT 2025)</h3>
+                        <div class="pill-grid">
+                            <div class="select-card type-card active" data-type="all">
+                                <div class="select-card-icon">🌟</div>
+                                <div class="select-card-info">
+                                    <div class="card-title-row">
+                                        <h4>Trọn Bộ 3 Dạng (2025)</h4>
+                                        <span class="card-count-badge badge-blue">Đầy đủ Phần I, II, III</span>
+                                    </div>
+                                    <p>Trắc nghiệm ABCD + Đúng/Sai 4 ý + Điền số thực nghiệm</p>
+                                </div>
+                            </div>
+                            <div class="select-card type-card" data-type="multiple_choice">
+                                <div class="select-card-icon">🔤</div>
+                                <div class="select-card-info">
+                                    <div class="card-title-row">
+                                        <h4>Phần I: Trắc Nghiệm ABCD</h4>
+                                        <span class="card-count-badge">1 đáp án đúng</span>
+                                    </div>
+                                    <p>4 lựa chọn kinh điển A, B, C, D (128 câu)</p>
+                                </div>
+                            </div>
+                            <div class="select-card type-card" data-type="multi_tf">
+                                <div class="select-card-icon">⚖️</div>
+                                <div class="select-card-info">
+                                    <div class="card-title-row">
+                                        <h4>Phần II: Đúng / Sai (4 ý)</h4>
+                                        <span class="card-count-badge badge-purple">Cấu trúc đề 2025</span>
+                                    </div>
+                                    <p>Câu dẫn thực tế + 4 nhận định a, b, c, d (32 câu)</p>
+                                </div>
+                            </div>
+                            <div class="select-card type-card" data-type="short_answer">
+                                <div class="select-card-icon">🔢</div>
+                                <div class="select-card-info">
+                                    <div class="card-title-row">
+                                        <h4>Phần III: Trả Lời Ngắn</h4>
+                                        <span class="card-count-badge badge-green">Mới nhất 2025</span>
+                                    </div>
+                                    <p>Tính toán thực nghiệm & điền kết quả số học (32 câu)</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Config: Chọn Mức Độ -->
+                    <div class="config-group">
+                        <h3 class="group-title">⚡ 3. Chọn Mức Độ Kiến Thức</h3>
+                        <div class="pill-grid">
+                            <div class="select-card mode-card active" data-mode="all">
+                                <div class="select-card-icon">🌟</div>
+                                <div class="select-card-info">
+                                    <div class="card-title-row">
+                                        <h4>Tất Cả Mức Độ</h4>
+                                        <span class="card-count-badge badge-gold">Tổng hợp</span>
+                                    </div>
+                                    <p>Từ Nhận biết, Thông hiểu đến Vận dụng cao</p>
+                                </div>
+                            </div>
+                            <div class="select-card mode-card" data-mode="basic">
+                                <div class="select-card-icon">📖</div>
+                                <div class="select-card-info">
+                                    <div class="card-title-row">
+                                        <h4>Cơ Bản (Nhận Biết)</h4>
+                                        <span class="card-count-badge badge-green">Nền tảng SGK</span>
+                                    </div>
+                                    <p>Định nghĩa, khái niệm và tính chất cơ bản</p>
+                                </div>
+                            </div>
+                            <div class="select-card mode-card" data-mode="challenging">
+                                <div class="select-card-icon">🎯</div>
+                                <div class="select-card-info">
+                                    <div class="card-title-row">
+                                        <h4>Thử Thách (Thông Hiểu)</h4>
+                                        <span class="card-count-badge badge-cyan">Giải thích vi mô</span>
+                                    </div>
+                                    <p>Bản chất hiện tượng, đồ thị và giải thích sâu</p>
+                                </div>
+                            </div>
+                            <div class="select-card mode-card" data-mode="advanced">
+                                <div class="select-card-icon">🚀</div>
+                                <div class="select-card-info">
+                                    <div class="card-title-row">
+                                        <h4>Nâng Cao (Vận Dụng)</h4>
+                                        <span class="card-count-badge badge-pink">Điểm 9 - 10</span>
+                                    </div>
+                                    <p>Bài toán nhiệt thực tế và câu hỏi phân hóa cao</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Config: SỐ CÂU HỎI (TRỌNG TÂM CẢI TIẾN SIÊU TRỰC QUAN) -->
+                    <div class="config-group highlight-config-group">
+                        <div class="group-title-row">
+                            <h3 class="group-title">🔢 4. Bạn Muốn Làm Bao Nhiêu Câu Hỏi?</h3>
+                            <span class="group-hint">Bấm chọn nhanh hoặc tự kéo số câu theo ý muốn</span>
+                        </div>
+
+                        <!-- Các nút chọn số câu quen thuộc -->
+                        <div class="btn-toggle-row count-toggle-row">
+                            <div class="toggle-chip count-chip" data-count="5">
+                                <span class="chip-title">5 Câu</span>
+                            </div>
+                            <div class="toggle-chip count-chip active" data-count="10">
+                                <span class="chip-title">10 Câu</span>
+                            </div>
+                            <div class="toggle-chip count-chip" data-count="15">
+                                <span class="chip-title">15 Câu</span>
+                            </div>
+                            <div class="toggle-chip count-chip" data-count="20">
+                                <span class="chip-title">20 Câu</span>
+                            </div>
+                            <div class="toggle-chip count-chip" data-count="30">
+                                <span class="chip-title">30 Câu</span>
+                            </div>
+                            <div class="toggle-chip count-chip" data-count="all">
+                                <span class="chip-title">Tất Cả</span>
+                                <span class="chip-badge" id="count-all-badge">192 câu</span>
+                            </div>
+                        </div>
+
+                        <!-- Thanh kéo Slider và Ô nhập số trực tiếp -->
+                        <div class="custom-count-slider-box">
+                            <div class="slider-header-row">
+                                <span class="slider-hint-text">Hoặc kéo thanh trượt / gõ số câu bạn muốn làm:</span>
+                                <div class="number-input-pill">
+                                    <input type="number" id="custom-count-input" class="count-number-input" min="1" max="192" value="10">
+                                    <span class="count-unit-label">câu</span>
+                                </div>
+                            </div>
+                            <div class="slider-control-row">
+                                <span class="slider-bound-label">1</span>
+                                <input type="range" id="custom-count-slider" class="custom-range-slider" min="1" max="192" value="10">
+                                <span class="slider-bound-label" id="slider-max-label">192 câu</span>
+                            </div>
+                        </div>
+
+                        <!-- Thông báo kết quả lựa chọn số câu -->
+                        <div class="count-verdict-box">
+                            <span class="verdict-icon">👉</span>
+                            <div class="verdict-content">
+                                <span class="verdict-main">Bạn sẽ làm: <strong id="verdict-count-highlight">10 câu hỏi</strong></span>
+                                <span class="verdict-sub" id="verdict-pool-sub">(Rút ngẫu nhiên từ kho 192 câu phù hợp đã chọn)</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Config: Chế Độ Thời Gian (Tab 3) -->
+                    <div class="config-group">
+                        <h3 class="group-title">⏱️ 5. Chế Độ Thời Gian</h3>
+                        <div class="btn-toggle-row">
+                            <div class="toggle-chip timer-chip active" data-timer="unlimited">
+                                <span class="chip-title">📖 Không Tính Giờ (Học Tập)</span>
+                                <span class="chip-badge">Đọc đề thoải mái & Xem giải thích</span>
+                            </div>
+                            <div class="toggle-chip timer-chip" data-timer="timed">
+                                <span class="chip-title">⚡ Đếm Ngược Phù Hợp Từng Câu</span>
+                                <span class="chip-badge">Thi đấu tốc độ & Rèn phản xạ</span>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Config: Chọn Mức Độ & Chế Độ Học Tập -->
-                <div class="config-group">
-                    <h3 class="group-title">⚡ 3. Chọn Mức Độ & Chế Độ Học Tập</h3>
-                    <div class="pill-grid">
-                        <div class="select-card mode-card active" data-mode="all">
-                            <div class="select-card-icon">🌟</div>
-                            <div class="select-card-info">
-                                <div class="card-title-row">
-                                    <h4>Tất Cả Mức Độ (Tổng Hợp)</h4>
-                                    <span class="card-count-badge badge-gold">🌟 Đủ 100% (66 câu)</span>
-                                </div>
-                                <p>Bao quát toàn diện từ Nhận biết, Thông hiểu đến Vận dụng cao</p>
-                            </div>
+                <!-- BỘ CHỌN CHẾ ĐỘ THỜI GIAN TOÀN CỤC (ÁP DỤNG MỌI TAB: GÓI CÓ SẴN, THEO BÀI, TỰ CHỌN) -->
+                <div class="global-timer-control-box">
+                    <div class="timer-control-header">
+                        <span class="timer-control-icon">⏱️</span>
+                        <div class="timer-control-text">
+                            <h4>Chế Độ Thời Gian Làm Bài</h4>
+                            <p>Chọn phong cách bạn muốn: Đọc kỹ học tập thoải mái hay Thử thách đếm giờ</p>
                         </div>
-                        <div class="select-card mode-card" data-mode="basic">
-                            <div class="select-card-icon">📖</div>
-                            <div class="select-card-info">
-                                <div class="card-title-row">
-                                    <h4>Cơ Bản (Nhận Biết)</h4>
-                                    <span class="card-count-badge badge-green">🟢 21 câu (6-9 câu/bài)</span>
-                                </div>
-                                <p>Khái niệm, định nghĩa và kiến thức nền tảng trong SGK</p>
+                    </div>
+                    <div class="global-timer-chips-row">
+                        <div class="global-timer-chip active" data-timer="unlimited">
+                            <div class="chip-main">
+                                <span class="chip-icon">📖</span>
+                                <span class="chip-title">Không Tính Giờ (Học Tập)</span>
                             </div>
+                            <span class="chip-desc">Không lo hết giờ • Tự do xem giải thích chuyên sâu • Làm bài thư thái</span>
                         </div>
-                        <div class="select-card mode-card" data-mode="challenging">
-                            <div class="select-card-icon">🎯</div>
-                            <div class="select-card-info">
-                                <div class="card-title-row">
-                                    <h4>Thử Thách (Thông Hiểu)</h4>
-                                    <span class="card-count-badge badge-cyan">🔵 27 câu (7-10 câu/bài)</span>
-                                </div>
-                                <p>Giải thích bản chất vi mô, đồ thị và hiện tượng nhiệt</p>
+                        <div class="global-timer-chip" data-timer="timed">
+                            <div class="chip-main">
+                                <span class="chip-icon">⚡</span>
+                                <span class="chip-title">Có Đếm Giờ (Phù Hợp Từng Câu)</span>
                             </div>
-                        </div>
-                        <div class="select-card mode-card" data-mode="advanced">
-                            <div class="select-card-icon">🚀</div>
-                            <div class="select-card-info">
-                                <div class="card-title-row">
-                                    <h4>Nâng Cao (Vận Dụng Cao)</h4>
-                                    <span class="card-count-badge badge-pink">🔥 18 câu khó (6 câu/bài)</span>
-                                </div>
-                                <p>Bài toán phân hóa 9-10 điểm & tư duy mô hình thực tế sâu</p>
-                            </div>
+                            <span class="chip-desc">ABCD: 30s-75s • Đúng/Sai: 90s-120s • Đếm ngược thi đấu & Rèn phản xạ</span>
                         </div>
                     </div>
                 </div>
 
-                <!-- Config: Chế Độ Thời Gian & Điều Khiển -->
-                <div class="config-group">
-                    <h3 class="group-title">⏱️ 4. Chế Độ Thời Gian & Điều Khiển Câu Hỏi</h3>
-                    <div class="btn-toggle-row">
-                        <div class="toggle-chip timer-chip active" data-timer="unlimited">
-                            <span class="chip-title">📖 Không Tính Giờ (Học Tập)</span>
-                            <span class="chip-badge">Tự do đọc & Xem giải thích</span>
-                        </div>
-                        <div class="toggle-chip timer-chip" data-timer="timed">
-                            <span class="chip-title">⚡ Đếm Ngược 25 Giây</span>
-                            <span class="chip-badge">Thi đấu & Rèn phản xạ phòng thi</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Config: Số Lượng Câu -->
-                <div class="config-group">
-                    <h3 class="group-title">🎯 5. Chọn Số Lượng Câu Hỏi Sẽ Làm</h3>
-                    <div class="btn-toggle-row count-toggle-row">
-                        <div class="toggle-chip count-chip active" data-count="6">
-                            <span class="chip-title">⚡ 6 Câu</span>
-                            <span class="chip-badge">Luyện nhanh 3 phút</span>
-                        </div>
-                        <div class="toggle-chip count-chip" data-count="10">
-                            <span class="chip-title">🏆 10 Câu</span>
-                            <span class="chip-badge">Chuẩn kiểm tra</span>
-                        </div>
-                        <div class="toggle-chip count-chip" data-count="15">
-                            <span class="chip-title">🔥 15 Câu</span>
-                            <span class="chip-badge">Đấu trường chuyên sâu</span>
-                        </div>
-                        <div class="toggle-chip count-chip" data-count="all">
-                            <span class="chip-title">🌟 Toàn Bộ Kiến Thức</span>
-                            <span class="chip-badge" id="count-all-badge">Làm hết 66 câu</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Live Summary & Match Preview Card -->
+                <!-- TẤM VÉ BÀI THI CỦA BẠN (MATCH TICKET SUMMARY SIÊU GỌN VÀ DỄ HIỂU) -->
                 <div id="lobby-summary-card" class="lobby-summary-card">
                     <div class="summary-card-header">
                         <div class="summary-title-group">
-                            <span class="summary-icon">📋</span>
-                            <span class="summary-title">TỔNG KẾT BÀI LÀM SẮP TỚI</span>
+                            <span class="summary-icon">🎫</span>
+                            <span class="summary-title">BÀI THI CỦA BẠN ĐÃ SẴN SÀNG</span>
                         </div>
                         <div class="summary-live-tag">
                             <span class="live-pulse"></span>
-                            <span>Cập nhật theo lựa chọn</span>
+                            <span>Tự động đồng bộ</span>
                         </div>
                     </div>
 
-                    <div class="summary-main-stat">
-                        <div class="summary-stat-circle">
-                            <div class="stat-number" id="summary-questions-to-play">6</div>
-                            <div class="stat-sub">TRÊN <span id="summary-pool-total">66</span> CÂU</div>
+                    <div class="summary-ticket-body">
+                        <div class="ticket-big-badge">
+                            <span class="ticket-count-num" id="summary-questions-to-play">10</span>
+                            <span class="ticket-count-label">CÂU HỎI</span>
                         </div>
-                        <div class="summary-stat-info">
-                            <h4 id="summary-headline">Bạn sẽ làm 6 câu hỏi ngẫu nhiên</h4>
-                            <p id="summary-subtext">Được rút ngẫu nhiên từ kho <strong>66 câu hỏi</strong> phù hợp với bộ lọc đã chọn.</p>
-                            
-                            <div class="summary-coverage-bar">
-                                <div class="coverage-label-row">
-                                    <span>Tỉ lệ bao phủ kho câu hỏi phù hợp:</span>
-                                    <strong id="summary-coverage-text">9% (6 / 66 câu)</strong>
-                                </div>
-                                <div class="coverage-track">
-                                    <div id="summary-coverage-fill" class="coverage-fill" style="width: 9%;"></div>
-                                </div>
+                        <div class="ticket-info-list">
+                            <div class="ticket-info-row">
+                                <span class="ticket-label">📚 Nội dung:</span>
+                                <strong class="ticket-val" id="summary-tag-unit">Tổng Hợp Cả 3 Bài</strong>
                             </div>
-                        </div>
-                    </div>
-
-                    <div class="summary-details-grid">
-                        <div class="summary-detail-item">
-                            <span class="detail-icon">📚</span>
-                            <div class="detail-content">
-                                <span class="detail-label">Bài học:</span>
-                                <strong id="summary-tag-unit" class="detail-val">Tổng Hợp Cả 3 Bài</strong>
+                            <div class="ticket-info-row">
+                                <span class="ticket-label">🎯 Dạng bài:</span>
+                                <strong class="ticket-val" id="summary-tag-type">Trắc nghiệm ABCD & Đúng/Sai</strong>
                             </div>
-                        </div>
-                        <div class="summary-detail-item">
-                            <span class="detail-icon">🎯</span>
-                            <div class="detail-content">
-                                <span class="detail-label">Dạng câu:</span>
-                                <strong id="summary-tag-type" class="detail-val">Hỗn Hợp (ABCD & Đúng/Sai)</strong>
+                            <div class="ticket-info-row">
+                                <span class="ticket-label">⚡ Mức độ:</span>
+                                <strong class="ticket-val" id="summary-tag-mode">Tất Cả Mức Độ</strong>
                             </div>
-                        </div>
-                        <div class="summary-detail-item">
-                            <span class="detail-icon">⚡</span>
-                            <div class="detail-content">
-                                <span class="detail-label">Mức độ:</span>
-                                <strong id="summary-tag-mode" class="detail-val">Tất Cả Mức Độ (Tổng Hợp)</strong>
-                            </div>
-                        </div>
-                        <div class="summary-detail-item">
-                            <span class="detail-icon">⏱️</span>
-                            <div class="detail-content">
-                                <span class="detail-label">Thời gian:</span>
-                                <strong id="summary-tag-timer" class="detail-val">Không Tính Giờ (Học Tập)</strong>
+                            <div class="ticket-info-row">
+                                <span class="ticket-label">⏱️ Thời gian:</span>
+                                <strong class="ticket-val" id="summary-tag-timer">Không tính giờ (Học tập)</strong>
                             </div>
                         </div>
                     </div>
@@ -321,10 +1134,10 @@
                     <div id="summary-notice-box" class="summary-notice-box" style="display: none;"></div>
                 </div>
 
-                <!-- CTA Button -->
+                <!-- Nút Bắt Đầu Thi Đấu Lớn -->
                 <button id="btn-start-game" class="cta-button btn-primary">
-                    <span id="btn-start-text">Bắt Đầu Làm 6 / 66 Câu Hỏi</span>
-                    <span class="btn-arrow">🚀</span>
+                    <span id="btn-start-text">🚀 BẮT ĐẦU LÀM 10 CÂU HỎI NGAY</span>
+                    <span class="btn-arrow">➔</span>
                 </button>
             </div>
         </section>
@@ -359,6 +1172,17 @@
                         <span>Chuỗi: <span id="hud-streak-val">0</span></span>
                     </div>
 
+                    <!-- Live Timer Display & Digital Countdown / Study Mode Indicator -->
+                    <div class="hud-timer-badge" id="hud-timer-badge">
+                        <span id="hud-timer-icon">⏱️</span>
+                        <span id="hud-timer-text" class="hud-timer-text">45s</span>
+                    </div>
+
+                    <!-- On-the-fly 1-Click Timer Mode Toggle -->
+                    <button type="button" id="btn-arena-toggle-timer" class="btn-arena-toggle-timer" title="Nhấp để bật/tắt đếm giờ cho bài làm">
+                        <span id="arena-timer-toggle-label">📖 Tắt Đếm Giờ</span>
+                    </button>
+
                     <div class="hud-item">
                         <span id="hud-progress-val" class="hud-progress">1/10</span>
                     </div>
@@ -390,35 +1214,45 @@
                 </div>
 
 
-                <!-- Question Card -->
-                <div class="question-card">
-                    <div class="question-meta">
-                        <span id="question-tag" class="tag-badge">Trắc nghiệm</span>
-                        <span id="question-level" class="tag-badge">Thông hiểu</span>
+                <!-- Split Layout: Question Card on Left, Options on Right on Desktop/Tablet -->
+                <div class="arena-split-layout">
+                    <!-- Left Column: Question Card & Scientific Visual -->
+                    <div class="arena-col-question">
+                        <div class="question-card">
+                            <div class="question-meta">
+                                <span id="question-tag" class="tag-badge">Trắc nghiệm</span>
+                                <span id="question-level" class="tag-badge">Thông hiểu</span>
+                            </div>
+
+                            <!-- Interactive Virtual Physics Experiment / Scientific Illustration Box -->
+                            <div id="question-visual-box" class="question-visual-box"></div>
+
+                            <!-- Scenario / General Lead-in (for True/False questions) -->
+                            <div id="question-scenario-lead" class="question-scenario-lead" style="display: none;"></div>
+                            <h3 id="question-text" class="question-text">Đang tải câu hỏi...</h3>
+
+                            <!-- Inline In-Depth Theory & Explanation Box (for Study Mode) -->
+                            <div id="study-inline-explanation" class="study-inline-explanation" style="display: none;">
+                                <div class="study-explain-header">
+                                    <span>💡 BẢN CHẤT VẬT LÍ & GIẢI THÍCH CHI TIẾT (CHUẨN SGK GDPT 2018)</span>
+                                </div>
+                                <div id="study-explain-content" class="study-explain-content"></div>
+                            </div>
+                        </div>
                     </div>
 
-                    <!-- Interactive Virtual Physics Experiment / Scientific Illustration Box -->
-                    <div id="question-visual-box" class="question-visual-box"></div>
+                    <!-- Right Column: Answer Layouts -->
+                    <div class="arena-col-answers">
+                        <!-- Layout 1: Multiple Choice ABCD -->
+                        <div id="mc-grid" class="options-grid"></div>
 
-                    <!-- Scenario / General Lead-in (for True/False questions) -->
-                    <div id="question-scenario-lead" class="question-scenario-lead" style="display: none;"></div>
-                    <h3 id="question-text" class="question-text">Đang tải câu hỏi...</h3>
+                        <!-- Layout 2: Multi-command True/False 4-statement Cards -->
+                        <div id="multi-tf-container" class="multi-tf-container" style="display: none;"></div>
 
-                    <!-- Inline In-Depth Theory & Explanation Box (for Study Mode) -->
-                    <div id="study-inline-explanation" class="study-inline-explanation" style="display: none;">
-                        <div class="study-explain-header">
-                            <span>💡 BẢN CHẤT VẬT LÍ & GIẢI THÍCH CHI TIẾT (CHUẨN SGK GDPT 2018)</span>
-                        </div>
-                        <div id="study-explain-content" class="study-explain-content"></div>
+                        <!-- Layout 3: Short Answer Fill-in Card (Chuẩn Cấu Trúc Bộ GD&ĐT 2025) -->
+                        <div id="short-answer-container" class="short-answer-container" style="display: none;"></div>
                     </div>
                 </div>
-
-                <!-- Answer Layouts -->
-                <!-- Layout 1: Multiple Choice ABCD -->
-                <div id="mc-grid" class="options-grid"></div>
-
-                <!-- Layout 2: Multi-command True/False 4-statement Cards -->
-                <div id="multi-tf-container" class="multi-tf-container" style="display: none;"></div>
 
                 <!-- Question Navigation & Study Control Bar -->
                 <div id="arena-study-nav" class="arena-study-nav">
@@ -478,6 +1312,18 @@
                     </div>
                 </div>
 
+                <!-- In-Place Mistakes Quick Review Accordion -->
+                <div id="summary-mistakes-section" class="summary-mistakes-section" style="display: none;">
+                    <div class="mistakes-section-header">
+                        <div class="mistakes-header-left">
+                            <span class="mistakes-icon">💡</span>
+                            <h4>Xem Lại Chi Tiết Các Câu Cần Khắc Phục</h4>
+                        </div>
+                        <span id="mistakes-count-badge" class="badge-mistake-count">0 câu chưa đạt</span>
+                    </div>
+                    <div id="summary-mistakes-list" class="summary-mistakes-list"></div>
+                </div>
+
                 <!-- Remediation Prompt Box (Appears when there are mistakes) -->
                 <div id="remediation-prompt-box" class="remediation-prompt-box" style="display: none;">
                     <div class="remediation-prompt-icon">💡</div>
@@ -501,6 +1347,118 @@
                         <span>Chơi Lại Từ Đầu</span>
                         <span>🔄</span>
                     </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- =========================================================
+             SCREEN 4: MINI-GAMES ARCADE (LẬT THẺ • GẮN NHÃN • PHÂN LOẠI)
+             ========================================================= -->
+        <section id="screen-minigames" class="screen">
+            <div class="minigames-container">
+                <!-- Arcade Top Bar -->
+                <div class="arcade-top-bar">
+                    <div class="arcade-brand">
+                        <div class="arcade-icon">🎮</div>
+                        <div class="arcade-title-box">
+                            <h3>KHU MINI-GAME TRỰC QUAN</h3>
+                            <span>Ôn Tập Toàn Diện Theo Bài Học • Trực Quan Bằng Hình Ảnh</span>
+                        </div>
+                    </div>
+                    <button type="button" class="btn-arcade-back" id="btn-arcade-back-lobby">
+                        <span>⬅️ Về Đấu Trường Trắc Nghiệm</span>
+                    </button>
+                </div>
+
+                <!-- 1. Arcade Hub View (Game Selection & Lesson Filter) -->
+                <div id="arcade-hub-view" class="arcade-hub-view">
+                    <!-- Hero Banner -->
+                    <div class="arcade-hero-banner">
+                        <span class="arcade-hero-pill">✨ Tương Tác Trực Quan • Nhớ Lâu Không Quên</span>
+                        <h2 class="arcade-hero-title">Đấu Trường Trò Chơi Vật Lí 12</h2>
+                        <p class="arcade-hero-desc">Lựa chọn bài học bạn muốn ôn tập và thử thách bản thân qua 5 thể loại trò chơi tương tác thú vị kết hợp 29 hình ảnh minh họa khoa học chuẩn SGK cùng các mô phỏng vật lí trực quan đỉnh cao (PhET & Neal.fun)!</p>
+                    </div>
+
+                    <!-- Lesson Filter Tabs -->
+                    <div class="arcade-lesson-tabs">
+                        <button type="button" class="arcade-lesson-btn active" data-lesson="all">🌟 Toàn Bộ Chương 1</button>
+                        <button type="button" class="arcade-lesson-btn" data-lesson="unit1">🧊 Bài 1: Cấu Trúc Chất</button>
+                        <button type="button" class="arcade-lesson-btn" data-lesson="unit2">🔥 Bài 2: Nội Năng & ĐL I</button>
+                        <button type="button" class="arcade-lesson-btn" data-lesson="unit3">🌡️ Bài 3: Thang Nhiệt Độ</button>
+                    </div>
+
+                    <!-- Games Grid (5 Games) -->
+                    <div class="arcade-games-grid">
+                        <!-- Game 1: Memory Match -->
+                        <div class="arcade-game-card" data-game="memory">
+                            <span class="game-card-badge">Trí Nhớ & Liên Tưởng</span>
+                            <div class="game-card-icon">🎴</div>
+                            <h4>Lật Thẻ Trí Nhớ Trực Quan</h4>
+                            <p>Lật thẻ 3D ghép đôi giữa Ảnh hiện tượng thực tế và Khái niệm / Định luật vật lí tương ứng. Luyện trí nhớ thị giác siêu tốc!</p>
+                            <div class="game-card-meta">
+                                <span class="game-tag-items">📸 24 Cặp Thẻ Ảnh</span>
+                                <button type="button" class="btn-card-play">Chơi Ngay ➔</button>
+                            </div>
+                        </div>
+
+                        <!-- Game 2: Diagram Pinpoint -->
+                        <div class="arcade-game-card" data-game="pinpoint">
+                            <span class="game-card-badge">Tư Duy Sơ Đồ</span>
+                            <div class="game-card-icon">🎯</div>
+                            <h4>Đố Sơ Đồ & Gắn Nhãn Khoa Học</h4>
+                            <p>Khám phá sơ đồ chuyển thể, đồ thị lực phân tử r₀, động cơ nhiệt và thang đo nhiệt độ. Gắn đúng các nhãn vào vị trí mục tiêu!</p>
+                            <div class="game-card-meta">
+                                <span class="game-tag-items">🔬 4 Bộ Sơ Đồ Lớn</span>
+                                <button type="button" class="btn-card-play">Chơi Ngay ➔</button>
+                            </div>
+                        </div>
+
+                        <!-- Game 3: Rapid Sorter -->
+                        <div class="arcade-game-card" data-game="sorter">
+                            <span class="game-card-badge">Phản Xạ Tốc Độ</span>
+                            <div class="game-card-icon">⚖️</div>
+                            <h4>Phân Loại Hiện Tượng Siêu Tốc</h4>
+                            <p>Rèn phản xạ nhanh dấu công A, nhiệt lượng Q (ΔU = A + Q), phân biệt chất rắn kết tinh vs vô định hình và phân loại nhiệt kế!</p>
+                            <div class="game-card-meta">
+                                <span class="game-tag-items">⚡ Thử Thách Combo</span>
+                                <button type="button" class="btn-card-play">Chơi Ngay ➔</button>
+                            </div>
+                        </div>
+
+                        <!-- Game 4: PhET Piston Sandbox -->
+                        <div class="arcade-game-card highlight-card" data-game="piston">
+                            <span class="game-card-badge badge-phet">🧪 Mô Phỏng PhET</span>
+                            <div class="game-card-icon">🎛️</div>
+                            <h4>Phòng Thí Nghiệm Piston & Khí Lý Tưởng</h4>
+                            <p>Tự tay kéo pít-tông nén/dãn khí, đun lửa, ướp đá, quan sát 42 phân tử nảy 60fps và đồng hồ đo ΔU = A + Q nhảy số thời gian thực!</p>
+                            <div class="game-card-meta">
+                                <span class="game-tag-items">🔥 4 Thử Thách Vật Lí</span>
+                                <button type="button" class="btn-card-play">Khám Phá ➔</button>
+                            </div>
+                        </div>
+
+                        <!-- Game 5: Neal.fun Cosmic Scale -->
+                        <div class="arcade-game-card highlight-card" data-game="cosmic">
+                            <span class="game-card-badge badge-neal">🌌 Cảm Hứng Neal.fun</span>
+                            <div class="game-card-icon">🚀</div>
+                            <h4>Thang Đo Nhiệt Độ Vũ Trụ & Đố Vui</h4>
+                            <p>Kéo thanh trượt vô cực từ 0 K (-273,15 °C) đến Lõi Mặt Trời (15 triệu K). Tự động quy đổi Kelvin - Celsius - Fahrenheit và mini-game bắn trúng tọa độ nhiệt!</p>
+                            <div class="game-card-meta">
+                                <span class="game-tag-items">🎯 Bắn Tọa Độ 5 Vòng</span>
+                                <button type="button" class="btn-card-play">Trải Nghiệm ➔</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2. Active Game Container (Dynamic Stage) -->
+                <div id="arcade-active-view" class="arcade-active-view">
+                    <div style="display: flex; justify-content: flex-end;">
+                        <button type="button" class="btn-arcade-back" id="btn-arcade-back-hub">
+                            <span>🔙 Đổi Trò Chơi Khác</span>
+                        </button>
+                    </div>
+                    <div id="active-game-container"></div>
                 </div>
             </div>
         </section>
@@ -768,6 +1726,24 @@
         </div>
     </div>
 
+    <!-- Mini-Game Victory Celebration Modal -->
+    <div id="minigame-victory-modal" class="minigame-victory-modal">
+        <div class="minigame-victory-card">
+            <div class="victory-stars" id="mv-stars">⭐⭐⭐</div>
+            <h3 class="victory-title" id="mv-title">Chiến Thắng Tuyệt Đỉnh!</h3>
+            <p class="victory-desc" id="mv-desc">Bạn đã hoàn thành trò chơi xuất sắc!</p>
+            
+            <div class="victory-stats-grid" id="mv-stats-box">
+                <!-- Stats injected dynamically -->
+            </div>
+
+            <div class="victory-actions-row">
+                <button type="button" class="btn-victory-replay" id="btn-mv-replay">🔄 Chơi Lại Vòng Này</button>
+                <button type="button" class="btn-victory-hub" id="btn-mv-hub">🎮 Về Menu Trò Chơi</button>
+            </div>
+        </div>
+    </div>
+
     <!-- KaTeX Scripts (Local with CDN fallback) -->
     <script src="lib/katex/katex.min.js"></script>
     <script src="lib/katex/auto-render.min.js"></script>
@@ -778,8 +1754,113 @@
     <script src="js/audio.js?v=6.0.0"></script>
     <script src="js/confetti.js?v=6.0.0"></script>
     <script src="js/questions.js?v=6.0.0"></script>
+    <script src="js/physics9_data.js?v=6.0.0"></script>
     <script src="js/simulations.js?v=6.0.0"></script>
     <script src="js/app.js?v=6.0.0"></script>
 
+    <!-- Mini-Games Arcade Engines -->
+    <script src="js/minigames_data.js?v=6.0.0"></script>
+    <script src="js/minigame_memory.js?v=6.0.0"></script>
+    <script src="js/minigame_pinpoint.js?v=6.0.0"></script>
+    <script src="js/minigame_sorter.js?v=6.0.0"></script>
+    <script src="js/minigame_phet_piston.js?v=6.1.0"></script>
+    <script src="js/minigame_cosmic_scale.js?v=6.1.0"></script>
+    <script src="js/minigames_manager.js?v=6.1.0"></script>
+
+    <!-- Micro-Learning Platform Engine & Master Data Banks (Physics 9, 10, 11, 12) -->
+    <script src="js/physics10_data.js?v=2.1.0"></script>
+    <script src="js/physics11_data.js?v=2.1.0"></script>
+    <script src="js/physics9_microlearning_data.js?v=2.1.0"></script>
+    <script src="js/physics10_microlearning_data.js?v=2.1.0"></script>
+    <script src="js/physics11_microlearning_data.js?v=2.1.0"></script>
+    <script src="js/physics12_microlearning_data.js?v=2.1.0"></script>
+    <script src="js/micro_learning_engine.js?v=2.1.0"></script>
+
+    <!-- Subject Switcher Dynamic Engine & Micro-Learning Navigation -->
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const gradeButtons = {
+            9: document.getElementById('btn-sub-phy9'),
+            10: document.getElementById('btn-sub-phy10'),
+            11: document.getElementById('btn-sub-phy11'),
+            12: document.getElementById('btn-sub-phy12')
+        };
+        const brandLogo = document.getElementById('brand-logo-icon');
+        const brandSub = document.getElementById('brand-sub');
+        const btnMicro = document.getElementById('btn-open-microlearning');
+
+        // Lưu bản gốc Ngân hàng câu hỏi Lớp 12
+        if (typeof window.BACKUP_QB_12 === 'undefined' && typeof QUESTION_BANK !== 'undefined') {
+            window.BACKUP_QB_12 = JSON.parse(JSON.stringify(QUESTION_BANK));
+        }
+
+        const gradeConfigs = {
+            9: { icon: '⚡', name: 'Vật Lí 9 • GDPT 2018', bank: typeof QUESTION_BANK_9 !== 'undefined' ? QUESTION_BANK_9 : null, color: '#0284C7' },
+            10: { icon: '🚗', name: 'Vật Lí 10 • GDPT 2018', bank: typeof QUESTION_BANK_10 !== 'undefined' ? QUESTION_BANK_10 : null, color: '#10B981' },
+            11: { icon: '🌊', name: 'Vật Lí 11 • GDPT 2018', bank: typeof QUESTION_BANK_11 !== 'undefined' ? QUESTION_BANK_11 : null, color: '#8B5CF6' },
+            12: { icon: '⚛️', name: 'Vật Lí 12 • GDPT 2018', bank: window.BACKUP_QB_12, color: '#0284C7' }
+        };
+
+        function setSubject(grade) {
+            grade = parseInt(grade);
+            const cfg = gradeConfigs[grade] || gradeConfigs[12];
+            
+            Object.keys(gradeButtons).forEach(g => {
+                const btn = gradeButtons[g];
+                if (!btn) return;
+                if (parseInt(g) === grade) {
+                    btn.classList.add('active');
+                    btn.style.background = cfg.color;
+                    btn.style.color = '#fff';
+                } else {
+                    btn.classList.remove('active');
+                    btn.style.background = 'transparent';
+                    btn.style.color = '#94A3B8';
+                }
+            });
+
+            if (brandLogo) brandLogo.textContent = cfg.icon;
+            if (brandSub) brandSub.textContent = cfg.name;
+
+            // Swap question bank in Arcade
+            const activeBank = cfg.bank || window.BACKUP_QB_12;
+            if (activeBank && typeof QUESTION_BANK !== 'undefined') {
+                Object.keys(QUESTION_BANK).forEach(k => delete QUESTION_BANK[k]);
+                Object.assign(QUESTION_BANK, activeBank);
+            }
+
+            // Sync with micro-learning engine
+            if (window.microEngine) {
+                window.microEngine.loadGradeData(grade);
+            }
+
+            if (window.gameInstance && typeof window.gameInstance.updatePresetCountTags === 'function') {
+                window.gameInstance.updatePresetCountTags();
+            }
+        }
+
+        Object.keys(gradeButtons).forEach(g => {
+            if (gradeButtons[g]) {
+                gradeButtons[g].addEventListener('click', () => setSubject(g));
+            }
+        });
+
+        // Xử lý nút mở Lộ trình Micro-Learning
+        if (btnMicro) {
+            btnMicro.addEventListener('click', () => {
+                document.querySelectorAll('.screen').forEach(s => {
+                    s.classList.remove('active');
+                    s.style.display = 'none';
+                });
+                const mg = document.getElementById('minigames-arcade-overlay');
+                if (mg) mg.style.display = 'none';
+
+                if (window.microEngine) {
+                    window.microEngine.show();
+                }
+            });
+        }
+    });
+    </script>
 </body>
 </html>

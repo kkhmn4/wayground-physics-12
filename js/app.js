@@ -11,12 +11,27 @@ class WaygroundGame {
     constructor() {
         // Configuration
         this.config = {
+            activeTab: 'presets', // 'presets', 'by-unit', or 'custom'
+            preset: 'test15p',
             unit: 'all',
+            selectedUnits: ['all'],
             questionType: 'all',
             mode: 'all', // 'all', 'basic', 'challenging', 'advanced'
-            count: 6,
+            count: 10,
             questionTime: 25, // 25 seconds per question
             timerMode: 'unlimited' // 'unlimited' (Study Mode) or 'timed' (Arena)
+        };
+
+        // Per-unit breakdown configuration
+        this.byUnitConfig = {
+            unit1: { count: 3, selectedQids: new Set() },
+            unit2: { count: 3, selectedQids: new Set() },
+            unit3: { count: 3, selectedQids: new Set() },
+            unit4: { count: 3, selectedQids: new Set() },
+            unit5: { count: 3, selectedQids: new Set() },
+            unit6: { count: 3, selectedQids: new Set() },
+            unit7: { count: 3, selectedQids: new Set() },
+            unit8: { count: 3, selectedQids: new Set() }
         };
 
         // Student Profile
@@ -70,6 +85,8 @@ class WaygroundGame {
         };
 
         this.initDOMReferences();
+        this.bindJourneyHubEvents();
+        this.initByUnitDrawers();
         this.bindEvents();
         this.updateLobbyPreview();
     }
@@ -79,21 +96,47 @@ class WaygroundGame {
         this.screens = {
             lobby: document.getElementById('screen-lobby'),
             arena: document.getElementById('screen-arena'),
-            summary: document.getElementById('screen-summary')
+            summary: document.getElementById('screen-summary'),
+            minigames: document.getElementById('screen-minigames')
         };
+
+        // Mini-Games Arcade Navigation Buttons
+        this.btnOpenMiniGames = document.getElementById('btn-open-minigames');
+        this.bannerOpenMiniGames = document.getElementById('banner-open-minigames');
+        this.btnArcadeBackLobby = document.getElementById('btn-arcade-back-lobby');
 
         // Student Profile Inputs
         this.inputStudentName = document.getElementById('input-student-name');
         this.inputStudentClass = document.getElementById('input-student-class');
 
-        // Lobby selections
+        // Lobby Mode Tabs & Panels
+        this.tabBtnPresets = document.getElementById('tab-btn-presets');
+        this.tabBtnByUnit = document.getElementById('tab-btn-by-unit');
+        this.tabBtnCustom = document.getElementById('tab-btn-custom');
+        this.panelPresets = document.getElementById('panel-presets');
+        this.panelByUnit = document.getElementById('panel-by-unit');
+        this.panelCustom = document.getElementById('panel-custom');
+        this.presetCards = document.querySelectorAll('.preset-card');
+
+        // Tab 2: By-Unit DOM references
+        this.matrixTotalCount = document.getElementById('matrix-total-count');
+        this.matrixTotalBreakdown = document.getElementById('matrix-total-breakdown');
+
+        // Lobby selections (Custom Tab)
         this.unitCards = document.querySelectorAll('.unit-card');
         this.typeCards = document.querySelectorAll('.type-card');
         this.modeCards = document.querySelectorAll('.mode-card');
         this.countChips = document.querySelectorAll('.count-chip');
-        this.btnStart = document.getElementById('btn-start-game');
+        this.customCountSlider = document.getElementById('custom-count-slider');
+        this.customCountInput = document.getElementById('custom-count-input');
+        this.sliderMaxLabel = document.getElementById('slider-max-label');
+        this.verdictCountHighlight = document.getElementById('verdict-count-highlight');
+        this.verdictPoolSub = document.getElementById('verdict-pool-sub');
 
-        // Lobby Preview & Summary references
+        this.btnStart = document.getElementById('btn-start-game');
+        this.btnQuickStart = document.getElementById('btn-quick-start');
+
+        // Lobby Ticket Summary references
         this.lobbySummaryCard = document.getElementById('lobby-summary-card');
         this.summaryQuestionsToPlay = document.getElementById('summary-questions-to-play');
         this.summaryPoolTotal = document.getElementById('summary-pool-total');
@@ -130,6 +173,7 @@ class WaygroundGame {
         this.questionText = document.getElementById('question-text');
         this.mcGrid = document.getElementById('mc-grid');
         this.multiTfContainer = document.getElementById('multi-tf-container');
+        this.shortAnswerContainer = document.getElementById('short-answer-container');
 
         // Feedback Popup
         this.feedbackOverlay = document.getElementById('feedback-overlay');
@@ -146,7 +190,13 @@ class WaygroundGame {
         this.btnZoomFeedbackImg = document.getElementById('btn-zoom-feedback-img');
 
         // Study Mode Arena Navigation & Banner
+        this.globalTimerChips = document.querySelectorAll('.global-timer-chip');
         this.timerChips = document.querySelectorAll('.timer-chip');
+        this.hudTimerBadge = document.getElementById('hud-timer-badge');
+        this.hudTimerIcon = document.getElementById('hud-timer-icon');
+        this.hudTimerText = document.getElementById('hud-timer-text');
+        this.btnArenaToggleTimer = document.getElementById('btn-arena-toggle-timer');
+        this.arenaTimerToggleLabel = document.getElementById('arena-timer-toggle-label');
         this.studyModeBanner = document.getElementById('study-mode-banner');
         this.studyInlineExplanation = document.getElementById('study-inline-explanation');
         this.studyExplainContent = document.getElementById('study-explain-content');
@@ -170,6 +220,9 @@ class WaygroundGame {
         this.btnStartRemediation = document.getElementById('btn-start-remediation');
         this.btnOpenTeacherReport = document.getElementById('btn-open-teacher-report');
         this.btnPlayAgain = document.getElementById('btn-play-again');
+        this.summaryMistakesSection = document.getElementById('summary-mistakes-section');
+        this.mistakesCountBadge = document.getElementById('mistakes-count-badge');
+        this.summaryMistakesList = document.getElementById('summary-mistakes-list');
 
         // Teacher Report Modal
         this.modalTeacherReport = document.getElementById('modal-teacher-report');
@@ -222,6 +275,14 @@ class WaygroundGame {
         this.tdTableCount = document.getElementById('td-table-count');
         this.tdStudentsTableBody = document.getElementById('td-students-table-body');
         this.tdInsightsList = document.getElementById('td-insights-list');
+
+        // Auto-restore student profile from localStorage for instant friendly UX
+        try {
+            const savedName = localStorage.getItem('wayground_student_name');
+            const savedClass = localStorage.getItem('wayground_student_class');
+            if (savedName && this.inputStudentName) this.inputStudentName.value = savedName;
+            if (savedClass && this.inputStudentClass) this.inputStudentClass.value = savedClass;
+        } catch (e) {}
     }
 
     bindEvents() {
@@ -231,6 +292,28 @@ class WaygroundGame {
             this.btnToggleSound.textContent = isEnabled ? '🔊' : '🔇';
             soundEngine.playClick();
         });
+
+        // Mini-Games Arcade Navigation
+        const openMiniGames = () => {
+            this.switchScreen('minigames');
+            if (window.soundEngine) soundEngine.playPowerup();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        };
+
+        if (this.btnOpenMiniGames) {
+            this.btnOpenMiniGames.addEventListener('click', openMiniGames);
+        }
+        if (this.bannerOpenMiniGames) {
+            this.bannerOpenMiniGames.addEventListener('click', openMiniGames);
+        }
+        if (this.btnArcadeBackLobby) {
+            this.btnArcadeBackLobby.addEventListener('click', () => {
+                this.switchScreen('lobby');
+                if (window.miniGamesManager) window.miniGamesManager.returnToHub();
+                if (window.soundEngine) soundEngine.playClick();
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+        }
 
         // Close image zoom modal
         if (this.btnCloseZoomModal) {
@@ -244,67 +327,315 @@ class WaygroundGame {
             });
         }
 
-        // Lobby selections
+        // Lobby Mode Tabs Switcher (3 Tabs: Presets vs By-Unit vs Custom)
+        const switchTab = (tabName) => {
+            this.config.activeTab = tabName;
+            if (this.tabBtnPresets) this.tabBtnPresets.classList.toggle('active', tabName === 'presets');
+            if (this.tabBtnByUnit) this.tabBtnByUnit.classList.toggle('active', tabName === 'by-unit');
+            if (this.tabBtnCustom) this.tabBtnCustom.classList.toggle('active', tabName === 'custom');
+
+            if (this.panelPresets) this.panelPresets.classList.toggle('active', tabName === 'presets');
+            if (this.panelByUnit) this.panelByUnit.classList.toggle('active', tabName === 'by-unit');
+            if (this.panelCustom) this.panelCustom.classList.toggle('active', tabName === 'custom');
+
+            this.updateLobbyPreview();
+            if (window.soundEngine) soundEngine.playClick();
+        };
+
+        if (this.tabBtnPresets) this.tabBtnPresets.addEventListener('click', () => switchTab('presets'));
+        if (this.tabBtnByUnit) this.tabBtnByUnit.addEventListener('click', () => switchTab('by-unit'));
+        if (this.tabBtnCustom) this.tabBtnCustom.addEventListener('click', () => switchTab('custom'));
+
+        // By-Unit Steppers & Pills & Drawers Event Bindings
+        ['unit1', 'unit2', 'unit3', 'unit4', 'unit5', 'unit6', 'unit7', 'unit8'].forEach(unitKey => {
+            const stepperSub = document.querySelector(`.btn-stepper-sub[data-unit="${unitKey}"]`);
+            const stepperAdd = document.querySelector(`.btn-stepper-add[data-unit="${unitKey}"]`);
+            const stepperInput = document.getElementById(`count-input-${unitKey}`);
+            const pills = document.querySelectorAll(`.matrix-pill[data-unit="${unitKey}"]`);
+            const toggleDrawerBtn = document.querySelector(`.btn-toggle-drawer[data-unit="${unitKey}"]`);
+            const drawer = document.getElementById(`drawer-${unitKey}`);
+            const selectAllBtn = document.querySelector(`.btn-select-all[data-unit="${unitKey}"]`);
+            const clearAllBtn = document.querySelector(`.btn-clear-all[data-unit="${unitKey}"]`);
+
+            const setUnitCount = (newCount, syncCheckboxes = true) => {
+                const maxVal = QUESTION_BANK[unitKey]?.questions?.length || 22;
+                newCount = Math.max(0, Math.min(newCount, maxVal));
+                this.byUnitConfig[unitKey].count = newCount;
+                if (stepperInput) stepperInput.value = newCount;
+
+                // Sync pills
+                pills.forEach(p => {
+                    const v = parseInt(p.dataset.val, 10);
+                    p.classList.toggle('active', v === newCount);
+                });
+
+                // Sync checkboxes in drawer if requested
+                if (syncCheckboxes) {
+                    const questions = QUESTION_BANK[unitKey]?.questions || [];
+                    this.byUnitConfig[unitKey].selectedQids.clear();
+                    questions.forEach((q, idx) => {
+                        const cb = document.querySelector(`.question-checkbox[data-qid="${q.id}"]`);
+                        const isSelected = idx < newCount;
+                        if (isSelected) {
+                            this.byUnitConfig[unitKey].selectedQids.add(q.id);
+                        }
+                        if (cb) {
+                            cb.checked = isSelected;
+                            const item = cb.closest('.drawer-question-item');
+                            if (item) item.classList.toggle('selected', isSelected);
+                        }
+                    });
+                }
+
+                const detailCountEl = document.getElementById(`selected-detail-count-${unitKey}`);
+                if (detailCountEl) detailCountEl.textContent = this.byUnitConfig[unitKey].selectedQids.size;
+
+                this.updateLobbyPreview();
+            };
+
+            if (stepperSub) {
+                stepperSub.addEventListener('click', () => {
+                    setUnitCount((this.byUnitConfig[unitKey].count || 0) - 1, true);
+                    if (window.soundEngine) soundEngine.playClick();
+                });
+            }
+            if (stepperAdd) {
+                stepperAdd.addEventListener('click', () => {
+                    setUnitCount((this.byUnitConfig[unitKey].count || 0) + 1, true);
+                    if (window.soundEngine) soundEngine.playClick();
+                });
+            }
+            if (stepperInput) {
+                stepperInput.addEventListener('input', () => {
+                    let val = parseInt(stepperInput.value, 10);
+                    if (isNaN(val)) return;
+                    setUnitCount(val, true);
+                });
+            }
+
+            pills.forEach(pill => {
+                pill.addEventListener('click', () => {
+                    const val = parseInt(pill.dataset.val, 10);
+                    setUnitCount(val, true);
+                    if (window.soundEngine) soundEngine.playClick();
+                });
+            });
+
+            if (toggleDrawerBtn && drawer) {
+                toggleDrawerBtn.addEventListener('click', () => {
+                    const isHidden = drawer.style.display === 'none';
+                    drawer.style.display = isHidden ? 'block' : 'none';
+                    const arrow = toggleDrawerBtn.querySelector('.drawer-arrow');
+                    if (arrow) arrow.textContent = isHidden ? '▲' : '▼';
+                    if (window.soundEngine) soundEngine.playClick();
+                });
+            }
+
+            if (selectAllBtn) {
+                selectAllBtn.addEventListener('click', () => {
+                    const maxVal = QUESTION_BANK[unitKey]?.questions?.length || 22;
+                    setUnitCount(maxVal, true);
+                    if (window.soundEngine) soundEngine.playClick();
+                });
+            }
+            if (clearAllBtn) {
+                clearAllBtn.addEventListener('click', () => {
+                    setUnitCount(0, true);
+                    if (window.soundEngine) soundEngine.playClick();
+                });
+            }
+        });
+
+        // Preset Cards (1-Click Exam Packs)
+        const PRESETS_MAP = {
+            quick5: { unit: 'all', questionType: 'all', mode: 'basic', timerMode: 'unlimited', count: 5 },
+            test15p: { unit: 'all', questionType: 'all', mode: 'all', timerMode: 'unlimited', count: 10 },
+            test45p: { unit: 'all', questionType: 'all', mode: 'all', timerMode: 'timed', count: 20 },
+            grad28: { unit: 'all', questionType: 'all', mode: 'all', timerMode: 'timed', count: 28 },
+            hard15: { unit: 'all', questionType: 'all', mode: 'advanced', timerMode: 'timed', count: 15 },
+            all66: { unit: 'all', questionType: 'all', mode: 'all', timerMode: 'unlimited', count: 'all' }
+        };
+
+        if (this.presetCards) {
+            this.presetCards.forEach(card => {
+                card.addEventListener('click', () => {
+                    this.presetCards.forEach(c => c.classList.remove('active'));
+                    card.classList.add('active');
+                    const presetKey = card.dataset.preset;
+                    const p = PRESETS_MAP[presetKey];
+                    if (p) {
+                        this.config.preset = presetKey;
+                        this.config.unit = p.unit;
+                        this.config.selectedUnits = [p.unit];
+                        this.config.questionType = p.questionType;
+                        this.config.mode = p.mode;
+                        this.config.timerMode = p.timerMode;
+                        this.config.count = p.count;
+
+                        this.syncCustomTabUI();
+                        this.updateLobbyPreview();
+                        if (window.soundEngine) soundEngine.playClick();
+                    }
+                });
+            });
+        }
+
+        // Multi-Select Unit Cards
         this.unitCards.forEach(card => {
             card.addEventListener('click', () => {
-                this.unitCards.forEach(c => c.classList.remove('active'));
-                card.classList.add('active');
-                this.config.unit = card.dataset.unit;
+                const u = card.dataset.unit;
+                this.config.preset = 'custom';
+                if (this.presetCards) this.presetCards.forEach(c => c.classList.remove('active'));
+
+                if (u === 'all') {
+                    this.config.selectedUnits = ['all'];
+                    this.config.unit = 'all';
+                    this.unitCards.forEach(c => c.classList.toggle('active', c.dataset.unit === 'all'));
+                } else {
+                    this.config.selectedUnits = this.config.selectedUnits.filter(x => x !== 'all');
+                    const allCard = Array.from(this.unitCards).find(c => c.dataset.unit === 'all');
+                    if (allCard) allCard.classList.remove('active');
+
+                    if (this.config.selectedUnits.includes(u)) {
+                        this.config.selectedUnits = this.config.selectedUnits.filter(x => x !== u);
+                    } else {
+                        this.config.selectedUnits.push(u);
+                    }
+
+                    if (this.config.selectedUnits.length === 0 || this.config.selectedUnits.length === 3) {
+                        this.config.selectedUnits = ['all'];
+                        this.config.unit = 'all';
+                        this.unitCards.forEach(c => c.classList.toggle('active', c.dataset.unit === 'all'));
+                    } else {
+                        this.config.unit = this.config.selectedUnits.join(',');
+                        this.unitCards.forEach(c => {
+                            c.classList.toggle('active', this.config.selectedUnits.includes(c.dataset.unit));
+                        });
+                    }
+                }
                 this.updateLobbyPreview();
-                soundEngine.playClick();
+                if (window.soundEngine) soundEngine.playClick();
             });
         });
 
+        // Question Type Cards
         this.typeCards.forEach(card => {
             card.addEventListener('click', () => {
                 this.typeCards.forEach(c => c.classList.remove('active'));
                 card.classList.add('active');
                 this.config.questionType = card.dataset.type;
+                this.config.preset = 'custom';
+                if (this.presetCards) this.presetCards.forEach(c => c.classList.remove('active'));
                 this.updateLobbyPreview();
-                soundEngine.playClick();
+                if (window.soundEngine) soundEngine.playClick();
             });
         });
 
+        // Mode Cards
         this.modeCards.forEach(card => {
             card.addEventListener('click', () => {
                 this.modeCards.forEach(c => c.classList.remove('active'));
                 card.classList.add('active');
                 this.config.mode = card.dataset.mode;
+                this.config.preset = 'custom';
+                if (this.presetCards) this.presetCards.forEach(c => c.classList.remove('active'));
                 this.updateLobbyPreview();
-                soundEngine.playClick();
+                if (window.soundEngine) soundEngine.playClick();
             });
         });
 
+        // Slider & Direct Number Input Controls
+        if (this.customCountSlider && this.customCountInput) {
+            this.customCountSlider.addEventListener('input', () => {
+                const val = parseInt(this.customCountSlider.value, 10);
+                this.customCountInput.value = val;
+                this.config.count = val;
+                this.config.preset = 'custom';
+                if (this.presetCards) this.presetCards.forEach(c => c.classList.remove('active'));
+                this.highlightMatchingCountChip(val);
+                this.updateLobbyPreview();
+            });
+
+            this.customCountInput.addEventListener('input', () => {
+                let val = parseInt(this.customCountInput.value, 10);
+                if (isNaN(val)) return;
+                const maxVal = parseInt(this.customCountSlider.max, 10) || 66;
+                if (val < 1) val = 1;
+                if (val > maxVal) val = maxVal;
+                this.customCountSlider.value = val;
+                this.config.count = val;
+                this.config.preset = 'custom';
+                if (this.presetCards) this.presetCards.forEach(c => c.classList.remove('active'));
+                this.highlightMatchingCountChip(val);
+                this.updateLobbyPreview();
+            });
+        }
+
+        // Quick Count Chips
         this.countChips.forEach(chip => {
             chip.addEventListener('click', () => {
                 this.countChips.forEach(c => c.classList.remove('active'));
                 chip.classList.add('active');
+                this.config.preset = 'custom';
+                if (this.presetCards) this.presetCards.forEach(c => c.classList.remove('active'));
+
                 const rawCount = chip.dataset.count;
-                this.config.count = rawCount === 'all' ? 'all' : parseInt(rawCount, 10);
+                if (rawCount === 'all') {
+                    this.config.count = 'all';
+                    const maxVal = parseInt(this.customCountSlider?.max || '66', 10);
+                    if (this.customCountSlider) this.customCountSlider.value = maxVal;
+                    if (this.customCountInput) this.customCountInput.value = maxVal;
+                } else {
+                    const num = parseInt(rawCount, 10);
+                    this.config.count = num;
+                    if (this.customCountSlider) this.customCountSlider.value = num;
+                    if (this.customCountInput) this.customCountInput.value = num;
+                }
                 this.updateLobbyPreview();
-                soundEngine.playClick();
+                if (window.soundEngine) soundEngine.playClick();
             });
         });
 
-        // Timer Mode Selection Chips (Study Mode Unlimited vs Timed)
+        // Timer Mode Selection Chips (Global & Tab 3)
+        if (this.globalTimerChips) {
+            this.globalTimerChips.forEach(chip => {
+                chip.addEventListener('click', () => {
+                    const tMode = chip.dataset.timer || 'unlimited';
+                    this.setTimerMode(tMode);
+                    if (window.soundEngine) soundEngine.playClick();
+                });
+            });
+        }
         if (this.timerChips) {
             this.timerChips.forEach(chip => {
                 chip.addEventListener('click', () => {
-                    this.timerChips.forEach(c => c.classList.remove('active'));
-                    chip.classList.add('active');
-                    this.config.timerMode = chip.dataset.timer || 'unlimited';
-                    this.updateLobbyPreview();
-                    soundEngine.playClick();
+                    const tMode = chip.dataset.timer || 'unlimited';
+                    this.setTimerMode(tMode);
+                    if (window.soundEngine) soundEngine.playClick();
                 });
             });
         }
 
-        // Start Game
+        // Arena Live Timer Mode Toggle (Chuyển đổi trực tiếp trong khi làm bài)
+        if (this.btnArenaToggleTimer) {
+            this.btnArenaToggleTimer.addEventListener('click', () => {
+                this.toggleTimerModeLive();
+            });
+        }
+
+        // Start Game (Configured)
         this.btnStart.addEventListener('click', () => {
             this.syncStudentProfile();
             soundEngine.playClick();
             this.startRound(1);
         });
+
+        // Quick-Start 1-Click Action (Fast Entry for Students)
+        if (this.btnQuickStart) {
+            this.btnQuickStart.addEventListener('click', () => {
+                this.startQuickMatch();
+            });
+        }
 
         // Powerups (if present in DOM)
         if (this.btnFiftyFifty) this.btnFiftyFifty.addEventListener('click', () => this.useFiftyFifty());
@@ -544,6 +875,21 @@ class WaygroundGame {
     syncStudentProfile() {
         this.student.name = this.inputStudentName.value.trim() || 'Học sinh';
         this.student.className = this.inputStudentClass.value.trim() || '12';
+        try {
+            localStorage.setItem('wayground_student_name', this.student.name);
+            localStorage.setItem('wayground_student_class', this.student.className);
+        } catch (e) {}
+    }
+
+    startQuickMatch() {
+        this.syncStudentProfile();
+        this.config.unit = 'all';
+        this.config.questionType = 'all';
+        this.config.mode = 'all';
+        this.config.count = 10;
+        this.updateLobbyPreview();
+        if (window.soundEngine) soundEngine.playPowerup();
+        this.startRound(1);
     }
 
     openImageZoomModal(imgSrc, captionText) {
@@ -567,7 +913,12 @@ class WaygroundGame {
             window.physicsSimulationEngine.cleanup();
         }
         Object.keys(this.screens).forEach(key => {
-            this.screens[key].classList.toggle('active', key === screenName);
+            const el = this.screens[key];
+            if (el) {
+                const isActive = (key === screenName);
+                el.classList.toggle('active', isActive);
+                el.style.display = isActive ? 'block' : 'none';
+            }
         });
     }
 
@@ -584,21 +935,258 @@ class WaygroundGame {
         return arr;
     }
 
+    
+    startDrillForUnit(unitKey) {
+        if (typeof QUESTION_BANK === 'undefined' || !QUESTION_BANK[unitKey]) return;
+        
+        // Cấu hình tab by-unit
+        this.config.activeTab = 'by-unit';
+        if (this.tabBtnByUnit) {
+            document.querySelectorAll('.lobby-tab-btn').forEach(btn => btn.classList.remove('active'));
+            this.tabBtnByUnit.classList.add('active');
+        }
+        if (this.panelPresets) this.panelPresets.classList.remove('active');
+        if (this.panelCustom) this.panelCustom.classList.remove('active');
+        if (this.panelByUnit) this.panelByUnit.classList.add('active');
+
+        // Đặt unit này = 10 câu (hoặc max), các unit khác = 0
+        const allUnits = ['unit1', 'unit2', 'unit3', 'unit4', 'unit5', 'unit6', 'unit7', 'unit8'];
+        allUnits.forEach(u => {
+            if (this.byUnitConfig[u]) {
+                const targetCount = (u === unitKey) ? Math.min(10, QUESTION_BANK[u].questions.length) : 0;
+                this.byUnitConfig[u].count = targetCount;
+                const inp = document.getElementById(`count-input-${u}`);
+                if (inp) inp.value = targetCount;
+                
+                // Đồng bộ pills
+                document.querySelectorAll(`.matrix-pill[data-unit="${u}"]`).forEach(p => {
+                    const v = parseInt(p.dataset.val, 10);
+                    p.classList.toggle('active', v === targetCount);
+                });
+            }
+        });
+
+        this.updateLobbyPreview();
+
+        // Bắt đầu làm bài ngay lập tức!
+        this.syncStudentProfile();
+        if (window.soundEngine) soundEngine.playClick();
+        this.startRound(1);
+    }
+
+    bindJourneyHubEvents() {
+        document.querySelectorAll('.btn-j-learn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const lessonId = btn.dataset.lessonId;
+                if (window.microEngine) {
+                    window.microEngine.openLesson(lessonId);
+                }
+            });
+        });
+
+        document.querySelectorAll('.btn-j-drill').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const unitKey = btn.dataset.unitKey;
+                this.startDrillForUnit(unitKey);
+            });
+        });
+
+        const btnJourneyAll = document.getElementById('btn-journey-open-all-micro');
+        if (btnJourneyAll) {
+            btnJourneyAll.addEventListener('click', () => {
+                if (window.microEngine) {
+                    window.microEngine.show();
+                    const lobby = document.getElementById('screen-lobby');
+                    if (lobby) {
+                        lobby.style.display = 'none';
+                        lobby.classList.remove('active');
+                    }
+                }
+            });
+        }
+    }
+
+    initByUnitDrawers() {
+        if (typeof QUESTION_BANK === 'undefined') return;
+
+        ['unit1', 'unit2', 'unit3', 'unit4', 'unit5', 'unit6', 'unit7', 'unit8'].forEach(unitKey => {
+            const listEl = document.getElementById(`questions-list-${unitKey}`);
+            if (!listEl) return;
+
+            const questions = QUESTION_BANK[unitKey]?.questions || [];
+            listEl.innerHTML = '';
+
+            const initialCount = this.byUnitConfig[unitKey]?.count || 5;
+            this.byUnitConfig[unitKey].selectedQids.clear();
+
+            questions.forEach((q, idx) => {
+                const isSelected = idx < initialCount;
+                if (isSelected) {
+                    this.byUnitConfig[unitKey].selectedQids.add(q.id);
+                }
+
+                const itemDiv = document.createElement('div');
+                itemDiv.className = `drawer-question-item ${isSelected ? 'selected' : ''}`;
+                itemDiv.dataset.qid = q.id;
+                itemDiv.dataset.unit = unitKey;
+
+                const isMc = q.type === 'multiple_choice';
+                const typeLabel = isMc ? 'Trắc nghiệm ABCD' : 'Đúng/Sai 4 Lệnh';
+                const typeClass = isMc ? 'q-type-mc' : 'q-type-tf';
+
+                let levelClass = 'q-level-nb';
+                if (q.level === 'Thông hiểu') levelClass = 'q-level-th';
+                else if (q.level === 'Vận dụng cao' || q.level === 'Vận dụng') levelClass = 'q-level-vd';
+
+                const promptText = q.question || q.scenario || (q.context ? q.context : `Câu hỏi ${idx + 1}`);
+
+                const qImg = q.image || this.getConceptFallbackImage(q.conceptId);
+                const imgThumbHtml = qImg ? `
+                    <div class="drawer-q-img-wrap" title="Hình ảnh minh họa khoa học">
+                        <img src="${qImg}" alt="Minh họa" class="drawer-q-img" loading="lazy">
+                        <span class="img-zoom-badge">🔬</span>
+                    </div>
+                ` : '';
+
+                itemDiv.innerHTML = `
+                    <input type="checkbox" class="question-checkbox" data-qid="${q.id}" data-unit="${unitKey}" ${isSelected ? 'checked' : ''}>
+                    ${imgThumbHtml}
+                    <div class="drawer-q-content">
+                        <div class="drawer-q-meta">
+                            <span class="q-badge ${typeClass}">${typeLabel}</span>
+                            <span class="q-badge ${levelClass}">${q.level || 'Nhận biết'}</span>
+                            <span class="drawer-qid-label" style="font-size: 11px; color: var(--text-muted); font-family: var(--font-mono);">#${idx + 1} (${q.id})</span>
+                        </div>
+                        <div class="drawer-q-text">${promptText}</div>
+                    </div>
+                `;
+
+                // Handle checkbox or item row click
+                const cb = itemDiv.querySelector('.question-checkbox');
+                
+                const handleToggle = (e) => {
+                    if (e.target !== cb) {
+                        cb.checked = !cb.checked;
+                    }
+                    const isChecked = cb.checked;
+                    if (isChecked) {
+                        this.byUnitConfig[unitKey].selectedQids.add(q.id);
+                    } else {
+                        this.byUnitConfig[unitKey].selectedQids.delete(q.id);
+                    }
+                    itemDiv.classList.toggle('selected', isChecked);
+
+                    const newCount = this.byUnitConfig[unitKey].selectedQids.size;
+                    this.byUnitConfig[unitKey].count = newCount;
+
+                    const stepperInput = document.getElementById(`count-input-${unitKey}`);
+                    if (stepperInput) stepperInput.value = newCount;
+
+                    const pills = document.querySelectorAll(`.matrix-pill[data-unit="${unitKey}"]`);
+                    pills.forEach(p => {
+                        const v = parseInt(p.dataset.val, 10);
+                        p.classList.toggle('active', v === newCount);
+                    });
+
+                    const detailCountEl = document.getElementById(`selected-detail-count-${unitKey}`);
+                    if (detailCountEl) detailCountEl.textContent = newCount;
+
+                    this.updateLobbyPreview();
+                    if (window.soundEngine) soundEngine.playClick();
+                };
+
+                itemDiv.addEventListener('click', handleToggle);
+                listEl.appendChild(itemDiv);
+            });
+
+            // Update initial detail badge
+            const detailCountEl = document.getElementById(`selected-detail-count-${unitKey}`);
+            if (detailCountEl) detailCountEl.textContent = this.byUnitConfig[unitKey].selectedQids.size;
+
+            // Render math formulas in drawer
+            this.renderMath(listEl);
+        });
+    }
+
     // =========================================================================
     // LOBBY QUESTION COUNT & REAL-TIME PREVIEW ENGINE
     // =========================================================================
+    highlightMatchingCountChip(val) {
+        if (!this.countChips) return;
+        this.countChips.forEach(chip => {
+            const raw = chip.dataset.count;
+            if (raw !== 'all' && parseInt(raw, 10) === val) {
+                chip.classList.add('active');
+            } else {
+                chip.classList.remove('active');
+            }
+        });
+    }
+
+    syncCustomTabUI() {
+        // Sync Unit Cards
+        if (this.unitCards) {
+            const selected = this.config.selectedUnits || ['all'];
+            this.unitCards.forEach(card => {
+                const u = card.dataset.unit;
+                card.classList.toggle('active', selected.includes(u));
+            });
+        }
+        // Sync Type Cards
+        if (this.typeCards) {
+            this.typeCards.forEach(card => {
+                card.classList.toggle('active', card.dataset.type === this.config.questionType);
+            });
+        }
+        // Sync Mode Cards
+        if (this.modeCards) {
+            this.modeCards.forEach(card => {
+                card.classList.toggle('active', card.dataset.mode === this.config.mode);
+            });
+        }
+        // Sync Timer Chips (Global & Custom Tab)
+        if (this.globalTimerChips) {
+            this.globalTimerChips.forEach(chip => {
+                chip.classList.toggle('active', chip.dataset.timer === this.config.timerMode);
+            });
+        }
+        if (this.timerChips) {
+            this.timerChips.forEach(chip => {
+                chip.classList.toggle('active', chip.dataset.timer === this.config.timerMode);
+            });
+        }
+        // Sync Count Chips & Slider & Input
+        if (this.config.count === 'all') {
+            const maxVal = parseInt(this.customCountSlider?.max || '66', 10);
+            if (this.customCountSlider) this.customCountSlider.value = maxVal;
+            if (this.customCountInput) this.customCountInput.value = maxVal;
+            if (this.countChips) {
+                this.countChips.forEach(chip => chip.classList.toggle('active', chip.dataset.count === 'all'));
+            }
+        } else {
+            const num = parseInt(this.config.count, 10) || 10;
+            if (this.customCountSlider) this.customCountSlider.value = num;
+            if (this.customCountInput) this.customCountInput.value = num;
+            this.highlightMatchingCountChip(num);
+        }
+    }
+
     getFilteredQuestionPool() {
         if (typeof QUESTION_BANK === 'undefined') return [];
 
         let pool = [];
-        if (this.config.unit === 'all') {
-            pool = [
-                ...(QUESTION_BANK.unit1?.questions || []),
-                ...(QUESTION_BANK.unit2?.questions || []),
-                ...(QUESTION_BANK.unit3?.questions || [])
-            ];
-        } else if (QUESTION_BANK[this.config.unit]?.questions) {
-            pool = [...QUESTION_BANK[this.config.unit].questions];
+        const units = this.config.selectedUnits || [this.config.unit || 'all'];
+
+        if (units.includes('all')) {
+            pool = Object.values(QUESTION_BANK).flatMap(u => u.questions || []);
+        } else {
+            units.forEach(u => {
+                if (QUESTION_BANK[u]?.questions) {
+                    pool.push(...QUESTION_BANK[u].questions);
+                }
+            });
         }
 
         // Filter by question type
@@ -606,6 +1194,8 @@ class WaygroundGame {
             pool = pool.filter(q => q.type === 'multiple_choice');
         } else if (this.config.questionType === 'multi_tf') {
             pool = pool.filter(q => q.type === 'multi_tf');
+        } else if (this.config.questionType === 'short_answer') {
+            pool = pool.filter(q => q.type === 'short_answer');
         }
 
         // Filter by learning mode / difficulty tier
@@ -622,85 +1212,189 @@ class WaygroundGame {
     }
 
     updateLobbyPreview() {
+        // =====================================================================
+        // MODE TAB 2: BY-UNIT PER-LESSON CONFIGURATION
+        // =====================================================================
+        if (this.config.activeTab === 'by-unit') {
+            const allUnits = ['unit1', 'unit2', 'unit3', 'unit4', 'unit5', 'unit6', 'unit7', 'unit8'];
+            let totalQuestions = 0;
+            const breakdowns = [];
+            const activeUnitTags = [];
+
+            allUnits.forEach(uKey => {
+                const uCount = this.byUnitConfig[uKey]?.count || 0;
+                totalQuestions += uCount;
+                const uNum = uKey.replace('unit', '');
+                if (uCount > 0) {
+                    breakdowns.push(`Bài ${uNum}: ${uCount}c`);
+                    activeUnitTags.push(`Bài ${uNum} (${uCount}c)`);
+                }
+            });
+
+            const breakdownText = breakdowns.length > 0 ? `(${breakdowns.join(' • ')})` : '(Chưa chọn câu nào)';
+
+            // 1. Update live matrix total bar in Tab 2
+            if (this.matrixTotalCount) {
+                this.matrixTotalCount.textContent = `${totalQuestions} câu`;
+            }
+            if (this.matrixTotalBreakdown) {
+                this.matrixTotalBreakdown.textContent = breakdownText;
+            }
+
+            // 2. Update summary ticket big badge counter
+            if (this.summaryQuestionsToPlay) {
+                this.summaryQuestionsToPlay.textContent = totalQuestions;
+            }
+            let totalBankQuestions = 0;
+            if (typeof QUESTION_BANK !== 'undefined') {
+                Object.values(QUESTION_BANK).forEach(u => { totalBankQuestions += (u.questions?.length || 0); });
+            }
+            if (this.summaryPoolTotal) {
+                this.summaryPoolTotal.textContent = (totalBankQuestions || 120).toString();
+            }
+
+            // 3. Update verdict indicator box
+            if (this.verdictCountHighlight) {
+                this.verdictCountHighlight.textContent = `${totalQuestions} câu hỏi`;
+            }
+            if (this.verdictPoolSub) {
+                this.verdictPoolSub.textContent = `(Phân bổ theo bài: ${breakdownText})`;
+            }
+
+            // 4. Update summary ticket metadata tags
+
+            if (this.summaryTagUnit) {
+                this.summaryTagUnit.textContent = activeUnitTags.length > 0 ? activeUnitTags.join(' + ') : 'Chưa chọn câu nào (0)';
+            }
+            if (this.summaryTagType) {
+                this.summaryTagType.textContent = 'Theo từng bài đã chọn';
+            }
+            if (this.summaryTagMode) {
+                this.summaryTagMode.textContent = 'Ma trận tự chọn theo bài';
+            }
+            if (this.summaryTagTimer) {
+                const timerLabels = {
+                    unlimited: 'Không tính giờ (Học tập)',
+                    timed: 'Đếm ngược phù hợp từng câu (30s-120s)'
+                };
+                this.summaryTagTimer.textContent = timerLabels[this.config.timerMode] || 'Tự do';
+            }
+
+            // 5. Contextual Notice
+            if (this.summaryNoticeBox) {
+                if (totalQuestions === 0) {
+                    this.summaryNoticeBox.style.display = 'flex';
+                    this.summaryNoticeBox.innerHTML = `
+                        <span class="notice-icon">⚠️</span>
+                        <span>Bạn đang chọn 0 câu hỏi. Hãy tăng số câu ở ít nhất một bài học hoặc bấm chọn câu để bắt đầu làm bài nhé!</span>
+                    `;
+                } else {
+                    this.summaryNoticeBox.style.display = 'flex';
+                    this.summaryNoticeBox.innerHTML = `
+                        <span class="notice-icon">🎯</span>
+                        <span>Đã kích hoạt chế độ chọn câu theo từng bài: Tổng <strong>${totalQuestions} câu</strong>. Hệ thống sẽ bám sát chính xác từng câu hỏi bạn đã chỉ định.</span>
+                    `;
+                }
+            }
+
+            // 6. Update Start Button Label
+            if (this.btnStartText) {
+                if (totalQuestions === 0) {
+                    this.btnStartText.textContent = `⚠️ VUI LÒNG CHỌN SỐ CÂU > 0 ĐỂ BẮT ĐẦU`;
+                } else {
+                    this.btnStartText.textContent = `🚀 BẮT ĐẦU LÀM ${totalQuestions} CÂU THEO BÀI NGAY`;
+                }
+            }
+            return;
+        }
+
+        // =====================================================================
+        // MODE TABS 1 & 3: PRESETS & CUSTOM SLIDER
+        // =====================================================================
         const pool = this.getFilteredQuestionPool();
         const availableCount = pool.length;
 
-        // 1. Update the "Toàn bộ" count chip badge
+        // 1. Update slider and number input boundaries
+        if (this.customCountSlider) {
+            this.customCountSlider.max = availableCount || 1;
+        }
+        if (this.customCountInput) {
+            this.customCountInput.max = availableCount || 1;
+        }
+        if (this.sliderMaxLabel) {
+            this.sliderMaxLabel.textContent = `${availableCount} câu (Tất cả)`;
+        }
         if (this.countAllBadge) {
-            this.countAllBadge.textContent = `Làm hết ${availableCount} câu`;
+            this.countAllBadge.textContent = `${availableCount} câu`;
         }
 
         // 2. Determine actual questions to play
         let questionsToPlay = availableCount;
         let isAllSelected = this.config.count === 'all';
         if (!isAllSelected) {
-            const requested = parseInt(this.config.count, 10) || 6;
+            const requested = parseInt(this.config.count, 10) || 10;
             questionsToPlay = Math.min(requested, availableCount);
         }
 
-        // 3. Update main counter display
+        // 3. Update verdict indicator box
+        if (this.verdictCountHighlight) {
+            this.verdictCountHighlight.textContent = `${questionsToPlay} câu hỏi`;
+        }
+        if (this.verdictPoolSub) {
+            this.verdictPoolSub.textContent = `(Rút ngẫu nhiên từ kho ${availableCount} câu phù hợp đã chọn)`;
+        }
+
+        // 4. Update ticket big badge counter
         if (this.summaryQuestionsToPlay) {
             this.summaryQuestionsToPlay.textContent = questionsToPlay;
         }
-        if (this.summaryPoolTotal) {
-            this.summaryPoolTotal.textContent = availableCount;
-        }
 
-        // 4. Update coverage progress bar
-        const coveragePct = availableCount > 0 ? Math.round((questionsToPlay / availableCount) * 100) : 0;
-        if (this.summaryCoverageText) {
-            this.summaryCoverageText.textContent = `${coveragePct}% (${questionsToPlay} / ${availableCount} câu)`;
-        }
-        if (this.summaryCoverageFill) {
-            this.summaryCoverageFill.style.width = `${coveragePct}%`;
-        }
-
-        // 5. Update headline and subtext
-        if (this.summaryHeadline && this.summarySubtext) {
-            if (isAllSelected || questionsToPlay === availableCount) {
-                this.summaryHeadline.textContent = `Bạn sẽ làm toàn bộ ${questionsToPlay} câu hỏi`;
-                this.summarySubtext.innerHTML = `Chinh phục <strong>100% kho câu hỏi phù hợp</strong> (${questionsToPlay}/${availableCount} câu) không bỏ sót kiến thức nào!`;
-            } else {
-                this.summaryHeadline.textContent = `Bạn sẽ làm ${questionsToPlay} câu hỏi ngẫu nhiên`;
-                this.summarySubtext.innerHTML = `Hệ thống chọn ngẫu nhiên <strong>${questionsToPlay} câu</strong> từ kho <strong>${availableCount} câu phù hợp</strong> để rèn luyện.`;
-            }
-        }
-
-        // 6. Update summary metadata tags
-        const unitLabels = {
-            all: 'Tổng Hợp Cả 3 Bài',
+        // 5. Update summary ticket metadata tags
+        const unitNameMap = {
             unit1: 'Bài 1: Cấu Trúc Chất',
             unit2: 'Bài 2: Nội Năng & ĐL I',
-            unit3: 'Bài 3: Thang Nhiệt Độ'
+            unit3: 'Bài 3: Thang Nhiệt Độ',
+            unit4: 'Bài 4: Nhiệt Dung Riêng',
+            unit5: 'Bài 5: Nhiệt Nóng Chảy & Hóa Hơi',
+            unit6: 'Bài 6: Động Học Chất Khí',
+            unit7: 'Bài 7: Định Luật Boyle',
+            unit8: 'Bài 8: Định Luật Charles'
         };
+
+        let unitText = 'Tổng Hợp Cả 3 Bài';
+        const units = this.config.selectedUnits || [this.config.unit || 'all'];
+        if (!units.includes('all') && units.length > 0) {
+            unitText = units.map(u => unitNameMap[u] || u).join(' + ');
+        }
+
         const typeLabels = {
             all: 'Hỗn Hợp (ABCD & Đúng/Sai)',
             multiple_choice: 'Trắc Nghiệm ABCD (1 đáp án)',
             multi_tf: 'Đúng / Sai 4 Lệnh Chuẩn Bộ'
         };
         const modeLabels = {
-            all: 'Tất Cả Mức Độ (Tổng Hợp)',
+            all: 'Tất Cả Mức Độ',
             basic: 'Cơ Bản (Nhận Biết)',
             challenging: 'Thử Thách (Thông Hiểu)',
-            advanced: 'Nâng Cao (Vận Dụng Cao)'
+            advanced: 'Nâng Cao (Vận Dụng)'
         };
         const timerLabels = {
-            unlimited: 'Không Tính Giờ (Học Tập)',
-            timed: 'Đếm Ngược 25 Giây (Thi Đấu)'
+            unlimited: 'Không tính giờ (Học tập)',
+            timed: 'Đếm ngược phù hợp từng câu (30s-120s)'
         };
 
-        if (this.summaryTagUnit) this.summaryTagUnit.textContent = unitLabels[this.config.unit] || this.config.unit;
+        if (this.summaryTagUnit) this.summaryTagUnit.textContent = unitText;
         if (this.summaryTagType) this.summaryTagType.textContent = typeLabels[this.config.questionType] || this.config.questionType;
         if (this.summaryTagMode) this.summaryTagMode.textContent = modeLabels[this.config.mode] || this.config.mode;
         if (this.summaryTagTimer) this.summaryTagTimer.textContent = timerLabels[this.config.timerMode] || this.config.timerMode;
 
-        // 7. Contextual Notice / Help Alert
+        // 6. Contextual Notice / Help Alert
         if (this.summaryNoticeBox) {
             if (!isAllSelected && parseInt(this.config.count, 10) > availableCount) {
                 this.summaryNoticeBox.style.display = 'flex';
                 this.summaryNoticeBox.innerHTML = `
                     <span class="notice-icon">ℹ️</span>
-                    <span>Bạn đã chọn <strong>${this.config.count} câu</strong>, nhưng kho câu hỏi cho lựa chọn này có <strong>${availableCount} câu khả dụng</strong>. Hệ thống sẽ cho bạn làm trọn vẹn toàn bộ <strong>${availableCount} câu</strong>.</span>
+                    <span>Bạn đã chọn <strong>${this.config.count} câu</strong>, nhưng bộ lọc hiện tại có <strong>${availableCount} câu khả dụng</strong>. Hệ thống sẽ cho bạn làm trọn vẹn toàn bộ <strong>${availableCount} câu</strong>.</span>
                 `;
             } else if (this.config.questionType === 'multi_tf' && this.config.mode === 'basic') {
                 this.summaryNoticeBox.style.display = 'flex';
@@ -714,12 +1408,12 @@ class WaygroundGame {
             }
         }
 
-        // 8. Update Start Button Label
+        // 7. Update Start Button Label
         if (this.btnStartText) {
             if (isAllSelected || questionsToPlay === availableCount) {
-                this.btnStartText.textContent = `Bắt Đầu Làm Toàn Bộ ${questionsToPlay} Câu Hỏi`;
+                this.btnStartText.textContent = `🚀 BẮT ĐẦU LÀM TOÀN BỘ ${questionsToPlay} CÂU NGAY`;
             } else {
-                this.btnStartText.textContent = `Bắt Đầu Làm ${questionsToPlay} / ${availableCount} Câu Hỏi`;
+                this.btnStartText.textContent = `🚀 BẮT ĐẦU LÀM ${questionsToPlay} CÂU HỎI NGAY`;
             }
         }
     }
@@ -734,14 +1428,52 @@ class WaygroundGame {
         let pool = [];
 
         if (roundNumber === 1) {
-            // ROUND 1: Standard Questions from QUESTION_BANK using consistent filter
-            pool = this.getFilteredQuestionPool();
+            // Check if playing via By-Unit detailed configuration
+            if (this.config.activeTab === 'by-unit') {
+                pool = [];
+                ['unit1', 'unit2', 'unit3', 'unit4', 'unit5', 'unit6', 'unit7', 'unit8'].forEach(unitKey => {
+                    const unitQuestions = QUESTION_BANK[unitKey]?.questions || [];
+                    const cfg = this.byUnitConfig[unitKey];
+                    const selectedSet = cfg?.selectedQids || new Set();
+                    const targetCount = cfg?.count || 0;
 
-            if (pool.length === 0) {
-                alert("Không tìm thấy câu hỏi nào phù hợp với bộ lọc hiện tại. Hệ thống sẽ hiển thị toàn bộ câu hỏi.");
-                this.config.mode = 'all';
-                this.updateLobbyPreview();
-                return this.startRound(1);
+                    if (targetCount > 0) {
+                        let unitPicks = [];
+                        // 1. Pick explicitly selected questions first
+                        if (selectedSet.size > 0) {
+                            unitQuestions.forEach(q => {
+                                if (selectedSet.has(q.id)) {
+                                    unitPicks.push(q);
+                                }
+                            });
+                        }
+                        // 2. If targetCount is more than selectedSet, supplement from remaining questions
+                        if (unitPicks.length < targetCount) {
+                            const remaining = unitQuestions.filter(q => !selectedSet.has(q.id));
+                            unitPicks.push(...remaining.slice(0, targetCount - unitPicks.length));
+                        } else if (unitPicks.length > targetCount) {
+                            unitPicks = unitPicks.slice(0, targetCount);
+                        }
+                        pool.push(...unitPicks);
+                    }
+                });
+
+                if (pool.length === 0) {
+                    alert("Bạn chưa chọn câu hỏi nào ở các bài học. Vui lòng tăng số lượng câu hỏi ở ít nhất một bài!");
+                    return;
+                }
+            } else {
+                // ROUND 1: Standard Questions from QUESTION_BANK using consistent filter
+                pool = this.getFilteredQuestionPool();
+
+                if (pool.length === 0) {
+                    alert("Không tìm thấy câu hỏi nào phù hợp với bộ lọc hiện tại. Hệ thống sẽ hiển thị toàn bộ câu hỏi.");
+                    this.config.mode = 'all';
+                    this.config.selectedUnits = ['all'];
+                    this.config.unit = 'all';
+                    this.updateLobbyPreview();
+                    return this.startRound(1);
+                }
             }
 
             // Deep clone to ensure shuffling does NOT mutate master QUESTION_BANK
@@ -760,10 +1492,18 @@ class WaygroundGame {
                 }
             });
 
-            // Slice by desired question count
-            if (this.config.count !== 'all') {
-                const countNum = parseInt(this.config.count, 10) || pool.length;
-                pool = pool.slice(0, Math.min(countNum, pool.length));
+            // Preset / custom slice (only if not by-unit, since by-unit already has exact counts)
+            if (this.config.activeTab !== 'by-unit') {
+                if (this.config.preset === 'grad28') {
+                    const mcPool = pool.filter(q => q.type === 'multiple_choice');
+                    const tfPool = pool.filter(q => q.type === 'multi_tf');
+                    const selectedMc = mcPool.slice(0, 18);
+                    const selectedTf = tfPool.slice(0, 4);
+                    pool = this.shuffleArray([...selectedMc, ...selectedTf]);
+                } else if (this.config.count !== 'all') {
+                    const countNum = parseInt(this.config.count, 10) || pool.length;
+                    pool = pool.slice(0, Math.min(countNum, pool.length));
+                }
             }
 
             // Reset scores for new game
@@ -834,29 +1574,92 @@ class WaygroundGame {
     }
 
     // =========================================================================
-    // TIMER & STUDY MODE ENGINE
+    // TIMER & STUDY MODE ENGINE (TỐI ƯU HÓA THỜI GIAN ĐỘNG THEO TỪNG CÂU)
     // =========================================================================
+    setTimerMode(mode) {
+        this.config.timerMode = mode;
+        if (this.globalTimerChips) {
+            this.globalTimerChips.forEach(c => c.classList.toggle('active', c.dataset.timer === mode));
+        }
+        if (this.timerChips) {
+            this.timerChips.forEach(c => c.classList.toggle('active', c.dataset.timer === mode));
+        }
+        this.updateLobbyPreview();
+    }
+
+    getQuestionTimeLimit(q) {
+        if (!q) return 45;
+        if (q.type === 'multi_tf') {
+            // Đúng/Sai 4 ý: Đoạn dẫn thực tế + 4 nhận định độc lập
+            if (q.level === 'Nhận biết') return 90;   // 1.5 phút
+            if (q.level === 'Thông hiểu') return 105; // 1.75 phút
+            return 120; // Vận dụng / Vận dụng cao: 120s (2 phút đủ tính toán)
+        }
+        if (q.type === 'short_answer') {
+            // Trả lời ngắn / Điền số thực nghiệm: Tính toán ra con số cụ thể
+            if (q.level === 'Nhận biết') return 45;
+            if (q.level === 'Thông hiểu') return 60;
+            return 90; // Vận dụng / Vận dụng cao: 90s
+        }
+        // Trắc nghiệm 4 lựa chọn ABCD (multiple_choice):
+        if (q.level === 'Nhận biết') return 30; // 30s
+        if (q.level === 'Thông hiểu') return 45; // 45s
+        return 75; // Vận dụng / Vận dụng cao (tính toán delta U = A + Q, đổi thang nhiệt độ): 75s
+    }
+
+    toggleTimerModeLive() {
+        if (this.config.timerMode === 'unlimited') {
+            this.config.timerMode = 'timed';
+            const q = this.state.activeQuestions[this.state.currentIndex];
+            this.state.maxQuestionTime = this.getQuestionTimeLimit(q);
+            this.state.timeLeft = this.state.maxQuestionTime;
+            this.startTimer();
+        } else {
+            this.config.timerMode = 'unlimited';
+            this.stopTimer();
+            this.startTimer();
+        }
+        if (window.soundEngine) soundEngine.playClick();
+        this.updateStudyModeUI();
+    }
+
     isStudyMode() {
-        return this.config.timerMode === 'unlimited' || this.config.mode === 'basic';
+        return this.config.timerMode === 'unlimited';
     }
 
     startTimer() {
         this.stopTimer();
+        const currentQ = this.state.activeQuestions[this.state.currentIndex];
 
-        // In Study Mode: completely bypass countdown (unlimited reading time, no timeout!)
+        // In Study Mode (Không tính thời gian): hoàn toàn không đếm ngược, không timeout!
         if (this.isStudyMode()) {
             if (this.timerBar) {
                 this.timerBar.style.transform = 'scaleX(1)';
                 this.timerBar.classList.remove('warning');
                 this.timerBar.classList.add('study-timer-calm');
             }
+            if (this.hudTimerBadge) {
+                this.hudTimerBadge.classList.remove('warning');
+                this.hudTimerBadge.classList.add('study-timer-calm');
+            }
+            if (this.hudTimerIcon) this.hudTimerIcon.textContent = '📖';
+            if (this.hudTimerText) this.hudTimerText.textContent = 'Không giới hạn';
+            if (this.arenaTimerToggleLabel) this.arenaTimerToggleLabel.textContent = '⚡ Bật Đếm Giờ';
             return;
         }
 
+        // Timed Arena Mode: Thời gian động phù hợp cho từng loại câu hỏi & mức độ
         if (this.timerBar) {
             this.timerBar.classList.remove('study-timer-calm');
         }
-        this.state.timeLeft = this.config.questionTime;
+        if (this.hudTimerBadge) {
+            this.hudTimerBadge.classList.remove('study-timer-calm');
+        }
+        if (this.hudTimerIcon) this.hudTimerIcon.textContent = '⏱️';
+        if (this.arenaTimerToggleLabel) this.arenaTimerToggleLabel.textContent = '📖 Tắt Đếm Giờ';
+
+        this.state.maxQuestionTime = this.getQuestionTimeLimit(currentQ);
+        this.state.timeLeft = this.state.maxQuestionTime;
         this.state.timerFrozen = false;
         this.updateTimerDisplay();
 
@@ -885,9 +1688,20 @@ class WaygroundGame {
     }
 
     updateTimerDisplay() {
-        const ratio = Math.max(0, this.state.timeLeft / this.config.questionTime);
-        this.timerBar.style.transform = `scaleX(${ratio})`;
-        this.timerBar.classList.toggle('warning', this.state.timeLeft <= 5);
+        const maxTime = this.state.maxQuestionTime || this.config.questionTime || 45;
+        const ratio = Math.max(0, this.state.timeLeft / maxTime);
+        const isUrgent = this.state.timeLeft <= 10;
+
+        if (this.timerBar) {
+            this.timerBar.style.transform = `scaleX(${ratio})`;
+            this.timerBar.classList.toggle('warning', isUrgent);
+        }
+        if (this.hudTimerBadge) {
+            this.hudTimerBadge.classList.toggle('warning', isUrgent);
+        }
+        if (this.hudTimerText) {
+            this.hudTimerText.textContent = `${Math.ceil(this.state.timeLeft)}s`;
+        }
     }
 
     handleTimeout() {
@@ -1074,7 +1888,15 @@ class WaygroundGame {
         this.updateHUD();
 
         // Meta tags
-        this.questionTag.textContent = q.type === 'multiple_choice' ? 'Trắc nghiệm 4 lựa chọn' : 'Đúng / Sai 4 Lệnh (Bộ GD&ĐT)';
+        if (q.type === 'multiple_choice') {
+            this.questionTag.textContent = 'Phần I: Trắc Nghiệm ABCD';
+        } else if (q.type === 'multi_tf') {
+            this.questionTag.textContent = 'Phần II: Đúng / Sai 4 Ý (Chuẩn 2025)';
+        } else if (q.type === 'short_answer') {
+            this.questionTag.textContent = 'Phần III: Trả Lời Ngắn / Điền Số (Mới 2025)';
+        } else {
+            this.questionTag.textContent = 'Câu hỏi thực hành';
+        }
         this.questionLevel.textContent = q.level || 'Thông hiểu';
         this.questionLevel.className = 'tag-badge';
         if (q.level === 'Nhận biết') {
@@ -1088,6 +1910,7 @@ class WaygroundGame {
         // Layout reset
         this.mcGrid.style.display = 'none';
         this.multiTfContainer.style.display = 'none';
+        if (this.shortAnswerContainer) this.shortAnswerContainer.style.display = 'none';
 
         if (q.type === 'multiple_choice') {
             this.questionScenarioLead.style.display = 'none';
@@ -1098,6 +1921,10 @@ class WaygroundGame {
             this.questionScenarioLead.textContent = q.context;
             this.questionText.textContent = "Hãy xác định tính ĐÚNG hoặc SAI của từng mệnh đề dưới đây:";
             this.renderMultiTF(q);
+        } else if (q.type === 'short_answer') {
+            this.questionScenarioLead.style.display = 'none';
+            this.questionText.textContent = q.question;
+            this.renderShortAnswer(q);
         }
 
         // Render dedicated scientific textbook image in Vietnamese
@@ -1194,6 +2021,7 @@ class WaygroundGame {
                 studentAnswers[idx] = true;
                 btnTrue.classList.add('selected-true');
                 btnFalse.classList.remove('selected-false');
+                updateSubmitBtnState();
             });
 
             btnFalse.addEventListener('click', () => {
@@ -1201,24 +2029,100 @@ class WaygroundGame {
                 studentAnswers[idx] = false;
                 btnFalse.classList.add('selected-false');
                 btnTrue.classList.remove('selected-true');
+                updateSubmitBtnState();
             });
 
             this.multiTfContainer.appendChild(card);
         });
 
-        // Submit Button
+        // Submit Button with live state counter
         const submitBtn = document.createElement('button');
         submitBtn.className = 'cta-button btn-primary btn-submit-multitf';
-        submitBtn.innerHTML = '<span>Xác Nhận 4 Đáp Án</span> <span>🎯</span>';
+
+        const updateSubmitBtnState = () => {
+            const answeredCount = studentAnswers.filter(a => a !== null).length;
+            if (answeredCount === 4) {
+                submitBtn.classList.add('ready-to-submit');
+                submitBtn.innerHTML = '<span>Xác Nhận 4 Đáp Án (Đủ 4/4 ý)</span> <span>🚀</span>';
+            } else {
+                submitBtn.classList.remove('ready-to-submit');
+                submitBtn.innerHTML = `<span>Xác Nhận 4 Đáp Án (Đã chọn: ${answeredCount}/4 ý)</span> <span>🎯</span>`;
+            }
+        };
+
+        updateSubmitBtnState();
+
         submitBtn.addEventListener('click', () => {
             if (studentAnswers.includes(null)) {
-                alert("Vui lòng chọn Đúng hoặc Sai cho đủ cả 4 ý a, b, c, d!");
+                submitBtn.classList.add('input-shake');
+                setTimeout(() => submitBtn.classList.remove('input-shake'), 500);
+                if (window.soundEngine) soundEngine.playWrong();
+                // Highlight missing cards
+                const allCards = this.multiTfContainer.querySelectorAll('.multi-tf-card');
+                studentAnswers.forEach((ans, i) => {
+                    if (ans === null && allCards[i]) {
+                        allCards[i].classList.add('input-shake');
+                        setTimeout(() => allCards[i].classList.remove('input-shake'), 600);
+                    }
+                });
                 return;
             }
             this.handleMultiTFSubmit(studentAnswers, q);
         });
 
         this.multiTfContainer.appendChild(submitBtn);
+    }
+
+    renderShortAnswer(q) {
+        if (!this.shortAnswerContainer) return;
+        this.shortAnswerContainer.innerHTML = '';
+        this.shortAnswerContainer.style.display = 'flex';
+
+        const card = document.createElement('div');
+        card.className = 'short-answer-card';
+
+        card.innerHTML = `
+            <div class="short-answer-prompt-row">
+                <span class="short-answer-badge">🔢 PHẦN III: TRẢ LỜI NGẮN / ĐIỀN SỐ</span>
+                <span class="short-answer-hint">💡 Nhập kết quả số học vào ô bên dưới</span>
+            </div>
+            <div class="short-answer-input-wrap">
+                <input type="text" id="short-answer-input" class="short-answer-input" placeholder="Nhập kết quả số học..." autocomplete="off" />
+                ${q.unit ? `<span class="short-answer-unit">${q.unit}</span>` : ''}
+            </div>
+            <div class="short-answer-actions">
+                <button id="btn-submit-short" class="btn-submit-short">
+                    <span>Xác Nhận Đáp Án</span>
+                    <span>↵</span>
+                </button>
+            </div>
+            <div class="short-answer-rules">
+                ℹ️ <strong>Quy chuẩn nhập số:</strong> Chấp nhận cả dấu phẩy (<code>,</code>) hoặc dấu chấm (<code>.</code>) cho số thập phân (Ví dụ: <code>12.5</code> hoặc <code>12,5</code>). Có thể nhấn phím <strong>Enter</strong> để nộp nhanh!
+            </div>
+        `;
+
+        this.shortAnswerContainer.appendChild(card);
+
+        const inputEl = card.querySelector('#short-answer-input');
+        const submitBtn = card.querySelector('#btn-submit-short');
+
+        // Focus on input
+        setTimeout(() => {
+            if (inputEl) inputEl.focus();
+        }, 100);
+
+        // Submit on button click
+        submitBtn.addEventListener('click', () => {
+            this.handleShortAnswerSubmit(inputEl.value, inputEl, submitBtn, q);
+        });
+
+        // Submit on Enter key
+        inputEl.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                this.handleShortAnswerSubmit(inputEl.value, inputEl, submitBtn, q);
+            }
+        });
     }
 
     // =========================================================================
@@ -1310,11 +2214,79 @@ class WaygroundGame {
         this.evaluateScore(isFullCorrect, msg, statementResults, correctCount * 250);
     }
 
+    handleShortAnswerSubmit(rawVal, inputField, submitBtn, q) {
+        if (!rawVal || rawVal.trim() === '') {
+            inputField.classList.add('input-shake');
+            setTimeout(() => inputField.classList.remove('input-shake'), 500);
+            if (window.soundEngine) soundEngine.playWrong();
+            inputField.focus();
+            return;
+        }
+
+        this.stopTimer();
+        inputField.disabled = true;
+        submitBtn.disabled = true;
+
+        const cleanVal = rawVal.trim().replace(',', '.');
+        const userNum = parseFloat(cleanVal);
+        const targetNum = parseFloat(q.answer);
+
+        let isCorrect = false;
+        if (!isNaN(userNum) && !isNaN(targetNum)) {
+            const tolerance = q.tolerance !== undefined ? q.tolerance : 0.02;
+            const diff = Math.abs(userNum - targetNum);
+            const relDiff = targetNum !== 0 ? diff / Math.abs(targetNum) : diff;
+            // Cho phép sai số tương đối <= tolerance HOẶC sai số tuyệt đối <= 0.05
+            isCorrect = (relDiff <= tolerance) || (diff <= 0.05);
+        } else {
+            // So khớp chuỗi nếu không phải số thuần túy
+            isCorrect = cleanVal.toLowerCase() === String(q.answer).trim().toLowerCase();
+        }
+
+        if (!isCorrect) {
+            this.state.missedConcepts.add(q.conceptId);
+        }
+
+        // Record status for question dots
+        this.state.questionStatus[this.state.currentIndex] = { answered: true, isCorrect: isCorrect };
+        if (this.isStudyMode()) {
+            this.updateStudyDotsStatus();
+        }
+
+        const unitStr = q.unit ? ` ${q.unit}` : '';
+        const userDisplay = `${rawVal.trim()}${unitStr}`;
+        const targetDisplay = `${q.answer}${unitStr}`;
+
+        // Record to teacher session history
+        this.state.sessionHistory.push({
+            round: this.state.round,
+            type: "Trả lời ngắn (Điền số)",
+            title: q.question,
+            detail: `Nhập: [${userDisplay}] | Chuẩn: [${targetDisplay}]`,
+            status: isCorrect ? "Đạt" : "Chưa đạt",
+            score: isCorrect ? 1000 : 0
+        });
+
+        const feedbackTitle = isCorrect ? "Chính Xác Tuyệt Đối!" : "Chưa Chính Xác!";
+        const statementResults = [
+            {
+                text: `Đáp án của bạn: <strong>${userDisplay}</strong> | Đáp án chuẩn xác: <strong>${targetDisplay}</strong>`,
+                isCorrect: isCorrect,
+                explanation: q.explanation || "Nắm vững công thức và phép tính thực nghiệm để giải quyết bài toán."
+            }
+        ];
+
+        setTimeout(() => {
+            this.evaluateScore(isCorrect, feedbackTitle, statementResults, isCorrect ? 1000 : 0);
+        }, 400);
+    }
+
     evaluateScore(isFullyCorrect, title, statementResults, customBasePoints = null) {
         let earnedPoints = 0;
 
         if (isFullyCorrect) {
-            const speedRatio = Math.max(0, this.state.timeLeft / this.config.questionTime);
+            const maxTime = this.state.maxQuestionTime || this.config.questionTime || 45;
+            const speedRatio = this.isStudyMode() ? 0.5 : Math.max(0, this.state.timeLeft / maxTime);
             const speedBonus = Math.round(speedRatio * 500);
             const basePoints = customBasePoints !== null ? customBasePoints : 1000;
             const streakBonus = this.state.streak * 100;
@@ -1449,8 +2421,8 @@ class WaygroundGame {
             confettiEngine.fire({ count: 180 });
         }
 
-        const total = this.state.activeQuestions.length;
-        const accuracy = Math.round((this.state.correctCount / total) * 100);
+        const total = Math.max(1, this.state.activeQuestions.length);
+        const accuracy = Math.min(100, Math.round((this.state.correctCount / total) * 100));
 
         this.summaryStudentName.textContent = `Học sinh: ${this.student.name} • Lớp ${this.student.className}`;
         this.summaryScore.textContent = this.state.score.toLocaleString();
@@ -1469,6 +2441,31 @@ class WaygroundGame {
 
         // Auto-save submission for Teacher Dashboard Roster
         this.saveCurrentSubmissionToStorage();
+
+        // In-Place Mistakes Review for Students
+        const failedItems = (this.state.sessionHistory || []).filter(h => h.status !== 'Đạt');
+        if (this.summaryMistakesSection && this.summaryMistakesList) {
+            if (failedItems.length > 0) {
+                this.summaryMistakesSection.style.display = 'block';
+                if (this.mistakesCountBadge) {
+                    this.mistakesCountBadge.textContent = `${failedItems.length} câu chưa đạt`;
+                }
+                this.summaryMistakesList.innerHTML = '';
+                failedItems.forEach((item, idx) => {
+                    const card = document.createElement('div');
+                    card.className = 'mistake-item-card';
+                    card.innerHTML = `
+                        <div class="mistake-card-title"><strong>#${idx + 1} (${item.type}):</strong> ${item.title}</div>
+                        <div class="mistake-card-detail">${item.detail}</div>
+                    `;
+                    this.summaryMistakesList.appendChild(card);
+                });
+                this.renderMath(this.summaryMistakesList);
+            } else {
+                this.summaryMistakesSection.style.display = 'none';
+                this.summaryMistakesList.innerHTML = '';
+            }
+        }
 
         // Remediation Button Logic (Only if there are missed concepts and we're in Round 1)
         if (this.state.round === 1 && this.state.missedConcepts.size > 0) {
@@ -1797,6 +2794,11 @@ class WaygroundGame {
         if (cid.startsWith('c_u1')) return 'images/three_states_matter.jpg';
         if (cid.startsWith('c_u2')) return 'images/dl1_thermodynamics_piston.jpg';
         if (cid.startsWith('c_u3')) return 'images/kelvin_celsius_scale.jpg';
+        if (cid.startsWith('c_u4')) return 'images/calorimeter_specific_heat.jpg';
+        if (cid.startsWith('c_u5')) return 'images/phase_transition_diagram.jpg';
+        if (cid.startsWith('c_u6')) return 'images/brownian_motion.jpg';
+        if (cid.startsWith('c_u7')) return 'images/boyle_law_isotherm.jpg';
+        if (cid.startsWith('c_u8')) return 'images/isobaric_work_pv.jpg';
         return 'images/internal_energy_real_ideal.jpg';
     }
 
@@ -2291,4 +3293,5 @@ class WaygroundGame {
 // Instantiate game on page ready
 document.addEventListener('DOMContentLoaded', () => {
     window.game = new WaygroundGame();
+    window.gameInstance = window.game;
 });
